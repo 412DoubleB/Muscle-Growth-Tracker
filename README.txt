@@ -1,24 +1,15 @@
-MOCKUP REBUILD — release 1
+MUSCLE GROWTH TRACKER — Rebuild r4
 
-This is a clean front-end rebuild rather than another patch of the old tracker.
+Built on r3. Keeps the MGT28v6 localStorage key so existing workout history remains compatible.
 
-Implemented:
-• Five-tab mockup navigation: Home, Workouts, Calendar, Library, Profile
-• Mockup-style dark navy / bright blue visual system
-• Today's Workout cards with thumbnails, set logging, recommendations, Swap and Remove
-• Full Exercise Guide screen from both Today's Workout and Library
-• Exercise Guide sections: Start/Finish visual slots, primary/secondary muscles, equipment, numbered setup, form cues, common mistakes
-• Add to Today's Workout from Guide
-• Replace Existing Exercise from Guide
-• Swap → replacement library flow
-• Exercise Library search, equipment filters, muscle filters and grouped cards
-• 28-day Workouts screen
-• Calendar screen
-• Profile with sex/avatar choice, skin-tone appearance preference, age, height, current/goal weight and units
-• Gym/equipment summary
-• Export/import backup
-• Existing MGT28v6 localStorage data is retained/used
-• Network-first service worker so GitHub updates are much less likely to appear stale
+r4 additions:
+- My Gyms manager in Profile.
+- Build Your Own Gym with detailed equipment checklist, dumbbell max and notes.
+- Commercial-gym estimated equipment preset, plus Home, Minimal and Blank presets.
+- Edit/delete gyms and change today's gym from the existing Edit Today's Workout screen.
+- Exercise Swap/Add picker filters recommendations to equipment saved for the selected gym.
+- Today's programmed exercise shows a warning when required equipment is not listed at the selected gym.
+- Crunch Pleasant Hills and Fire Station migrate to structured equipment inventories.
+- r3 rolling 28-day schedule and cross-block exercise-history recommendations retained.
 
-Media note:
-The Start/Finish areas are fully functional and laid out like the approved mockup. They currently use an original app visual placeholder, not a falsely labeled exercise photograph. Individual realistic exercise photo assets can be dropped into these slots without changing the app architecture.
+Important: commercial equipment profiles are estimates. Users should edit the inventory to match the actual gym.
