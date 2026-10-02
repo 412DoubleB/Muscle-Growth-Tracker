@@ -1,15 +1,17 @@
-MUSCLE GROWTH TRACKER — Rebuild r4
+MUSCLE GROWTH TRACKER — REBUILD r5
 
-Built on r3. Keeps the MGT28v6 localStorage key so existing workout history remains compatible.
+Adds the Master Gym Database while preserving MGT28v6 workout data.
 
-r4 additions:
-- My Gyms manager in Profile.
-- Build Your Own Gym with detailed equipment checklist, dumbbell max and notes.
-- Commercial-gym estimated equipment preset, plus Home, Minimal and Blank presets.
-- Edit/delete gyms and change today's gym from the existing Edit Today's Workout screen.
-- Exercise Swap/Add picker filters recommendations to equipment saved for the selected gym.
-- Today's programmed exercise shows a warning when required equipment is not listed at the selected gym.
-- Crunch Pleasant Hills and Fire Station migrate to structured equipment inventories.
-- r3 rolling 28-day schedule and cross-block exercise-history recommendations retained.
+NEW IN r5
+• Expanded master equipment catalog covering free weights, racks, cable stations/attachments, Hammer Strength/plate-loaded, selectorized upper-body machines, lower-body machines, specialty stations, functional equipment and cardio.
+• Expanded exercise library beyond the 28-day program, with exercises linked to required equipment.
+• Hammer Strength Incline Press is now a dedicated library exercise/equipment item.
+• Build Your Own Gym uses the expanded equipment catalog.
+• Commercial Gym preset starts broad; users can remove/add equipment to match the actual floor.
+• Add/Swap filters against the selected gym's saved equipment inventory.
+• Existing 28-day program exercises remain available and existing MGT28v6 logs are preserved.
+• Rolling 28-day blocks and cross-block progression recommendations from r3/r4 remain.
+• Service worker cache bumped to mgt-mockup-r5.
 
-Important: commercial equipment profiles are estimates. Users should edit the inventory to match the actual gym.
+IMPORTANT
+Export a backup before replacing a deployed build. Do not clear site data.
