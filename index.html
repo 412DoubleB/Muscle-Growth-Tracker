@@ -117,9 +117,9 @@ let db;try{db=JSON.parse(localStorage.getItem(KEY))||JSON.parse(localStorage.get
 db.logs=db.logs||{};db.gyms=db.gyms||defaults.gyms;db.overrides=db.overrides||{};db.profile=db.profile||defaults.profile;db.profile.skinTone=db.profile.skinTone||'tan';
 const EQUIPMENT=['Dumbbells','Barbell','EZ Bar','Bench','Adjustable Bench','Squat Rack','Smith Machine','Cable Station','Lat Pulldown','Seated Row','Hammer Strength / Plate Loaded','Chest Press Machine','Shoulder Press Machine','Pec Deck / Reverse Pec Deck','Hack Squat','Leg Press','Leg Extension','Seated Leg Curl','Lying Leg Curl','Hip Adductor','Hip Abductor','Calf Machine','Preacher Bench','Dip / Pull-up Station','Landmine','T-Bar Row'];
 const PRESETS={commercial:EQUIPMENT.slice(),home:['Dumbbells','Barbell','EZ Bar','Bench','Adjustable Bench','Squat Rack','Cable Station','Dip / Pull-up Station','Landmine'],minimal:['Dumbbells','Bench','Adjustable Bench','Cable Station','Dip / Pull-up Station'],blank:[]};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
 function migrateGyms(){db.gyms=db.gyms.map(g=>{if(g.inventory)return g;let isStation=/station/i.test(g.name);return {...g,inventory:(isStation?defaults.gyms[1].inventory:PRESETS.commercial).slice(),dbMax:g.dbMax||(isStation?100:120),notes:g.notes||g.equipment||''}});save()}
 migrateGyms();
-const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
 const parse=s=>s?s.split(';').map(x=>{let [name,sets,range]=x.split('|');return{name,sets:+sets,range}}):[];
 const BLOCK_DAYS=PLAN.length;
 const daySerial=d=>Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000;
