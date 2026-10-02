@@ -1,11 +1,10 @@
 {
   "name": "Muscle Growth Tracker",
-  "short_name": "Muscle Tracker",
-  "start_url": "./index.html",
-  "scope": "./",
+  "short_name": "Muscle Growth",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#111111",
+  "background_color": "#07131d",
+  "theme_color": "#07131d",
   "icons": [
     {
       "src": "icon.svg",
