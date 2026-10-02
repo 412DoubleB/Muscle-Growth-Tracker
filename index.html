@@ -143,7 +143,23 @@ function renderHome(){
  document.querySelectorAll('[data-swap]').forEach(x=>x.onclick=()=>openPicker('replace',+x.dataset.swap));
  document.querySelectorAll('[data-remove]').forEach(x=>x.onclick=()=>{currentLog().ex.splice(+x.dataset.remove,1);save();renderHome()});
 }
-function recommend(e){let done=e.sets.filter(s=>s.r);if(!done.length)return `Target ${e.range} reps • Start with a load that leaves about 2 RIR.`;let last=done[done.length-1],hi=+(e.range.split('-')[1]||e.range);if(+last.r>=hi&&(+last.i||0)<=2)return `Strong set. If all sets reach ${hi} cleanly, use the next practical load increment next time.`;return `Keep the load and build reps toward the top of ${e.range} with 1–2 RIR.`}
+function normName(n){return String(n||'').trim().toLowerCase().replace(/\s+/g,' ')}
+function stepFor(name){let n=normName(name);if(/dumbbell|\bdb\b|meadows/.test(n))return 5;if(/barbell|ez-bar|\bez\b|smith|rdl|romanian deadlift/.test(n))return 5;if(/hack squat|leg press|hip thrust|glute drive|calf press|pendulum/.test(n))return 10;return 5}
+function priorExerciseHistory(name){let target=normName(name),cur=currentLog(),curDate=cur.actualDate||dateFor(selectedDay).toISOString().slice(0,10),hits=[];Object.entries(db.logs||{}).forEach(([k,log])=>{if(!log||!Array.isArray(log.ex)||log===cur)return;let d=log.actualDate||'';if(d&&curDate&&d>=curDate)return;log.ex.forEach(ex=>{if(normName(ex.name)!==target)return;let done=(ex.sets||[]).filter(s=>s.r!==''&&s.r!=null&&s.w!==''&&s.w!=null);if(done.length)hits.push({date:d,key:k,ex,done})})});hits.sort((a,b)=>(a.date||'').localeCompare(b.date||'')||a.key.localeCompare(b.key));return hits.length?hits[hits.length-1]:null}
+function recommend(e){
+ let currentDone=(e.sets||[]).filter(s=>s.r!==''&&s.r!=null);
+ if(currentDone.length){let hi=+(e.range.split('-')[1]||e.range),last=currentDone[currentDone.length-1];if(+last.r>=hi&&last.i!==''&&+last.i<=2)return `Strong set. If all sets reach ${hi} cleanly at 1–2 RIR, use the next practical load increment next time.`;return `Keep the load and build reps toward the top of ${e.range} with 1–2 RIR.`}
+ let h=priorExerciseHistory(e.name);if(!h)return `Target ${e.range} reps • Start with a load that leaves about 2 RIR.`;
+ let done=h.done, [loS,hiS]=String(e.range).split('-'),lo=+loS,hi=+(hiS||loS), weights=done.map(s=>+s.w).filter(Number.isFinite), reps=done.map(s=>+s.r), rirs=done.map(s=>s.i===''||s.i==null?null:+s.i), lastW=weights.length?weights[weights.length-1]:null;
+ let lastTxt=done.map(s=>`${s.w}×${s.r}${s.i!==''&&s.i!=null?` @${s.i} RIR`:''}`).join(' • ');
+ let allTop=done.length>0&&done.every(s=>+s.r>=hi), allRirGood=done.every(s=>s.i!==''&&s.i!=null&&+s.i>=1&&+s.i<=2), anyZero=rirs.some(x=>x===0), anyBelow=reps.some(r=>r<lo);
+ let action;
+ if(anyBelow) action=`Next: use about ${lastW??'the same load'} and stay in ${e.range} reps with 1–2 RIR; reduce slightly if needed to keep every set in range.`;
+ else if(anyZero) action=`Next: keep ${lastW??'the same load'} and improve reps/control until your working sets finish around 1–2 RIR.`;
+ else if(allTop&&allRirGood&&lastW!=null) action=`Next: progression earned — try ${lastW+stepFor(e.name)} lb and work from the low end of ${e.range} reps at 1–2 RIR.`;
+ else action=`Next: keep ${lastW??'the same load'} and build toward ${hi} reps with 1–2 RIR before adding weight.`;
+ return `Last: ${lastTxt}. ${action}`
+}
 
 function renderWorkouts(){$('programList').innerHTML=PLAN.map((p,i)=>`<div class="card programCard" data-day="${i}"><div class="row between"><div><div class="eyebrow">Day ${i+1} • ${fmtDate(dateFor(i))}</div><div class="exerciseName">${p[0]}</div><div class="sub">${p[1]} • ${parse(p[2]).length?parse(p[2]).length+' exercises':'Recovery'}</div></div><div class="chev">›</div></div></div>`).join('');document.querySelectorAll('[data-day]').forEach(x=>x.onclick=()=>{selectedDay=+x.dataset.day;showView('home')})}
 function renderCalendar(){let heads=['S','M','T','W','T','F','S'].map(x=>`<div class="muted" style="text-align:center">${x}</div>`).join(''),blank='<div></div>'.repeat(4),days=Array.from({length:31},(_,i)=>{let has=i<28, today=i+1===new Date().getDate();return `<button class="calDay ${has?'has':''} ${today?'today':''}" data-cal="${i}">${i+1}</button>`}).join('');$('calendarGrid').innerHTML=heads+blank+days;document.querySelectorAll('[data-cal]').forEach(x=>x.onclick=()=>{let i=+x.dataset.cal;if(i<28){selectedDay=i;showView('home')}});$('calendarDetail').innerHTML='<div class="card"><b>Blue dates</b><div class="sub">Scheduled training days in this 28-day block. Tap a date to open that workout.</div></div>'}
