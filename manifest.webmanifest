@@ -1,13 +1,11 @@
 {
   "name": "Muscle Growth Tracker",
   "short_name": "Muscle Tracker",
-  "description": "28-day progressive overload workout tracker with saved history and automatic weight/rep recommendations.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#111111",
   "theme_color": "#111111",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "icon.svg",
