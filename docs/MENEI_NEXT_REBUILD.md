@@ -2,6 +2,8 @@
 
 Approved direction: October 18, 2026. Release `8.1.0` is based on the existing `8.0.0` app and was authorized for the live update on October 18, 2026.
 
+Published 8.1.0 source commit: `71e62c66a60b8250c947d26ff238211716063039`. GitHub Pages deployment and public release metadata, entry point, manifest and exact app-icon bytes were verified. The subsequent 8.1.1 black-and-gold athlete background is documented in [MENEI_BACKGROUND.md](MENEI_BACKGROUND.md).
+
 ## Identity and layout
 
 **Motivation · Excellence · Nutrition · Exercise · Intensity**

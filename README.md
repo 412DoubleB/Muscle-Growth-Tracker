@@ -1,6 +1,6 @@
-# MENEI 8.1.0
+# MENEI 8.1.1
 
-Version 8.1.0 of the existing workout and nutrition PWA, now branded MENEI. The approved MENEI identity uses Pittsburgh black and gold, a helmet-inspired M, restrained Greek laurels, and Strength / Nutrition / Progress dashboard cards. This release updates the existing app in place and retains its data and account configuration.
+Version 8.1.1 of the existing workout and nutrition PWA, branded MENEI. The approved identity uses Pittsburgh black and gold, the owner's exact M and pointed-leaf wreath, and Strength / Nutrition / Progress dashboard cards. This update adds a true black background with the M/wreath above a gold Greek soldier lifting a stone. See the [background artwork record](docs/MENEI_BACKGROUND.md). It updates the existing app in place and retains its data and account configuration.
 
 A gold progress graph reads existing checked working sets. The default estimated-strength trend combines weight and reps; users can also view actual weight, reps and working volume, filter by exercise/gym/session format/period, inspect points, and open the session-data table. Empty and single-session histories never show fabricated improvement. See [design and graph rules](docs/MENEI_NEXT_REBUILD.md).
 
@@ -43,7 +43,7 @@ npm test
 npm run check
 ```
 
-Tests cover generation, progression, supersets, original imports, account isolation, recipes/meals, inventory, conflict preservation, update handling and the first-launch migration. Automated DOM checks are not a substitute for phone/browser layout or delivery testing. The owner approved the previous 8.0.0 release on October 17, 2026; the owner approved the full MENEI 8.1.0 rebuild and live update on October 18, 2026.
+Tests cover generation, progression, supersets, original imports, account isolation, recipes/meals, inventory, conflict preservation, update handling and the first-launch migration. Automated DOM checks are not a substitute for phone/browser layout or delivery testing. The owner approved the previous 8.0.0 release on October 17, 2026, and the full MENEI rebuild and live update on October 18, 2026. The requested gold athlete background follows that rebuild as 8.1.1.
 
 ## Retained features
 

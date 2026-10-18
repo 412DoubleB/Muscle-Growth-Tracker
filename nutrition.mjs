@@ -1,6 +1,6 @@
-import {addDays,clone,hash,norm,now,touch,uid,dayFor} from './core.mjs?v=8.1.0';
-import {ORIGINAL_RECIPE_SPECS} from './recipes.mjs?v=8.1.0';
-import {EXTRA_FOOD_ROWS} from './foods-extra.mjs?v=8.1.0';
+import {addDays,clone,hash,norm,now,touch,uid,dayFor} from './core.mjs?v=8.1.1';
+import {ORIGINAL_RECIPE_SPECS} from './recipes.mjs?v=8.1.1';
+import {EXTRA_FOOD_ROWS} from './foods-extra.mjs?v=8.1.1';
 
 export function targetsForDate(state,date){const n=state.nutrition,day=dayFor(state,date),next=dayFor(state,addDays(date,1)),training=day.kind==='strength'||day.kind==='run',nextTraining=next.kind==='strength'||next.kind==='run';const value=(a,b)=>a!==''&&a!=null&&Number.isFinite(+a)?+a:+b;return {...n,calories:value(training?n.trainingCalories:n.restCalories,n.calories),carbs:value(!training&&nextTraining&&n.preTrainingCarbs!==''&&n.preTrainingCarbs!=null?n.preTrainingCarbs:training?n.trainingCarbs:n.restCarbs,n.carbs),dayType:training?'Training day':'Recovery day',nextDayType:nextTraining?'Training tomorrow':'Recovery tomorrow'}}
 export function leftoversAvailable(state,leftover){const reserved=Object.values(state.meals).flatMap(d=>d.items||[]).filter(m=>!m.deleted&&m.leftoverId===leftover.id&&!m.leftoverConsumed).reduce((n,m)=>n+(+m.householdServings||+m.servings||1),0);return Math.max(0,+leftover.qty-reserved)}

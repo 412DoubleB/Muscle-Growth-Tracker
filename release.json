@@ -1,13 +1,13 @@
 {
-  "version": "8.1.0",
+  "version": "8.1.1",
   "originalRecipes": 100,
-  "app": "./app.mjs?v=8.1.0",
+  "app": "./app.mjs?v=8.1.1",
   "refresh": "./update.html",
   "channel": "development",
   "target": "github-pages",
   "source_beta": "8.0.0-beta.8",
-  "source_commit": "842c69cbe5fc32475cff4bcddac4360e07d27f86",
+  "source_commit": "71e62c66a60b8250c947d26ff238211716063039",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
-  "source_release": "8.0.0",
+  "source_release": "8.1.0",
   "brand": "MENEI"
 }
