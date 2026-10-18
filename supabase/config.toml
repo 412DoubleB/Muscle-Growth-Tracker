@@ -1,0 +1,3 @@
+[functions.send-reminders]
+verify_jwt = false
+# The endpoint is protected by its separate server-only REMINDER_CRON_SECRET.

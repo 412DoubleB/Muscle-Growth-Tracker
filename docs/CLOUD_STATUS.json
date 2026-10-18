@@ -1,0 +1,10 @@
+{
+  "projectConnected": true,
+  "projectRef": "tdmwpcueqxtnqyonucam",
+  "databaseMigrationApplied": true,
+  "transactionalRlsChecks": {"passed": true, "checks": 11, "testIdentitiesRolledBack": true},
+  "originalBackupTable": {"rows": 0, "checksumUnchanged": true, "checksum": "d41d8cd98f00b204e9800998ecf8427e"},
+  "reminders": {"function": "mgt-beta-send-reminders", "deployed": true, "cronActive": true, "schedule": "* * * * *", "authorizedHttpStatus": 200, "unauthorizedHttpStatus": 401, "credentials": "Encrypted Supabase Vault, server-only access"},
+  "advisors": {"securityFindings": 0, "performanceFindings": 0},
+  "remainingAcceptance": ["Add the private beta URL to the Supabase Auth redirect allow-list", "Create and confirm a real beta account", "Import the phone backup and check history", "Test two-device synchronization and actual closed-app notifications", "Real browser/phone layout and installation", "Incomplete photographic coverage"]
+}

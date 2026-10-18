@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-18T00:52:38.195Z",
+  "checks": [
+    {
+      "name": "Anonymous snapshot read denied",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "Anonymous commit denied",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "Unauthorized reminder call denied",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "Auth API reachable",
+      "status": 200,
+      "passed": true,
+      "emailEnabled": true,
+      "emailConfirmationRequired": true
+    }
+  ]
+}
