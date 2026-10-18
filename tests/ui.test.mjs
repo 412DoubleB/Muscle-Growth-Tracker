@@ -65,4 +65,14 @@ test('a previously saved four-exercise session offers restoration and archives e
 test('undersized generated programs cannot be saved when confirmed equipment is insufficient',async()=>{
  const before=JSON.parse(localStorage.getItem('MGT_BETA_V8:guest'));await submit('generatorForm',{start:'2027-07-05',days:28,frequency:4,experience:'Intermediate',split:'bro',trainingStyle:'hypertrophy',supersetMode:'off',sets:3,range:'8-10',restSeconds:120,defaultGym:'crunch',minRepeatDays:14,runEvery:2,saunaMinutes:20,restWeekdays:[0],excludePullups:'on'});const preview=elements.get('modalBody').innerHTML;assert.match(preview,/fewer than 6 equipment-compatible/);assert.match(preview,/data-action="apply-program" disabled/);await click('apply-program');assert.deepEqual(JSON.parse(localStorage.getItem('MGT_BETA_V8:guest')).plan,before.plan);assert.match(elements.get('toast').textContent,/6–9 exercises/);
 });
+
+test('MENEI home has the three dashboard cards and strength progress is read-only and responds to filters',async()=>{
+ await click('view',{view:'today'});assert.match(html(),/meneiOverview/);assert.match(html(),/Explore progress/);
+ const before=localStorage.getItem('MGT_BETA_V8:guest');await click('progress',{exercise:'incline-dumbbell-press'});assert.match(elements.get('modalBody').innerHTML,/Strength progress/);assert.match(elements.get('modalBody').innerHTML,/data-progress-key="gym"/);
+ await click('progress-metric',{context:'detail',metric:'reps'});assert.match(elements.get('detailStrengthPanel').innerHTML,/aria-pressed="true">Reps/);
+ for(const fn of listeners.get('change'))fn({target:{id:'detail-progress-period',value:'all',dataset:{progressKey:'period',progressContext:'detail'}}});
+ assert.match(elements.get('detailStrengthPanel').innerHTML,/All time/);assert.equal(localStorage.getItem('MGT_BETA_V8:guest'),before);
+ await click('close-modal');await click('view',{view:'history'});assert.match(html(),/historyStrengthPanel/);assert.match(html(),/Strength progress/);
+});
+
 test.after(()=>{globalThis.setInterval=originalInterval;globalThis.setTimeout=originalTimeout});

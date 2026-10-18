@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import {VERSION} from '../core.mjs';
 
 const originalTimeout=globalThis.setTimeout,originalInterval=globalThis.setInterval;
 function environment(raw){
@@ -15,7 +16,7 @@ function environment(raw){
 
 test('real application startup copies old device history before its first normal save and keeps the GitHub Auth path',async()=>{
  const raw=JSON.stringify({logs:{'0-0':{actualDate:'2026-10-01',planIndex:0,gym:'Crunch Pleasant Hills',completed:true,ex:[{name:'Flat DB press',range:'8-10',sets:[{w:50,r:10,i:2}]}]}},gyms:[{name:'Crunch Pleasant Hills',inventory:['Dumbbells','Bench']}],profile:{units:'lb'}}),env=environment(raw);
- try{await import('../app.mjs?upgrade=success');const saved=JSON.parse(env.rows.get('MGT_BETA_V8:guest'));assert.equal(saved.logs['2026-10-01'].exercises[0].sets[0].w,50);assert.equal(saved.logs['2026-10-01'].status,'completed');assert.equal(saved.legacySnapshots.length,1);assert.equal(env.rows.get('MGT28v6'),raw);assert.equal(env.confirms(),0);assert.match(env.elements.get('app').innerHTML,/previous workout history has been copied/);assert.equal(env.elements.get('appVersion').textContent,'8.0.0');
+ try{await import('../app.mjs?upgrade=success');const saved=JSON.parse(env.rows.get('MGT_BETA_V8:guest'));assert.equal(saved.logs['2026-10-01'].exercises[0].sets[0].w,50);assert.equal(saved.logs['2026-10-01'].status,'completed');assert.equal(saved.legacySnapshots.length,1);assert.equal(env.rows.get('MGT28v6'),raw);assert.equal(env.confirms(),0);assert.match(env.elements.get('app').innerHTML,/previous workout history has been copied/);assert.equal(env.elements.get('appVersion').textContent,VERSION);
  for(const fn of env.listeners.get('click'))fn({target:{closest:()=>({dataset:{action:'view',view:'settings'}})},preventDefault(){}});assert.ok(env.elements.get('app').innerHTML.includes('https://412doubleb.github.io/Muscle-Growth-Tracker/'));
  }finally{env.restore()}
 });

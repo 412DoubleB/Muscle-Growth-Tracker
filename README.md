@@ -1,8 +1,10 @@
-# Muscle Growth Tracker 8.0.0
+# MENEI 8.1.0
 
-A buildless, installable web app for workouts, progression, gym schedules, nutrition and meal planning. All features remain free and unlocked during development.
+Version 8.1.0 of the existing workout and nutrition PWA, now branded MENEI. The approved MENEI identity uses Pittsburgh black and gold, a helmet-inspired M, restrained Greek laurels, and Strength / Nutrition / Progress dashboard cards. This release updates the existing app in place and retains its data and account configuration.
 
-This release uses the reviewed private beta 8.0.0-beta.8 as its source. It adds GitHub Pages branding and a first-launch migration for the existing app’s device history. The private beta remains separate.
+A gold progress graph reads existing checked working sets. The default estimated-strength trend combines weight and reps; users can also view actual weight, reps and working volume, filter by exercise/gym/session format/period, inspect points, and open the session-data table. Empty and single-session histories never show fabricated improvement. See [design and graph rules](docs/MENEI_NEXT_REBUILD.md).
+
+The site remains buildless and installable. The existing app URL, manifest identity, browser storage keys, schema, cloud configuration, migration, workout history and media identities are retained. All features remain free and unlocked during development. Cinzel is bundled with its OFL license for the brand wordmark; interface controls use the system font. The app icons use the supplied M and pointed-leaf wreath artwork unchanged, embedded in a square SVG container with background spacing; the small favicon keeps the M alone.
 
 ## Deploy to the existing app
 
@@ -41,7 +43,7 @@ npm test
 npm run check
 ```
 
-Tests cover generation, progression, supersets, original imports, account isolation, recipes/meals, inventory, conflict preservation, update handling and the first-launch migration. Automated DOM checks are not a substitute for phone/browser layout or delivery testing. The owner approved publishing the features reviewed so far on October 17, 2026.
+Tests cover generation, progression, supersets, original imports, account isolation, recipes/meals, inventory, conflict preservation, update handling and the first-launch migration. Automated DOM checks are not a substitute for phone/browser layout or delivery testing. The owner approved the previous 8.0.0 release on October 17, 2026; the owner approved the full MENEI 8.1.0 rebuild and live update on October 18, 2026.
 
 ## Retained features
 

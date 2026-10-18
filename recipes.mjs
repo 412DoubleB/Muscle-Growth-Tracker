@@ -1,6 +1,6 @@
-import {BREAKFAST_SNACK_SPECS} from './recipes-breakfast-snacks.mjs?v=8.0.0';
-import {MEAT_FISH_SPECS} from './recipes-meat-fish.mjs?v=8.0.0';
-import {PLANT_SPECS} from './recipes-plant.mjs?v=8.0.0';
+import {BREAKFAST_SNACK_SPECS} from './recipes-breakfast-snacks.mjs?v=8.1.0';
+import {MEAT_FISH_SPECS} from './recipes-meat-fish.mjs?v=8.1.0';
+import {PLANT_SPECS} from './recipes-plant.mjs?v=8.1.0';
 // Original recipes written for Muscle Growth Tracker. No third-party recipe text.
 // These are development recipes, not kitchen-tested recipes. Quantities are raw/dry
 // except ingredients explicitly described as cooked, canned, or drained.

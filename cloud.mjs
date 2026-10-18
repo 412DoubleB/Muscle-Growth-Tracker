@@ -1,4 +1,4 @@
-import {clone,mergeStates,now,validateState} from './core.mjs?v=8.0.0';
+import {clone,mergeStates,now,validateState} from './core.mjs?v=8.1.0';
 export function validateConfig(url,key){if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url))throw Error('Enter the HTTPS Supabase project URL.');let allowed=key.startsWith('sb_publishable_');if(key.split('.').length===3){try{allowed=JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='anon'}catch{}}if(!allowed||key.startsWith('sb_secret_'))throw Error('Use a publishable key or legacy anon key. Secret and service-role keys are never accepted.');return {url,key}}
 export class CloudSync{
  constructor({storage,fetcher=fetch,getState,applyState,onStatus,onAccount,canSync}){Object.assign(this,{storage,fetcher,getState,applyState,onStatus,onAccount,canSync});this.busy=false;this.timer=null;this.config=JSON.parse(storage.getItem('MGT_BETA_CLOUD_CONFIG')||'null');this.session=JSON.parse(storage.getItem('MGT_BETA_AUTH')||'null');this.lastStatus='Local device';this.stopped=false}
