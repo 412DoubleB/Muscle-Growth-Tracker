@@ -1,7 +1,7 @@
 -- Transactional acceptance: creates two synthetic identities then rolls back every write.
 begin;
 do $tests$
-declare a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); payload jsonb; result jsonb; blocked boolean; count_rows integer;
+declare a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); payload jsonb; result jsonb; blocked boolean; count_rows integer; n integer;
 begin
  insert into auth.users(id,aud,role,email,created_at,updated_at) values
  (a,'authenticated','authenticated',a::text||'@mgt-beta.example.invalid',now(),now()),
@@ -10,14 +10,21 @@ begin
  perform set_config('request.jwt.claims',jsonb_build_object('sub',a,'role','authenticated')::text,true);
  execute 'set local role authenticated';
  payload:=jsonb_build_object('schemaVersion',8,'ownerId',a,'logs','{}'::jsonb,'gyms','[]'::jsonb);
+ blocked:=false; begin perform public.mgt_beta_commit(null,payload); exception when serialization_failure then blocked:=true; end;
+ if not blocked then raise exception 'Null initial revision was accepted'; end if;
  result:=public.mgt_beta_commit(0,payload);
  if (result->>'version')::int<>1 then raise exception 'Initial commit failed'; end if;
  result:=public.mgt_beta_commit(1,payload);
  if (result->>'version')::int<>2 then raise exception 'Update failed'; end if;
  blocked:=false; begin perform public.mgt_beta_commit(1,payload); exception when serialization_failure then blocked:=true; end;
  if not blocked then raise exception 'Stale version was accepted'; end if;
+ blocked:=false; begin perform public.mgt_beta_commit(null,payload); exception when serialization_failure then blocked:=true; end;
+ if not blocked then raise exception 'Null update revision was accepted'; end if;
  select count(*) into count_rows from public.mgt_beta_revisions;
  if count_rows<>1 then raise exception 'Prior cloud revision not retained'; end if;
+ for n in 2..8 loop perform public.mgt_beta_commit(n,payload); end loop;
+ select count(*) into count_rows from public.mgt_beta_revisions;
+ if count_rows<>5 or (select min(version) from public.mgt_beta_revisions)<>4 or (select max(version) from public.mgt_beta_revisions)<>8 then raise exception 'Five previous revisions were not retained'; end if;
  execute 'reset role';
  perform set_config('request.jwt.claim.sub',b::text,true);
  perform set_config('request.jwt.claims',jsonb_build_object('sub',b,'role','authenticated')::text,true);
@@ -48,4 +55,8 @@ begin
  execute 'reset role';
 end $tests$;
 rollback;
-select jsonb_build_object('passed',true,'checks',11,'synthetic_users_rolled_back',true,'remaining_beta_snapshots',(select count(*) from public.mgt_beta_states),'remaining_auth_users',(select count(*) from auth.users),'original_rows',(select count(*) from public.user_app_data),'original_digest',(select md5(coalesce(string_agg(user_id::text||app_data::text||updated_at::text,'' order by user_id),'')) from public.user_app_data)) as beta_live_rls_result;
+-- A fresh isolated project intentionally has no legacy user_app_data table.
+-- Test results report only synthetic acceptance and aggregate beta counts.
+select jsonb_build_object('passed',true,'checks',15,'synthetic_users_rolled_back',true,
+ 'remaining_beta_snapshots',(select count(*) from public.mgt_beta_states),
+ 'legacy_backup_table_present',to_regclass('public.user_app_data') is not null) as beta_isolated_rls_result;

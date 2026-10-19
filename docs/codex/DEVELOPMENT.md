@@ -171,3 +171,25 @@ conflict recovery, and installed-device scheduled push. These require an
 isolated test backend and dedicated test accounts before enabling them in the
 preview. The current preview remains device-local. This review does not authorize
 changes to the live Supabase project, GitHub main, or the live app.
+
+## Stage 5: isolated cloud preparation
+
+The owner selected the Muscle Growth Tracker organization, approved the quoted
+$0/month project, and approved the reviewed creation-only migration specifically
+for MENEI Private Beta Test (`bhyrrxrpqaxiwpfxnwpa`). Setup and fifteen rollback-only
+SQL checks passed on that project; no synthetic users or data remain. Both
+advisors returned no findings. See `ISOLATED_BACKEND.md` for the exact SQL source,
+target guardrails and outstanding Auth/device steps. The live project was not
+changed, and preview cloud sync and scheduled push remain disabled.
+
+Local client hardening now rejects stale account responses after signout,
+account switches and pending token refreshes; old results cannot write another
+workspace or sync base. The guest-import prompt is limited to an actual guest
+workspace, protecting account A's history when signing into empty account B.
+Synthetic regressions cover both account isolation and genuine guest consent.
+
+Stage 5 verification: all 16 local Node test files passed; static checks and
+`git diff --check` passed. These source changes are local to the development
+branch and have not been deployed to the private preview or live app. Real Auth
+email/redirect acceptance and two-device HTTP sync remain pending the test-only
+configuration and dedicated accounts described in `ISOLATED_BACKEND.md`.
