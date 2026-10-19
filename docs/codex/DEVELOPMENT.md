@@ -158,3 +158,16 @@ The archive was built from that exact pushed source. No private conversations,
 personal records, backups, exports or runtime keys were included. MENEI's account
 controls remain disabled in this preview; Sites owner-only access protects the
 site independently. Use the same owning ChatGPT account to open the test link.
+
+## Owner preview review — October 19, 2026
+
+The owner completed the device-only testing checklist and reported no issues.
+This records owner review of the existing private preview, including the local
+workflows covered by that checklist. It does not establish acceptance of the
+excluded cloud features.
+
+Remaining acceptance: cloud sign-in and recovery emails, two-device sync and
+conflict recovery, and installed-device scheduled push. These require an
+isolated test backend and dedicated test accounts before enabling them in the
+preview. The current preview remains device-local. This review does not authorize
+changes to the live Supabase project, GitHub main, or the live app.
