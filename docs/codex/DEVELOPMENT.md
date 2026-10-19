@@ -327,3 +327,46 @@ HTTPS requests. Hosted D1 injection, secure runtime binding and real provider
 acceptance remain unverified. The deployed private preview stays version 7;
 activation requires separate approval of the five-attempt costs and new
 preview-only accounting resource. Nothing was pushed, deployed or activated.
+
+### Stage 8 activation approval and disabled publication
+
+The owner subsequently approved the reviewed five-attempt OpenAI trial,
+estimated costs and additive preview-only counter. That approval remains valid;
+do not ask for it again merely because setup crosses coding sessions. The hard
+limit is five outbound attempts, not a fixed dollar cap. Failed or timed-out
+attempts count. No credit purchase or change to either Supabase project is
+authorized by this approval.
+
+The sanitized package was pushed only to the separate Sites source repository
+and deployed as owner-private **version 8**, with AI still disabled:
+
+- App source: `4b4639dd0efdd51ed6c723fd28ba6e30994cc9c5`.
+- Sites source: `c2f2332d6c1aadc88fb8d8e973981739e6a4e1b2`.
+- Saved version: `appgprj_6ad593d6f15481918ded32373b877b03~appgver_86f774946c0081919de2324e1d9e964e`.
+- Deployment: `appgdep_6ad6a5f89a788191940e8f0f3285914c` (succeeded).
+- Runtime revision: 1; the existing test public client key is preserved, with no
+  OpenAI runtime key or enable flag added by this session.
+- Archive: 164 files, 153,078,564 bytes; SHA-256
+  `41803649d6073701d2fb5e4655c9617cd98ae23824f28687fc623086d3cdb287`.
+- Audience verified after publication: exactly one owner, no groups or external
+  viewers. Version 7 and its prior archive remain available for rollback.
+
+All 121 protected image/font hashes and the media manifest remain unchanged.
+The package excludes private records, conversations, exports, backups, local env
+files and runtime key values. The native publication succeeded with the logical
+`GYM_AI_LIMITS` binding and generated migration metadata; an application-level
+storage read has **not** yet been verified. A scoped service-status request from
+this execution session failed at transport without an HTTP response. An owner
+browser check of `/api/gym-research-status` is pending; it performs no model
+request or quota initialization.
+
+The key is still in the other working coding session's ignored `.env.local`.
+This session cannot access that workspace, and its native runtime setter has no
+file-import parameter. No supported automatic file-to-runtime handoff has been
+verified. Do not print the key to work around this limit, attach it to a chat,
+create a duplicate key, infer installation from the presence of a local file,
+or set the enable flag before actual storage/key readiness. No paid AI request
+has run. The first real search needs the owner's legitimate signed-in browser;
+the shared service diagnostic does not supply visitor identity for paid POSTs.
+
+The GitHub app, GitHub main and both Supabase projects remain unchanged.

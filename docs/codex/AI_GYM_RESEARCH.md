@@ -4,6 +4,14 @@ This is prepared source, not an activated service. The existing owner-private
 preview remains version 7. No paid request, runtime-secret update, database
 provisioning, migration, source upload or deployment was performed for this stage.
 
+**Later activation update:** the owner approved the five-attempt trial and the
+reviewed preview-only counter. The same owner-only Site is now version 8,
+deployed with AI disabled and runtime revision 1. See the activation receipt in
+`DEVELOPMENT.md`. The paragraphs above describe the pre-approval preparation;
+they are not the current deployment status. Secure key installation, an
+application-level hosted counter check and real provider acceptance remain
+pending. No paid attempt has run.
+
 The owner reported successful secure creation of one `MENEI Private Beta` key in
 Default project from a separate working coding session. That session saved it
 to its ignored, untracked `.env.local`; the key was not shared with this session.
