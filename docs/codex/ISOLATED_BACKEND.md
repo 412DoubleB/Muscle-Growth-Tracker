@@ -387,3 +387,19 @@ live-app/backend mutation or database migration was performed. Publication does
 not resolve the owner's pending reviews; after refresh, the owner can explicitly
 keep current nutrition and acknowledge matching copies. Closing review schedules
 sync. Physical-device acceptance of these actions remains pending.
+
+### Owner's single-device follow-up
+
+The owner subsequently showed an Up to date status without a pending-conflict
+warning, saved a fresh exported backup while retaining the earlier copy, and
+reported that a sample workout and entered sets remained after closing and
+reopening the private preview. This records owner-reported single-device
+acceptance, not independent inspection of backup contents or proof of recovery
+on another device. Two-device/offline merge acceptance and real password-reset
+delivery remain pending. Scheduled push remains disabled.
+
+The owner requested continued editing and rebuilding in this conversation
+without waiting for the second-device step. That acceptance step is deferred;
+it does not block isolated frontend development supported by saved requirements.
+Existing boundaries remain: preserve records and images, keep the preview
+owner-private, and leave GitHub main, the live app and live backend untouched.
