@@ -302,3 +302,28 @@ still not installed at the final connection check. Real live-AI research and
 physical-device acceptance of this new gym flow remain pending. No GitHub
 push/merge, live-app deployment or live-backend mutation occurred. Version 6
 remains saved for rollback.
+
+## Stage 8: prepared AI gym-search connection
+
+The owner completed secure OpenAI key creation in a separate working coding
+session after this older thread's Platform connection continued to reject
+requests. This supersedes stage 7's historical installation status: OpenAI
+Developers is installed, and the owner reported one key securely saved to the
+other session's ignored `.env.local`. No key or full conversation was transferred
+to this workspace. No paid request or runtime configuration change followed.
+
+Prepared a disabled-by-default owner-private server endpoint, source validation,
+fixed safe errors and a durable five-attempt trial counter. Client readiness,
+citations, duplicate prevention and stale-draft protection are wired and tested.
+The generated additive preview-only counter migration and activation/cost review
+are in `AI_GYM_RESEARCH.md`. Existing app records, images, bindings and live
+services remain protected.
+
+The full 30-file Node test suite and static checks passed. Subsequent focused
+checks also passed after read-only readiness diagnostics and multiple-search
+response rejection were added. Native Chromium at 360/430 pixels passed the
+synthetic AI review/apply/save, quota and stale-result checks with no external
+HTTPS requests. Hosted D1 injection, secure runtime binding and real provider
+acceptance remain unverified. The deployed private preview stays version 7;
+activation requires separate approval of the five-attempt costs and new
+preview-only accounting resource. Nothing was pushed, deployed or activated.

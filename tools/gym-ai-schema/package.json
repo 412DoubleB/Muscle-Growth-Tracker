@@ -1,0 +1,12 @@
+{
+  "name": "menei-private-preview-schema",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "drizzle-kit generate --config=drizzle.config.mjs --name=menei_gym_ai_trial"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.10",
+    "drizzle-orm": "0.45.2"
+  }
+}
