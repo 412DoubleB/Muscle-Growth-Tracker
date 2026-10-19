@@ -124,3 +124,25 @@ Local Chromium verified 1440/430/360px layouts, first-run setup, disabled cloud
 forms, generator preview/save and offline reload retaining 84 plan rows, with
 no JavaScript exceptions. Real email, two-device cloud sync and scheduled push
 remain excluded from this preview and require separate acceptance.
+
+### Private preview publication status
+
+Candidate runtime source: `b4530f9ebb85e05bbd945648d771a0e0bdffce1c`.
+The package contains 155 runtime files / 154,941,621 bytes: 143 unchanged
+public-baseline files, four development source files and eight generated preview
+files. An explicit allowlist/provenance comparison found no unexpected files,
+private continuity evidence, owner records, exports or runtime configuration keys.
+The package retains the original media manifest and image bytes.
+
+A new, empty Sites project has been created with the owner as its sole allowed
+viewer and no allowed groups. Its intended URL is
+`https://menei-private-beta.crispcrown515.chatgpt.site`; this is NOT a working
+preview URL yet. It has no saved version or successful deployment.
+
+Upload to that project's separate source repository was blocked by automatic
+approval review. The review requires explicit owner approval for this specific
+hosting destination and sanitized source/assets upload. A second review after
+provenance and owner-only-access verification retained that requirement. Do not
+retry the upload or use another route until the owner approves it. The local
+package, source commit and site identity are retained for continuation. No push
+to GitHub main, live-backend mutation or live-app deployment occurred.
