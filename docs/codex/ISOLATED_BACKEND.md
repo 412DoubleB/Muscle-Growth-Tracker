@@ -298,3 +298,22 @@ synthetic records. After publication the owner should refresh both devices;
 older open client versions can still apply the old comparison logic. Existing
 saved conflicts remain until explicitly reviewed. Export private device backups
 first and do not upload them into the source repository.
+
+
+JSON comparison correction deployed successfully as owner-private **version 5**,
+environment revision 1. Post-deployment access remains sole owner, with no groups,
+external viewers or additional editors. Same private preview URL.
+
+- App source: `3f8b265cf2601d499978c60e75d0b737557d4d29`.
+- Sites source: `50a8ac1d88aa5dd7a7ba5126ee32f753f0d858f1`.
+- Saved version: `appgprj_6ad593d6f15481918ded32373b877b03~appgver_df38dfa5c9ac81918c25fa9ad79893cb`.
+- Deployment: `appgdep_6ad6741299c88191a7db7877fe67a50e` (succeeded).
+- Archive: 157 files, 153,055,883 bytes, SHA-256
+  `60be5e725331bec934e651b93725461a8fbbe38813619748e3af70fbe4becf95`.
+
+All 121 shipped image/font files match the existing source. Private evidence,
+account exports, backups and runtime keys are excluded. No GitHub push/merge,
+live-app/backend changes, database migrations, server-side repairs or automatic
+conflict resolutions were performed. Scheduled push remains disabled. Owner review
+of differing saved nutrition values and clean two-device/offline acceptance are
+still pending; the existing conflict count is deliberately retained.
