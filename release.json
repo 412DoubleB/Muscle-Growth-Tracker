@@ -1,7 +1,7 @@
 {
-  "version": "8.1.1",
+  "version": "8.1.2",
   "originalRecipes": 100,
-  "app": "./app.mjs?v=8.1.1",
+  "app": "./app.mjs?v=8.1.2",
   "refresh": "./update.html",
   "channel": "development",
   "target": "github-pages",
