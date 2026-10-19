@@ -92,3 +92,35 @@ work supported by the saved requirement register.
 No actual owner records, original browser storage, live backend or deployed app
 were modified. No schema, storage-key, account, manifest-identity, media-binding
 or release-version changes were needed.
+
+## Stage 4: isolated owner preview
+
+The owner authorized a private preview while retaining the live app unchanged.
+`scripts/build-preview.mjs` creates a separate static package. It does not edit
+`config.json`, the live PWA manifest, existing images or release metadata in the
+source checkout. The separate package has:
+
+- A clear device-only preview banner and an owner testing checklist.
+- No live Supabase URL/key or VAPID key in its runtime configuration.
+- Cloud client disabled before stored auth/config are read; sign-in, sync,
+  cloud import and scheduled push actions are blocked and hidden in Settings.
+- A same-origin connection policy as a second guard against live backend calls.
+- A separate origin, preview app name and preview cache identifier. Relative PWA
+  identity/scope and all original image bytes/bindings remain intact.
+- Local logging, backup/import/recovery, recipes and offline functionality.
+
+The independent owner-private Sites source checkout lives outside this GitHub
+repository. Only the sanitized runtime package is published there. Private
+continuity evidence, conversations, owner exports, backend files and tests are
+not copied into it. The live GitHub Pages app and backend are not deployed or
+modified. The hosting access control is separate from MENEI's disabled cloud
+account controls; the preview is for the owner, not public beta hosting.
+
+Validation: all 13 Node test files and static checks passed. New tests cover
+ignored preexisting auth credentials, no cloud requests/timers, safe package
+contents, unchanged media manifest and a synthetic backup round trip including
+zero loads, unknown set fields, meals, recovery snapshots and account identity.
+Local Chromium verified 1440/430/360px layouts, first-run setup, disabled cloud
+forms, generator preview/save and offline reload retaining 84 plan rows, with
+no JavaScript exceptions. Real email, two-device cloud sync and scheduled push
+remain excluded from this preview and require separate acceptance.
