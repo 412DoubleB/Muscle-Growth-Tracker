@@ -1,0 +1,1373 @@
+{
+  "schema_version": 1,
+  "prepared_utc": "2026-10-19",
+  "version": "8.1.1",
+  "repository": "412DoubleB/Muscle-Growth-Tracker",
+  "source_commit": "fa142c3fc7c96c498b73b5943eac12ca49152dfb",
+  "source_tree": "01235f48157f16b8451981bcac7260af2db92f87",
+  "backup_branch": "backup/pre-codex-8.1.1-2026-10-19",
+  "handoff_branch": "handoff/codex-8.1.1-2026-10-19",
+  "scope": "All original tracked files. New handoff documents are outside this inventory. No browser/account data is included.",
+  "file_count": 194,
+  "total_bytes": 155548552,
+  "files": [
+    {
+      "path": ".env.example",
+      "mode": "100644",
+      "git_blob": "e29f1369ad20222194c2cbe3d98b78da072d99cd",
+      "bytes": 382,
+      "sha256": "ca6cd536e2d219bb34c501a61a9c9879ac0cde7f3ddc94441b95351eeda44a1b"
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "git_blob": "6d3ef52a4f80f8de658432e720759d650675bf3d",
+      "bytes": 71,
+      "sha256": "182441b7af39e40ad6073a9a4750ecc288f1e2d41a78bfbc3c6194304a7ed224"
+    },
+    {
+      "path": ".nojekyll",
+      "mode": "100644",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "git_blob": "ea9bd25a066cea5f5fdd9a22c726488cce666eee",
+      "bytes": 5560,
+      "sha256": "f8d2fe2ca7d60a1467176d342aed071c8076e26f6937ab780e70f8c6e2035965"
+    },
+    {
+      "path": "README.txt",
+      "mode": "100644",
+      "git_blob": "dc8d33ad73b08a865c32067bce04ccfccb6c20a5",
+      "bytes": 1307,
+      "sha256": "aebb684a380719d0b317b383ad60d7bb7bd467d8844c7e7874a508ddad1c34ea"
+    },
+    {
+      "path": "app-icon.svg",
+      "mode": "100644",
+      "git_blob": "17b92287573492fe5558b413f185433d84f13007",
+      "bytes": 155909,
+      "sha256": "7189cdd3aca06c1b3bab4e0d405260f97c60dbc4283099ab9b8f4b3c38532572"
+    },
+    {
+      "path": "app.mjs",
+      "mode": "100644",
+      "git_blob": "d11317c8c16a4c45493e97ec9991fbc714fa6f07",
+      "bytes": 133529,
+      "sha256": "ff7f82ede5439d194c1b4f9b1b8b1891609d0d43c4c61ecf81951f862a261086"
+    },
+    {
+      "path": "artwork/greek-athlete-gold.webp",
+      "mode": "100644",
+      "git_blob": "889e6cf5268518bacfa7e3a44391b59bb9587fa1",
+      "bytes": 176646,
+      "sha256": "2ba487632306ec314b23091daeb3bbeac99f28e68f719049ce01bc2da3c74518"
+    },
+    {
+      "path": "beta-backend.zip",
+      "mode": "100644",
+      "git_blob": "8f332ac30aad3fd4d770485102039144e28191b0",
+      "bytes": 44601,
+      "sha256": "3c6d95a115756e5611b2dc0d0d904cef7fc7ec6fe13c434c6193e87dd4d027d9"
+    },
+    {
+      "path": "beta-report.html",
+      "mode": "100644",
+      "git_blob": "05874ca187dc058651bebe44408433067b09b000",
+      "bytes": 4985,
+      "sha256": "99de039b735d133be0f414757b3f7b498717bfef3daf6eeb55a424080e5514c7"
+    },
+    {
+      "path": "brand-emblem.svg",
+      "mode": "100644",
+      "git_blob": "6600c6663a7fbf10c1f60b099f9715d8a2c0ea42",
+      "bytes": 155758,
+      "sha256": "473925924261ce299e28cff733be6b6553d310f6119e5a7ecf66d66a11aa43d4"
+    },
+    {
+      "path": "brand-mark-reference.jpg",
+      "mode": "100644",
+      "git_blob": "6ee7ae7582a4135fb101a1d0198aaeb79d7a5491",
+      "bytes": 116674,
+      "sha256": "c80377d29e40e6f5d003b121752addbd5cd8f254e87b3148d43d4578df0cd148"
+    },
+    {
+      "path": "catalog.mjs",
+      "mode": "100644",
+      "git_blob": "79e7587b84e05584682a0e3989354c5fa31be28b",
+      "bytes": 38740,
+      "sha256": "d332300cf1c94c340c95c81645e620b871c1a7f5c6b6937356bba048a32ff81b"
+    },
+    {
+      "path": "cloud.mjs",
+      "mode": "100644",
+      "git_blob": "68d29ddc6267f456d4a9857116a388a7825946eb",
+      "bytes": 8939,
+      "sha256": "1e436b496e40c14811a7d6a0d1b2be7a74b0f262c4facfb57b6ab8046feba03f"
+    },
+    {
+      "path": "config.json",
+      "mode": "100644",
+      "git_blob": "c07bee755a057a380aa33b0582111b3e52523f11",
+      "bytes": 384,
+      "sha256": "c419bc87b5dd00e83c3d268b5fa4d1e4d22a3397a774035b8f452a899718632c"
+    },
+    {
+      "path": "core.mjs",
+      "mode": "100644",
+      "git_blob": "a356380b3d3362ff4190ef2ceaee34f12fc430ad",
+      "bytes": 34306,
+      "sha256": "4f8bce8d48434206f280c78266772d3ab8c0f789f304c4d54c51b137f24f2656"
+    },
+    {
+      "path": "docs/API_LIVE_RESULTS.json",
+      "mode": "100644",
+      "git_blob": "ad596f60ac4c016747b43fdcc8468b1fa5153293",
+      "bytes": 522,
+      "sha256": "0224f566929bb2d920aec55b60a354197bd9cc93af38e68956040a22a43fa1ac"
+    },
+    {
+      "path": "docs/BETA_4_CHANGES.md",
+      "mode": "100644",
+      "git_blob": "0a1bea5a6078e5077556e76011b96641c554e1b9",
+      "bytes": 4543,
+      "sha256": "f530e7a5768ae699f7d9c0e93d46878b1e037d5db07e382283a131fe09a053a7"
+    },
+    {
+      "path": "docs/BETA_5_RECIPES.md",
+      "mode": "100644",
+      "git_blob": "c439fc760566933dda91205e3428e03be09dcce7",
+      "bytes": 4119,
+      "sha256": "f3e6f82b216593ed14dce23d39972d54568c9d5892d908bed364910fdcaf985f"
+    },
+    {
+      "path": "docs/CLOUD_STATUS.json",
+      "mode": "100644",
+      "git_blob": "18fb51a1f905e7cf842c7f15d1e1cc5b69af1430",
+      "bytes": 957,
+      "sha256": "9c589c70284127d78ee19d0b7f2bc2a8b18861c0bac5c71032cc468f58add3ef"
+    },
+    {
+      "path": "docs/EXERCISE_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "e79c34fd6521c87fe39ad3f19c39e6e0783a5b58",
+      "bytes": 9021,
+      "sha256": "f8011f285f3cfe8aac412bf3d88e33dd136a485a52d879de9da521f9d2cd11b7"
+    },
+    {
+      "path": "docs/GITHUB_RELEASE.md",
+      "mode": "100644",
+      "git_blob": "f128d76ae898d28995617a36c12679f7a1d9afd1",
+      "bytes": 2451,
+      "sha256": "ed49cf4db6d54a9205b88d1b38ec61d7fbc7b9d6cf1109a4832592daf26a7158"
+    },
+    {
+      "path": "docs/MEDIA_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "b8b41189cbc838f0bb98ed3a45cd637feef8bf87",
+      "bytes": 7081,
+      "sha256": "e9231a97d9f7aef66fada3e99ab124909b00655aa8a0b44b8efb917894a57f63"
+    },
+    {
+      "path": "docs/MENEI_BACKGROUND.md",
+      "mode": "100644",
+      "git_blob": "5c810dd45b95416241cc0c75168ba28c43b613dc",
+      "bytes": 3264,
+      "sha256": "d5729370c1c0dd0ca6b98ee8ece95dd34d20a3b7280c175ad095bb4aca93e947"
+    },
+    {
+      "path": "docs/MENEI_NEXT_REBUILD.md",
+      "mode": "100644",
+      "git_blob": "c3c0f5349e76b9697ad24baeb9d1544bd2a38ce5",
+      "bytes": 5584,
+      "sha256": "6e7b44b51fb17129bb5daf2429c31a97afc127830375f807398d3a281047bbd2"
+    },
+    {
+      "path": "docs/REQUIREMENTS.md",
+      "mode": "100644",
+      "git_blob": "3ea3c75c3cb4fb6fb86249f0607422bed2b57ed7",
+      "bytes": 6467,
+      "sha256": "d7f29f54d4353a5aaeb53a70cbcf4974e305c618cac9eb48181f280410181dd3"
+    },
+    {
+      "path": "docs/TEST_REPORT.md",
+      "mode": "100644",
+      "git_blob": "23d50644182b8ed57989c60054431baeab226356",
+      "bytes": 6605,
+      "sha256": "c25a89097ae243339b673f46c6e1a7b3d1748695970f710f1b086532f28d79d7"
+    },
+    {
+      "path": "fonts/Cinzel.ttf",
+      "mode": "100644",
+      "git_blob": "d218a0b9c8879fd5a708872cc0ef357e507b35ca",
+      "bytes": 125468,
+      "sha256": "f4d83d34d1f6c741193e4acf4b3dff9531e5a67b6aa65228d00a7db72a4e0f34"
+    },
+    {
+      "path": "fonts/OFL-Cinzel.txt",
+      "mode": "100644",
+      "git_blob": "afdfd1412be934fe7cc40a5a2c5e06e354c44dcf",
+      "bytes": 4383,
+      "sha256": "f2b3029aba64c378bf0963b62945eee15e564fe4330b934c8f2eb058282b5e83"
+    },
+    {
+      "path": "foods-extra.mjs",
+      "mode": "100644",
+      "git_blob": "16b51d97427461144d5d816140961e36724a7106",
+      "bytes": 4358,
+      "sha256": "a50f70351bc5febd090c6da31fe0257559c6b99a91c529ead58512bdf2b904e0"
+    },
+    {
+      "path": "gyms.mjs",
+      "mode": "100644",
+      "git_blob": "6b42f332ca3c4067ba669926c4579be45feaaaa9",
+      "bytes": 2659,
+      "sha256": "f7f7c0a0b4e11cc7bae45bbd2998186767fc949c4c87d819a66964432bbdf992"
+    },
+    {
+      "path": "icon-192.png",
+      "mode": "100644",
+      "git_blob": "a77a94921f72908fa433482d7200becc926997ea",
+      "bytes": 27075,
+      "sha256": "e94c1703c5de8d6995bea8f09d5823a8a21d85a5a9dab1ccc73a52ad57e18342"
+    },
+    {
+      "path": "icon-512.png",
+      "mode": "100644",
+      "git_blob": "e23abebc7c121ecd39c0e9b7569f0d70edda5b80",
+      "bytes": 166919,
+      "sha256": "9b7fe180aba215ffdc43fab6def65fd0af71517a0d0ae4d3e30f82660b3008b8"
+    },
+    {
+      "path": "icon.svg",
+      "mode": "100644",
+      "git_blob": "94ddac2632cf5fe1472d709f4bcdb81a57ffd183",
+      "bytes": 281,
+      "sha256": "80c9b2c3046a7e8782e51b10b25f65d2bf80c05157cf3e20bd7a1516d89c0d0a"
+    },
+    {
+      "path": "index.html",
+      "mode": "100644",
+      "git_blob": "7bc57527432ae3a8140a347a9439072f05b7faa3",
+      "bytes": 2856,
+      "sha256": "3c636ee57bdc34161e68c8deeca17cc7ff5b0630f98a19977d0b29ab7e3d3171"
+    },
+    {
+      "path": "legacy.mjs",
+      "mode": "100644",
+      "git_blob": "7141eb467698eb7ed45d43b873d0433ce8de251f",
+      "bytes": 45063,
+      "sha256": "5a1674990688d7ee2264cf5da38a99f21b8f7bda0525301cbdb593c18f415345"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "mode": "100644",
+      "git_blob": "dd48276113b967aa5a7515e670186f1faafdda96",
+      "bytes": 638,
+      "sha256": "020a00698fde80116a10c1b4683602e202d9dd29f02fbaf3e0e5f3c8d2c9650f"
+    },
+    {
+      "path": "media-manifest.json",
+      "mode": "100644",
+      "git_blob": "f503f64237fe9adc479f881c1728718eb8e65577",
+      "bytes": 286613,
+      "sha256": "d1aa5f0e631b6ff2dd8f6fff668dcf982cc10da393c521aac190d198e83ada4a"
+    },
+    {
+      "path": "media/45-degree-hack-squat-starting-position-f5f4c74fb7.webp",
+      "mode": "100644",
+      "git_blob": "311ad00136d2433ebdf6f8f78a006753c81bc297",
+      "bytes": 1357534,
+      "sha256": "e8d071cbcbb7fd8550bb756c4b48ddb9a1887f64e6ac81f470af3267be723c35"
+    },
+    {
+      "path": "media/alternating-supinating-dumbbell-curl-finish-a1ab35cde9.webp",
+      "mode": "100644",
+      "git_blob": "9f30b3991ff6d8d7b9217c3bd1c48e0320775028",
+      "bytes": 1142954,
+      "sha256": "b591af32af42f8e4476b512db34f8dfad0007377d630b5b7bcc60e717c35a0e8"
+    },
+    {
+      "path": "media/assisted-pull-up-machine-start-pose-ae603ed58a.webp",
+      "mode": "100644",
+      "git_blob": "b52ba0c234945fa5a9af489ceb50ad2494f100ae",
+      "bytes": 1404140,
+      "sha256": "aeb3906caa361869071e02449a213174770597f08b2f02bb11c1e10d48b3cae3"
+    },
+    {
+      "path": "media/assisted-pull-up-top-position-9b99f736fe.webp",
+      "mode": "100644",
+      "git_blob": "51d4d1fb91829729a2af7d760829b2703f22c005",
+      "bytes": 1317844,
+      "sha256": "cb9833df5372ea2f5858673e6e081badd4f8557e51aa53119dd63650bda00a01"
+    },
+    {
+      "path": "media/barbell-hip-thrust-lockout-9865e70893.webp",
+      "mode": "100644",
+      "git_blob": "d459138dbd9fcd19ad3f21214108de4cdb5fd9a6",
+      "bytes": 1295934,
+      "sha256": "704bdf7ceaaf6a7b87b2cfabf524747cd389b95f6f6add37aad1f24441cc3ef2"
+    },
+    {
+      "path": "media/barbell-hip-thrust-starting-position-4785d639b0.webp",
+      "mode": "100644",
+      "git_blob": "af84fa21448e0f762914a2668d05d00f2b9bc2df",
+      "bytes": 1361428,
+      "sha256": "819008d0f69aea8661a24f601f69d1ab32c3059a7b95711d71ae80a167178bbf"
+    },
+    {
+      "path": "media/barbell-rdl-at-mid-shin-height-7900eb527f.webp",
+      "mode": "100644",
+      "git_blob": "ee41896d93584878f924029f26733d9e84244089",
+      "bytes": 1252532,
+      "sha256": "ea3be04171ba498bacec3299ff14774ab369406bd63c595813edb13016a5886a"
+    },
+    {
+      "path": "media/barbell-rdl-bottom-position-68df6b7397.webp",
+      "mode": "100644",
+      "git_blob": "563242f2cc0fdb6cae84dadc7fe06006abcb0f17",
+      "bytes": 1357654,
+      "sha256": "d31251998d586109235745918667453e4a2e4c091c7014a66f8b7bed57ff7a30"
+    },
+    {
+      "path": "media/bayesian-cable-curl-start-position-1-72111aba82.webp",
+      "mode": "100644",
+      "git_blob": "3e1db5790c3c8f874320f0bb2b0540cf78bd08b4",
+      "bytes": 1322654,
+      "sha256": "2a00a6be31eeee11501f9745f14c172e198d3811158bf8afe64232f5833bc630"
+    },
+    {
+      "path": "media/bayesian-cable-curl-start-position-617dbfcc82.webp",
+      "mode": "100644",
+      "git_blob": "52b1805fa39c7422a17af0ffe9ea74ec91624d47",
+      "bytes": 1248930,
+      "sha256": "98ca7c5c2d588849e79c5a898091b6275fdb48097f48049eb08fbc1c998ad9eb"
+    },
+    {
+      "path": "media/bulgarian-split-squat-finish-position-c3c5216029.webp",
+      "mode": "100644",
+      "git_blob": "ce86b512d4a3ca0a974c860f4587f299c37ed387",
+      "bytes": 1249808,
+      "sha256": "04e14d9bca8cabd1768118b93c1158562dde2ab41f8e6b870ab4658e697f77bf"
+    },
+    {
+      "path": "media/bulgarian-split-squat-start-with-dumbbells-6d4a46554d.webp",
+      "mode": "100644",
+      "git_blob": "f66965cc4a27337e40368394d13787e659961f9a",
+      "bytes": 1295560,
+      "sha256": "2f72931a16d76e414f6d67312d7ab1bfd5bf637a66f87f3faf07ee6fe16df8ce"
+    },
+    {
+      "path": "media/centered-incline-hammer-curl-setup-663fe12b2e.webp",
+      "mode": "100644",
+      "git_blob": "07f420371127beae652b7fce6767b02fd2f39b0a",
+      "bytes": 1476804,
+      "sha256": "e0c2599d56ec37aacf672aa460bd7abc13e75e0ecfb704aad36bed3ce4c959eb"
+    },
+    {
+      "path": "media/centered-rope-hammer-curl-start-9df14c7b68.webp",
+      "mode": "100644",
+      "git_blob": "359b6677eb8c4fba6b88bbe53d0bc3de7b9a7d4a",
+      "bytes": 1283004,
+      "sha256": "a50d367442f92072c7b9b166a7d14fe3ea136d59a68630c0df47756ad7c0b374"
+    },
+    {
+      "path": "media/chest-supported-spider-curl-start-a7e4be6284.webp",
+      "mode": "100644",
+      "git_blob": "b23f19df043e059c8aae468a227022b7e50638cc",
+      "bytes": 1477508,
+      "sha256": "1de5795d15f404c593d9946b6e2d2f8036d5aa3ddec89ed667fbade6a7eb351c"
+    },
+    {
+      "path": "media/commercial-pendulum-squat-start-position-33f25d8f46.webp",
+      "mode": "100644",
+      "git_blob": "56a3d96dd111b514bcc1dd76d0d3244be0dbeb60",
+      "bytes": 1335456,
+      "sha256": "8731f5a8d776f1e2abd7f0dafc9d19a50705d37845b946da10c4624e1d31951f"
+    },
+    {
+      "path": "media/controlled-seated-hip-adduction-finish-8e9c9e5def.webp",
+      "mode": "100644",
+      "git_blob": "38d96b9ab775250199a5d9773de67b718b11474a",
+      "bytes": 1423582,
+      "sha256": "6bc68153ecf87d5eae33484e893fd6dc16009b7060bf29df10b92ed12937ec7a"
+    },
+    {
+      "path": "media/corrected-reverse-ez-curl-grip-b66996cf70.webp",
+      "mode": "100644",
+      "git_blob": "29a8a0a88d66fa33bba953b145fe7127da8812da",
+      "bytes": 1344942,
+      "sha256": "396b6abc6141f03933b548db99b254c29a2f8010311e16e25f9ec0e510b4aadb"
+    },
+    {
+      "path": "media/cross-body-hammer-curl-finish-93ce32a3a8.webp",
+      "mode": "100644",
+      "git_blob": "ec167e2ec9bee35a3b4242ff790d2c9c0b0c10da",
+      "bytes": 1302366,
+      "sha256": "98752a1fbeda9e5ca00261ff370180686d21e97d52f6b1787b985753e1cb9462"
+    },
+    {
+      "path": "media/cross-body-hammer-curl-start-position-b970ecf8f6.webp",
+      "mode": "100644",
+      "git_blob": "cd166560c2eac02652faa2b538e03dbfc702e0d3",
+      "bytes": 1391636,
+      "sha256": "2ac113b451b876396a78dae628a871a7ca913eca2a9e52a60cab2b2cc4909480"
+    },
+    {
+      "path": "media/cross-body-preacher-curl-finish-position-372affb64b.webp",
+      "mode": "100644",
+      "git_blob": "e11876bfe7c956958dbb202cf183e4237565ac73",
+      "bytes": 1433640,
+      "sha256": "247fa359b0794f445271b7742140fe95161863928bbf4119309cbfc0cace7ba7"
+    },
+    {
+      "path": "media/cross-body-preacher-curl-starting-position-26eab132a4.webp",
+      "mode": "100644",
+      "git_blob": "ae90a229cd683e6e12ef3363630ea7cb7c88685b",
+      "bytes": 1506548,
+      "sha256": "96102d4038555723d1bfbd62fabae2e1b6755dfbf9596d65205f4c341db60f16"
+    },
+    {
+      "path": "media/decline-press-machine-power-pose-b6cb02ebc7.webp",
+      "mode": "100644",
+      "git_blob": "72ab8053545fe1a701da84d91fdd7de9ec00d8d5",
+      "bytes": 1398444,
+      "sha256": "6817604b29e45c1e2328110e3397813aff08d97edaeb289fddab7510e8d3c9d5"
+    },
+    {
+      "path": "media/deep-pendulum-squat-machine-position-9f6b358121.webp",
+      "mode": "100644",
+      "git_blob": "eaa14611291ed84b2c9164bc3e9e72bf83a93269",
+      "bytes": 1267188,
+      "sha256": "1ea3fa3e4cd6c76c391dfed1280b3beafeaf9477c61d12ce35f98ef78407fc14"
+    },
+    {
+      "path": "media/dumbbell-curl-start-position-e8235db0ea.webp",
+      "mode": "100644",
+      "git_blob": "2b0d6875a9467c09cd590787a1f8ffec4c097c3b",
+      "bytes": 1236636,
+      "sha256": "1433b0762e7d788f1528fb614d4ed06e84fef5215a359a2b3157d07e9d150d2b"
+    },
+    {
+      "path": "media/dumbbell-romanian-deadlift-bottom-position-e52324082a.webp",
+      "mode": "100644",
+      "git_blob": "4abaa7ca26090e4888833f8bf775e2170c0f3b2d",
+      "bytes": 1184144,
+      "sha256": "0685556d1579876ac1df2a1baf6e428bcbc44c38ea4a57a26fe11b2979d0519a"
+    },
+    {
+      "path": "media/dumbbell-romanian-deadlift-starting-position-a574fc7fb1.webp",
+      "mode": "100644",
+      "git_blob": "2e579bbd392718219c30abce8ef3432eac38ba95",
+      "bytes": 1275038,
+      "sha256": "c33a18b7b71738ff6b17023de87baa77277ebaf67c379e8f14014f8e75f8d0ec"
+    },
+    {
+      "path": "media/dumbbell-spider-curl-finish-pose-58d6b07e33.webp",
+      "mode": "100644",
+      "git_blob": "ee0cd93d2408bd3f11a944aee07685b0c4183519",
+      "bytes": 1408718,
+      "sha256": "de3d1fd159ee5458c9f6d34d8ec3f2631182c1be13cbe56d3cda31b9c7e45cb6"
+    },
+    {
+      "path": "media/ez-bar-curl-starting-position-630de3083a.webp",
+      "mode": "100644",
+      "git_blob": "7a810646c0e55ef3334a71f15dc06fc342b3f30d",
+      "bytes": 1412620,
+      "sha256": "e338c9837c725793d7dce8a8af914b44d6b3eeb223fcafd3fff8f89d341c09f3"
+    },
+    {
+      "path": "media/ez-bar-preacher-curl-start-position-8c5d6b5143.webp",
+      "mode": "100644",
+      "git_blob": "35944b7d92bbd9c9d2b3e8cfdb4429da769549ee",
+      "bytes": 1398268,
+      "sha256": "fcb37c7eb50624d40793283947ed1c720f1114f9dbc5e8fdd1b8c6a31e5e2a58"
+    },
+    {
+      "path": "media/finished-preacher-curl-with-visible-levers-3f74fe59fe.webp",
+      "mode": "100644",
+      "git_blob": "b0280c5a811c61fe4b74ca81f8cf5eced384dfbc",
+      "bytes": 1410848,
+      "sha256": "17a1e9977d5ea485f655465190f4292481b289983fbcc3a03ae5cfdbfeabc966"
+    },
+    {
+      "path": "media/flat-forearm-wrist-curl-finish-225e7de018.webp",
+      "mode": "100644",
+      "git_blob": "2c81f5ba4781bc3e0bdea24f2e5753a6877a6ccd",
+      "bytes": 1350594,
+      "sha256": "5b41de26382c82ec5e225977a854deca86aa6b5082f80ae66de2488d3a39cb61"
+    },
+    {
+      "path": "media/flat-forearm-wrist-curl-finish-633a025e70.webp",
+      "mode": "100644",
+      "git_blob": "740a2e08876bc60fc53ce5bf47987f040d82d34f",
+      "bytes": 1347168,
+      "sha256": "0ef1182322144c103007f95459f752d07c5ed1e6ecabf33399fe1aee930f1b6d"
+    },
+    {
+      "path": "media/focused-dumbbell-chest-press-87d55c26b2.webp",
+      "mode": "100644",
+      "git_blob": "4fdadac9145fb4dd31fb3ee926e36ac8263c1ced",
+      "bytes": 1342146,
+      "sha256": "e6270970f70c00447e874981a07d8fdc2e63da8382a14f918ae92182baa41fc7"
+    },
+    {
+      "path": "media/focused-flat-chest-press-strength-789f258ca8.webp",
+      "mode": "100644",
+      "git_blob": "c9f2207505851c36302f36ccf79b52b0fb77f85d",
+      "bytes": 1456198,
+      "sha256": "24afa77af3470dd329f9af85fb01ee8e4e8e1b965b15933d17ad53362206f10e"
+    },
+    {
+      "path": "media/focused-incline-dumbbell-press-in-a-dark-gym-32b8b6cba5.webp",
+      "mode": "100644",
+      "git_blob": "9eca53db96e9a0cdd9dc14f3c7263b8932cdb1f0",
+      "bytes": 1315822,
+      "sha256": "a67b9b0e7159d3d211bf7bed070942f107e12f2e6daa515cbb24df4d3c53d4c5"
+    },
+    {
+      "path": "media/forward-palm-cable-curl-start-297df1a98d.webp",
+      "mode": "100644",
+      "git_blob": "3b7eaa93f9e66fd51400bd7a933f1b29f8af2f86",
+      "bytes": 1138758,
+      "sha256": "4f09e5cf76e8e82009be8c2be7d29616a49c9eea79da086ef9b0612047e85e5d"
+    },
+    {
+      "path": "media/glute-drive-machine-lockout-53ff29bfb7.webp",
+      "mode": "100644",
+      "git_blob": "c0a58ec80ed97534b609a5132df2d159f4cc5cf4",
+      "bytes": 1293818,
+      "sha256": "990346b9e1e840ff0d79915df454097cfd0295785ab7a815d5c5de5ddfe3021f"
+    },
+    {
+      "path": "media/hack-squat-bottom-position-dbf37aafa8.webp",
+      "mode": "100644",
+      "git_blob": "25e7962b231892afd8bed327923730fed710d9fe",
+      "bytes": 1270026,
+      "sha256": "b5cf5ed91577aa17524610d4bbb508568ab5e786f5ab5a564ebcee522e3f001d"
+    },
+    {
+      "path": "media/hack-squat-starting-position-793c1efe74.webp",
+      "mode": "100644",
+      "git_blob": "ba12f08f6f5233f7bb22a3f17753216b0b3d59db",
+      "bytes": 1331752,
+      "sha256": "9b4ad16a5088f650af111ba7c87a9b2ca7483b10bed10980607e7377a20829b7"
+    },
+    {
+      "path": "media/hip-abduction-machine-finish-position-b1248053a0.webp",
+      "mode": "100644",
+      "git_blob": "9f219a8bc95367d99e88895ef4fcc5857babfe78",
+      "bytes": 1386434,
+      "sha256": "aa0fac10bb29d562b831190f85bd24e0f365f739ca224f2c5aac7af62b902bf4"
+    },
+    {
+      "path": "media/hip-thrust-machine-start-position-579ce92aae.webp",
+      "mode": "100644",
+      "git_blob": "daa10320363d5d8d1a95c94a623df4cfc214c07d",
+      "bytes": 1348740,
+      "sha256": "7cee3490caa004b6d25f4f265e6fbd9d679136e10d75842d39643f89202bd9c0"
+    },
+    {
+      "path": "media/hip-thrust-start-with-two-plates-2085fd3093.webp",
+      "mode": "100644",
+      "git_blob": "17115d2522128233b5c7a6236891979bb3200a04",
+      "bytes": 1301892,
+      "sha256": "3f1b0f7b59615b15be46869757a267e32ff7766dde94aec282a6dc369abf09f5"
+    },
+    {
+      "path": "media/incline-dumbbell-curl-finish-60bc73d996.webp",
+      "mode": "100644",
+      "git_blob": "f8daea7bb49413e78e536c880ef3116bd5608c8f",
+      "bytes": 1485276,
+      "sha256": "d7fa8ef0b766ddb3e1f47cf41a1b970c518076f76d390c76ea6d0c5c993cea33"
+    },
+    {
+      "path": "media/incline-dumbbell-curl-start-2a90a29cd0.webp",
+      "mode": "100644",
+      "git_blob": "690ec4fe5f66c5ff7529fe47a51954f95c1f7676",
+      "bytes": 1529784,
+      "sha256": "923510d5037185fde9be9c445a7361852cb30387bac62f199b0dbc0b240ba69a"
+    },
+    {
+      "path": "media/incline-dumbbell-curl-starting-position-c18c07667b.webp",
+      "mode": "100644",
+      "git_blob": "a7dcdeb5fc26db5cd294e3ddc7dcccaabc8f6f4e",
+      "bytes": 1486032,
+      "sha256": "e8ef16bc036427953f382a60d55d507731beec7da112d0788214878fc167a14b"
+    },
+    {
+      "path": "media/incline-dumbbell-press-in-a-dark-gym-da5fefd4a8.webp",
+      "mode": "100644",
+      "git_blob": "ca2e680535cfaea6ace92cf1d1f7fadf8e7b6ac8",
+      "bytes": 1390074,
+      "sha256": "5e9f691f1443dd8d7c858758a84c39d27fc23422094ff35cb4691a67841dce5d"
+    },
+    {
+      "path": "media/incline-dumbbell-press-in-a-modern-gym-dae420553c.webp",
+      "mode": "100644",
+      "git_blob": "91b38a1244889c25661649588402d99bc77c7a59",
+      "bytes": 1550070,
+      "sha256": "e285c943c2bdd00a9f8dd70f7230bc579f2b92cb8078c0c9eaa3d6ff0769ce38"
+    },
+    {
+      "path": "media/incline-dumbbell-press-start-position-1-14c0b94257.webp",
+      "mode": "100644",
+      "git_blob": "d2449213978e471dae3f134e250223b310d6bb65",
+      "bytes": 1353102,
+      "sha256": "bf843c9025f02eda6d08c77fceac698c78408fe9bbfeb9d49186489c0f29671f"
+    },
+    {
+      "path": "media/incline-dumbbell-press-start-position-1246a4d6f4.webp",
+      "mode": "100644",
+      "git_blob": "7a589742798eb924a8dd89b54cc035e44cff169c",
+      "bytes": 1706248,
+      "sha256": "488dd142f63a8c48a292f5b78618d1ccf9fc14155011dd77ea30ecdfef552ed9"
+    },
+    {
+      "path": "media/incline-dumbbell-press-strength-pose-482e9eaa6f.webp",
+      "mode": "100644",
+      "git_blob": "5530dc550fd3c11d7936fc42ac47b3c42071ca3d",
+      "bytes": 1441388,
+      "sha256": "b237b1494750682c4c7633de51ebc5e9947003f38e723bc2ee115365c20d4e99"
+    },
+    {
+      "path": "media/incline-hammer-curl-finish-position-dbf6869987.webp",
+      "mode": "100644",
+      "git_blob": "a07b969f2a8490626e58e06acf15d6ce7ef5e43d",
+      "bytes": 1420022,
+      "sha256": "c2244a41c82d38bf0e0332df01eab3f9aaa817615ad0ed10c6762c4895ded57a"
+    },
+    {
+      "path": "media/incline-hammer-curl-start-0e8726398a.webp",
+      "mode": "100644",
+      "git_blob": "8d96435b85c07860412820132ddad150b2759831",
+      "bytes": 1391618,
+      "sha256": "829d6a50a77b752521feb8c4f6caf81970c913d8ffd07fbfa3e63de6f18ffa57"
+    },
+    {
+      "path": "media/incline-hammer-curl-starting-position-4e1f4ab625.webp",
+      "mode": "100644",
+      "git_blob": "61271d55e1f4e9643f1b658bda8e5816b579c3da",
+      "bytes": 1434854,
+      "sha256": "635d08b0d60596db3f1c82690474f8253262961eadd3f435f87b58eccb57b64a"
+    },
+    {
+      "path": "media/lying-leg-curl-peak-contraction-35d25e1e5a.webp",
+      "mode": "100644",
+      "git_blob": "81994ea9084b79d54865014b04dc1b98deb4c743",
+      "bytes": 1455336,
+      "sha256": "135968ab960ab347048655326b8f6aaea4271122174440492fef6672cc97d53e"
+    },
+    {
+      "path": "media/lying-leg-curl-start-position-26eadb1cf2.webp",
+      "mode": "100644",
+      "git_blob": "b587ac26466dd27c5b0ca576836a59dc53d52071",
+      "bytes": 1524756,
+      "sha256": "6d97883a8d84432fd07968bc0ab53f284d4e2f98f339b6d7933c28da122d701b"
+    },
+    {
+      "path": "media/machine-preacher-curl-finish-2a474004ec.webp",
+      "mode": "100644",
+      "git_blob": "1d2bcba9ec9eb87b4f7b604f691dcac0d1fffb30",
+      "bytes": 1436486,
+      "sha256": "3e96965921c3b941e1c1777531b8ee6fc85a9786b0f867178d748491511b1249"
+    },
+    {
+      "path": "media/machine-preacher-curl-finish-pose-188e4633b1.webp",
+      "mode": "100644",
+      "git_blob": "2c623418da92be5cc3f71aa2513feb96f0174c8a",
+      "bytes": 1454520,
+      "sha256": "dd8932aa7e7addf7b1bb039d25bfed1630547eafed960c802ad6e5225d34d72b"
+    },
+    {
+      "path": "media/machine-preacher-curl-finish-position-c7240fb500.webp",
+      "mode": "100644",
+      "git_blob": "fcc64f5c7b146f7aecb85ba6860a15358cc3db3f",
+      "bytes": 1449602,
+      "sha256": "74a3a2d376f5ac23ad5928966aea8fb07701b958dcd46c73bb104e843d02e7b5"
+    },
+    {
+      "path": "media/machine-preacher-curl-start-position-6774a24fc0.webp",
+      "mode": "100644",
+      "git_blob": "5e902ff15f0a48a96da62be37f58e5a600173184",
+      "bytes": 1500192,
+      "sha256": "30883e496ac786c9f31ae7c47d16259658abacf66c100731c5811554ea14a873"
+    },
+    {
+      "path": "media/mid-shin-romanian-deadlift-finish-7f357d54af.webp",
+      "mode": "100644",
+      "git_blob": "7ad7cab4f26ef009936750e68fc51c30b3c2b27e",
+      "bytes": 1204076,
+      "sha256": "f476bbb4039559086b4de129218fb9d278003e301c684a4dee668d04f738d8e4"
+    },
+    {
+      "path": "media/muscular-man-on-chest-press-machine-e49d121cdf.webp",
+      "mode": "100644",
+      "git_blob": "dfc4f21c0556f2413909ae6a6e453996a2f90b91",
+      "bytes": 1303976,
+      "sha256": "7e7a8e98a5419129047efc19d14c417ca21f18a3268919f151422bd9d5f79b06"
+    },
+    {
+      "path": "media/neutral-head-cable-pullover-start-9027405194.webp",
+      "mode": "100644",
+      "git_blob": "4a025649a869a2ba75ae02d0fa73237388d14fdf",
+      "bytes": 1217442,
+      "sha256": "bef3432517298f327e58c2704b6edb1698a8832e9476466c124232078fefc33c"
+    },
+    {
+      "path": "media/palm-down-reverse-wrist-curl-finish-60330116e7.webp",
+      "mode": "100644",
+      "git_blob": "faec07492db1d22087bc00880d5677819bb24f09",
+      "bytes": 1302356,
+      "sha256": "dca8b74599c44b3930034a005347c4959687fbef86e99efeb3917d7c7d332145"
+    },
+    {
+      "path": "media/peak-wrist-curl-finish-pose-ffe5fd3c31.webp",
+      "mode": "100644",
+      "git_blob": "18131f5d71e5fe4c3b7e4bc7ad0f81f86eed4e25",
+      "bytes": 1349810,
+      "sha256": "1c1a67639ca5dce88c60333bade04f24d7996ad51b99cd9bf516ec5afea35b09"
+    },
+    {
+      "path": "media/pendulum-squat-machine-starting-stance-9dd266f65d.webp",
+      "mode": "100644",
+      "git_blob": "6c9648980eb4c8505d4bd7a7adb8fdb2d022422f",
+      "bytes": 1317766,
+      "sha256": "7f035271f24a23717fac829b4d872fa893a58e1bac37681f2bb707e1bf367027"
+    },
+    {
+      "path": "media/preacher-curl-machine-finish-position-2de629714d.webp",
+      "mode": "100644",
+      "git_blob": "4824360da64ed5db6e0e6ab5d647dcc39f56df8c",
+      "bytes": 1442740,
+      "sha256": "698b7b9a07c74d470045697cc4f73c6295bcec84cfdced76c08a8f77d9a5e54f"
+    },
+    {
+      "path": "media/preacher-curl-peak-contraction-3e56cb974d.webp",
+      "mode": "100644",
+      "git_blob": "043169fd660dd190f843d3638dfec434ae5caa98",
+      "bytes": 1402492,
+      "sha256": "750a2922befa40abf433b5838635800e5c918a7f0b40b88a202985be8747e7e8"
+    },
+    {
+      "path": "media/precise-bayesian-cable-curl-setup-721f716aec.webp",
+      "mode": "100644",
+      "git_blob": "102c8b0306bfbe4850e7ecb8750a462c114701da",
+      "bytes": 1203816,
+      "sha256": "aaff5fc825faa31f4af0b77fafcb6a66e08567a317d5961866145a2bcc6e205d"
+    },
+    {
+      "path": "media/pronated-grip-romanian-deadlift-finish-2c78c8d082.webp",
+      "mode": "100644",
+      "git_blob": "20f792a9ddcbafd4ec52d82e9cf290c5b5ce6e2d",
+      "bytes": 1139292,
+      "sha256": "07270c5f27bdd182006ab8350d5c17ea97db8e86add17290149ebde028f20438"
+    },
+    {
+      "path": "media/reverse-cable-curl-finish-19ff70327a.webp",
+      "mode": "100644",
+      "git_blob": "e0b869ec566fd7435639a0e5ec565517d75676e8",
+      "bytes": 1277080,
+      "sha256": "2466e71b9410fdead2c0c973e01ea313f52ed4053e2d379ae374f3146b38b016"
+    },
+    {
+      "path": "media/reverse-cable-curl-start-position-e3d105353d.webp",
+      "mode": "100644",
+      "git_blob": "86fc5d7d4a6c23aa47531800ef3f19183ea1f065",
+      "bytes": 1344428,
+      "sha256": "2b397a6c3b78cae21d9f869074ce0a3454997ea12e84b04329a02bc19fe14792"
+    },
+    {
+      "path": "media/reverse-ez-curl-finish-position-2d2820de44.webp",
+      "mode": "100644",
+      "git_blob": "1c0754988beff8a836e4f6ee2ccc083a384aa421",
+      "bytes": 1320842,
+      "sha256": "88830e5963834d266a4599586c4f40a84cc81b372eb39ac99bbe93be1e3a767d"
+    },
+    {
+      "path": "media/reverse-ez-curl-starting-position-3013b0789a.webp",
+      "mode": "100644",
+      "git_blob": "716bec25ffe93772d336f6984cca5a061c73d010",
+      "bytes": 1404458,
+      "sha256": "5c31b1d6f13c5190509d25fbae7b194667e660be97ce95611298ad10f70d8811"
+    },
+    {
+      "path": "media/reverse-lunge-finish-with-dumbbells-84aa4acaa4.webp",
+      "mode": "100644",
+      "git_blob": "4f0ac15577fa4fcb52924d4f174058b22582036d",
+      "bytes": 1226614,
+      "sha256": "d639fafdfcd9c297479cfe0e5487f2d86f93f81f05f9c9eb3419d076073f739d"
+    },
+    {
+      "path": "media/reverse-lunge-start-with-hex-dumbbells-57f11df790.webp",
+      "mode": "100644",
+      "git_blob": "2fd429dbb2444a4b46f9eed91ede42194795594d",
+      "bytes": 1260934,
+      "sha256": "d9de16b55e6b3c1bbd8ecc38e174cee5409661cd11a479cf7920b665237a4150"
+    },
+    {
+      "path": "media/reverse-wrist-curl-peak-contraction-e68d8d6287.webp",
+      "mode": "100644",
+      "git_blob": "31182c251cc9ccbc103ce5a83449ae42f0b75df7",
+      "bytes": 1351228,
+      "sha256": "01b839caa685bada5970cd0658db23998c66852cf55d518ef86ea38d489a5eb8"
+    },
+    {
+      "path": "media/reverse-wrist-curl-start-position-fafa57021b.webp",
+      "mode": "100644",
+      "git_blob": "54996c8f527e835a64c68b48baf116bd0c42ccaf",
+      "bytes": 1398964,
+      "sha256": "61cd6acba896a626d769cb49f8b2e07f1f105f4ec7cd3195dbc2621db78466b8"
+    },
+    {
+      "path": "media/reverse-wrist-curl-with-deep-extension-9580b8723c.webp",
+      "mode": "100644",
+      "git_blob": "2907cff602cb01d41bda2edc173cf28f619cadc8",
+      "bytes": 1300826,
+      "sha256": "d333211b7ac984ad41a9e7518c912a1ae6b72f5435e016cab03b599344902588"
+    },
+    {
+      "path": "media/romanian-deadlift-start-position-e2951738d9.webp",
+      "mode": "100644",
+      "git_blob": "d12205fc28ee86f5b92b4bee95187979d27f0f4c",
+      "bytes": 1410766,
+      "sha256": "07c2fc271844fdb6fe09a100a7932a04b0395a4243cde6ce574b2df76f6dc2f2"
+    },
+    {
+      "path": "media/romanian-deadlift-with-two-hex-dumbbells-06c0edd2c8.webp",
+      "mode": "100644",
+      "git_blob": "90d1ae014ef201e9549c52d0d04c5fd5f0d0083b",
+      "bytes": 1159754,
+      "sha256": "7304531f14a78c1fabce5ff744282ca2227e8425ad92109cf903a30ab00dc6b6"
+    },
+    {
+      "path": "media/rope-hammer-curl-finish-pose-1-d5b089601d.webp",
+      "mode": "100644",
+      "git_blob": "bb80fb735d55fd5caf1e5a5c02274009377c86e3",
+      "bytes": 1227368,
+      "sha256": "69cec7d93584446fb71d4999f19a1c8916847df585a59f282ba58d62ab7a6ad2"
+    },
+    {
+      "path": "media/rope-hammer-curl-finish-pose-96f75baacc.webp",
+      "mode": "100644",
+      "git_blob": "83402d3aa87ca04bf645f94addd1f191366e4dd3",
+      "bytes": 1261322,
+      "sha256": "598edc2d06752c9c460a1b41ecab685ce0379d30e6a2376db32f3ca5d969ff89"
+    },
+    {
+      "path": "media/rope-hammer-curl-start-position-73a49fc3e9.webp",
+      "mode": "100644",
+      "git_blob": "dc95be8852b0a4e63b59820cd368e3c98747a14d",
+      "bytes": 1323182,
+      "sha256": "53346cd26053a42585124f81e3f577913a57255083f7aaa645446cb4053b3d52"
+    },
+    {
+      "path": "media/seated-hip-abduction-start-position-272b0c047f.webp",
+      "mode": "100644",
+      "git_blob": "2fb46497f9110ea73fd827468bc0866013b5740c",
+      "bytes": 1440318,
+      "sha256": "92df482b640cd6f4f2d213d7244987b4ea7fd546a59b5d5b24dba511c67536c5"
+    },
+    {
+      "path": "media/seated-hip-adduction-start-position-1-de102b0b06.webp",
+      "mode": "100644",
+      "git_blob": "a8e5e7109a07d3a60f886c5b4d8a4c9cb2dc1a3b",
+      "bytes": 1431954,
+      "sha256": "029330f104591549b9c257db27227384f97e1c487973306f48e12de2d0130218"
+    },
+    {
+      "path": "media/seated-hip-adduction-start-position-a3e30d72e5.webp",
+      "mode": "100644",
+      "git_blob": "cd5879f48aff70c7010140e0f21e73289ca93401",
+      "bytes": 1460706,
+      "sha256": "5d5cab9441cd838c500d29d92f44413ebfee77e734d5ea51eee716a948e64762"
+    },
+    {
+      "path": "media/seated-leg-curl-contracted-finish-e0e9909c9e.webp",
+      "mode": "100644",
+      "git_blob": "067ee932cb0c318860162089829fbf1c2b07c72c",
+      "bytes": 1426132,
+      "sha256": "a487a896ca1dfce179f3d30045ebee18d6b6ae14c942c497e04507834d553ee1"
+    },
+    {
+      "path": "media/seated-leg-curl-correct-finish-pose-0c105d224b.webp",
+      "mode": "100644",
+      "git_blob": "b4b6b3f9e67c3644bc04aab41c814b65241b36d1",
+      "bytes": 1389190,
+      "sha256": "cf8c1f6d048ba59ec8aa46544f990c3d0b23a91bcd3e2565fb0c3435e8a7a23d"
+    },
+    {
+      "path": "media/seated-leg-curl-finish-heels-on-roller-97ab6af147.webp",
+      "mode": "100644",
+      "git_blob": "c7654c72f13ec3fd3eeadf9f5d87752b452d6125",
+      "bytes": 1402568,
+      "sha256": "95bed6fdffa7093859581abffea2f36520197b792b13d5653063604cb04181b3"
+    },
+    {
+      "path": "media/seated-leg-curl-finish-position-fbbc06a995.webp",
+      "mode": "100644",
+      "git_blob": "3ee5d37a01ff9d3c07cb2cbcb7021756b392ceac",
+      "bytes": 1383614,
+      "sha256": "3a7257b5733342dfd054890676fc132d36a4e03623ef2ac1e19d1f65a09ddde6"
+    },
+    {
+      "path": "media/seated-leg-curl-start-position-7e0f84b280.webp",
+      "mode": "100644",
+      "git_blob": "dcf5e6a4b9291e9255ed5c0aa0f8cc8cfde6371d",
+      "bytes": 1524872,
+      "sha256": "1df81a7fc3418f258777f24271294afac64d942b10055b15f6d4e8412f72ec1d"
+    },
+    {
+      "path": "media/seated-leg-curl-starting-pose-ff2d29198a.webp",
+      "mode": "100644",
+      "git_blob": "4a352eeacb2933540c6fe68dc1e22bc13ed47959",
+      "bytes": 1424972,
+      "sha256": "cd365be70ffbcccb1fec08c0d8c402d7948d1daa009ffb980c6b2de184a9922d"
+    },
+    {
+      "path": "media/seated-preacher-curl-finish-2b64251101.webp",
+      "mode": "100644",
+      "git_blob": "91ba5201217c1f459981011f99c2912c4bf81650",
+      "bytes": 1441332,
+      "sha256": "9fac32e04fdc8bc3d8348169943f51b35557d3a29714b784758244dbad9a04bc"
+    },
+    {
+      "path": "media/single-arm-bayesian-cable-curl-finish-0c169fbee8.webp",
+      "mode": "100644",
+      "git_blob": "bc4803aba89b3afb35f7a103c4fa59c45da42880",
+      "bytes": 1330316,
+      "sha256": "6ebc9b8a1ef7651fe5ad926c052a64357cbcc67ff008c175296ee4503a9644bb"
+    },
+    {
+      "path": "media/single-arm-bayesian-curl-finish-0ea5f526e7.webp",
+      "mode": "100644",
+      "git_blob": "6902bdcf4702b41d5b62d9b24f878a929dc3a4b0",
+      "bytes": 1136860,
+      "sha256": "df6dcb71b13bc0d6c499c97560429749231f8dbf807c08886b09ffd3f26d5eb5"
+    },
+    {
+      "path": "media/smith-squat-controlled-bottom-position-f022992c1c.webp",
+      "mode": "100644",
+      "git_blob": "bedab88c9faf0f2a6691bdea0a7858692f834213",
+      "bytes": 1241860,
+      "sha256": "d4e2b7772dd3cad02badbdfbd1ad263d1a5130e27132b773d3bb958453fec93b"
+    },
+    {
+      "path": "media/smith-squat-starting-position-ac354c7702.webp",
+      "mode": "100644",
+      "git_blob": "3823a1bc3f62afd251bb336d1a140d96f58c2bdb",
+      "bytes": 1288048,
+      "sha256": "226a77cf08e61cd01bf1068255a3c346b40dd948bc4c1d9817f5180373678d78"
+    },
+    {
+      "path": "media/standing-cable-curl-finish-8745e48780.webp",
+      "mode": "100644",
+      "git_blob": "3e8228297ff322d059462cf72e9a9bcde3009889",
+      "bytes": 1333346,
+      "sha256": "a845e6c40e96eb1fbaadfeed8ca3d20d22be33a026fad3356be622f6623826ce"
+    },
+    {
+      "path": "media/standing-cable-pullover-bar-to-thighs-ec559bf0a6.webp",
+      "mode": "100644",
+      "git_blob": "8bed0f1e529c4800f7013acd9b43797358cca538",
+      "bytes": 1302968,
+      "sha256": "36db2e340d838d139580ba1ac3bd3a2940219d772e40e5eb5c5a35b31b9f7458"
+    },
+    {
+      "path": "media/standing-cable-pullover-stretched-start-01356ee28e.webp",
+      "mode": "100644",
+      "git_blob": "3ef4ff06b932ff782bd7a84fe2f025db0692acd9",
+      "bytes": 1377578,
+      "sha256": "4e42868f0687530806753c820a18834670161eb3bc2a0d514cb7a91c04e95de1"
+    },
+    {
+      "path": "media/standing-ez-bar-curl-finish-pose-e863f5852d.webp",
+      "mode": "100644",
+      "git_blob": "23e2009da440af4609eafaa438e75c0f9e1a1f87",
+      "bytes": 1401012,
+      "sha256": "3efbda2d07d70e30bed14ea42ee214414b0af746aec07f8ffbb1702f21196fee"
+    },
+    {
+      "path": "media/standing-hammer-curl-finish-7cfc554f17.webp",
+      "mode": "100644",
+      "git_blob": "894443111703bd1e02cd939670083248ea5852f1",
+      "bytes": 1335768,
+      "sha256": "d9a7c5955d0491c0af3b4366ea2bee87aaefaf1d9caa2a4968b76a858d7d8046"
+    },
+    {
+      "path": "media/standing-low-cable-curl-setup-d5e03a8858.webp",
+      "mode": "100644",
+      "git_blob": "7a4e4dbf5598051f66fae8dc5b287260e63e7122",
+      "bytes": 1376222,
+      "sha256": "f856fa729f460cc3a4b2fdaa3a0ad8bce996abb7081e4022b4cd075077b88f39"
+    },
+    {
+      "path": "media/steep-foot-platform-hack-squat-207f2fe6b7.webp",
+      "mode": "100644",
+      "git_blob": "e20db9f330dda3da2c98f97912130eec80c08bd7",
+      "bytes": 1297148,
+      "sha256": "1dca529cc0e3940de801186c4f32d79140692c3284627eb88a8da92bf0bb5268"
+    },
+    {
+      "path": "media/supported-palm-up-wrist-curl-start-bc114f709b.webp",
+      "mode": "100644",
+      "git_blob": "54849dc4d42b8054da7ac6df1a1cb461329e7cde",
+      "bytes": 1469056,
+      "sha256": "039fb5f0bc4d0b8461461ae0cc6c50933ad65c3afb0a59647c4090e21fb6a522"
+    },
+    {
+      "path": "media/walking-dumbbell-lunge-finish-ccbb52371f.webp",
+      "mode": "100644",
+      "git_blob": "dc5886072450cc894bd5968139f525cbb248d06b",
+      "bytes": 1246102,
+      "sha256": "f2c48cf6d7fc4186e7ad89c300383713f35be09a557b1ea82b7d59c8aede2575"
+    },
+    {
+      "path": "media/wide-grip-ez-bar-curl-finish-1-a633b378f0.webp",
+      "mode": "100644",
+      "git_blob": "76f3338356d095db06c4ef5fcdad568336eae0ab",
+      "bytes": 1356524,
+      "sha256": "ee22f71851b4aa9fceea13df02e265de1fbf5a8450a008e9f1ce5304daa51d7e"
+    },
+    {
+      "path": "media/wide-grip-ez-bar-curl-finish-55ffb4b408.webp",
+      "mode": "100644",
+      "git_blob": "242be7d470a31c4a679bdd4c447f4e25a2c59d49",
+      "bytes": 1333336,
+      "sha256": "55147a20a0f7b2eb2d3736698cf5862e046f222122ff3b423ed4f611fb516aa9"
+    },
+    {
+      "path": "media/wide-grip-ez-bar-curl-start-ebef0dc8a8.webp",
+      "mode": "100644",
+      "git_blob": "85bf9d55ee2f1f2d15bff8ff9fb0bff540499582",
+      "bytes": 1333124,
+      "sha256": "5fa3a0a2c6a7c39418622c107a05cc469fa70722c4a1b81415b9e4a9b42038bc"
+    },
+    {
+      "path": "media/wide-grip-ez-curl-start-pose-6f4c0ffd9d.webp",
+      "mode": "100644",
+      "git_blob": "0e20932ec3242297780906170a443a5c4610c3a8",
+      "bytes": 1387456,
+      "sha256": "be31e069917890bd7b853b41ff0d4284285403c1d1e712026423c383a8a02f3d"
+    },
+    {
+      "path": "media/wide-grip-reverse-ez-curl-start-82dbf79ca0.webp",
+      "mode": "100644",
+      "git_blob": "c7fc8e5f5a2126a2eacf366255817b19cba47685",
+      "bytes": 1339578,
+      "sha256": "54789ee1410f04c6232da20d511c27c4c5d9a9fb91a7eb20b7d9ad09a556de2d"
+    },
+    {
+      "path": "media/wrist-curl-finish-pose-018e53ef05.webp",
+      "mode": "100644",
+      "git_blob": "0993b434aff5f39862cf5596515ecb1a37066208",
+      "bytes": 1395140,
+      "sha256": "067729250bc264954be6836dd80a529d38b8478aad82c2d235097a982c5bf632"
+    },
+    {
+      "path": "notifications.mjs",
+      "mode": "100644",
+      "git_blob": "804a40cb8917d026cc6de5d0983988f06f815271",
+      "bytes": 2779,
+      "sha256": "f8109661b5bebb4e650e60837ccd7f8eb08a370c458f2c71431f44c1e9fdbf6c"
+    },
+    {
+      "path": "nutrition.mjs",
+      "mode": "100644",
+      "git_blob": "ca24051100c6e8b60de1d7a09eaeb55d85112183",
+      "bytes": 22158,
+      "sha256": "80e39e662cd2b2f0aee3f00eed80aa2cef6d23bee1fb877941623c46b4d45dbc"
+    },
+    {
+      "path": "package.json",
+      "mode": "100644",
+      "git_blob": "b518c62f0d25aff5fae025219869865d0d292623",
+      "bytes": 224,
+      "sha256": "9bab7901232eb502732194d0de93be9ef24b91bf6e20e213b6a71b65f79ad0f7"
+    },
+    {
+      "path": "photos.mjs",
+      "mode": "100644",
+      "git_blob": "818a0635b243a0c9e0bc0b9c1938469f7104b9a4",
+      "bytes": 1520,
+      "sha256": "553dd59ca250f5d4fd2b463f524424d746965589b902ac81728d52fda0f12642"
+    },
+    {
+      "path": "progress.mjs",
+      "mode": "100644",
+      "git_blob": "94baf535bdf1b7801ab8574b107b2391ac21eb51",
+      "bytes": 14052,
+      "sha256": "cc9d13d3cc20d8391f91a6f6dc7b9076e33593c39cef1ad1bb107ebe67cc67be"
+    },
+    {
+      "path": "recipe-library.json",
+      "mode": "100644",
+      "git_blob": "c547741487961b6deae91ec7d675e682d0c5eab9",
+      "bytes": 384946,
+      "sha256": "14303678166f64fe62d040f03ec13f25bd25d963eebc185662b8788ff428822f"
+    },
+    {
+      "path": "recipe-packs.mjs",
+      "mode": "100644",
+      "git_blob": "f62962a88977dc17b0cae7465a3b86cabc609b5e",
+      "bytes": 8069,
+      "sha256": "ccc597295b13f4c6021cde902c095d1e39666d6c4406ef1eefcd746db0136b33"
+    },
+    {
+      "path": "recipes-breakfast-snacks.mjs",
+      "mode": "100644",
+      "git_blob": "c99b3a29c8da459b2bea50174ad18a5c637a5b8f",
+      "bytes": 31231,
+      "sha256": "7811fa922a3ca3548de28c3c80e8bf64e1243e139fa8493abaf8800d39ae11e0"
+    },
+    {
+      "path": "recipes-meat-fish.mjs",
+      "mode": "100644",
+      "git_blob": "24e2bc135ea821d2e23cc9158142cb432057f24e",
+      "bytes": 37234,
+      "sha256": "939ad117d135ac197fa8ec7a869d250304a341a9394f9974d343fbad6c832314"
+    },
+    {
+      "path": "recipes-plant.mjs",
+      "mode": "100644",
+      "git_blob": "ebb1ecb94e6fce75f1980dc8326d0c939fbd92f4",
+      "bytes": 36827,
+      "sha256": "5cc269fc5d58b0ac5943b75609f052fdeba3f6f766c9130e89e532b3b87b2471"
+    },
+    {
+      "path": "recipes.mjs",
+      "mode": "100644",
+      "git_blob": "ba7e76e79318a390da16a5f86cd9a21629408a41",
+      "bytes": 13894,
+      "sha256": "6231cb21f510aac427c2ac59e7fd1f414b2d95195e98e90cb1fb0ab7f85ed605"
+    },
+    {
+      "path": "release.json",
+      "mode": "100644",
+      "git_blob": "ecf8438926ab691a5ff244d9b920f75768ac48fe",
+      "bytes": 380,
+      "sha256": "55ea57b925e108b4dbf3bb5857e0a161050abc30bb4fc214feaaa5eb5d606337"
+    },
+    {
+      "path": "scripts/api-live.mjs",
+      "mode": "100644",
+      "git_blob": "9fbdb2d79f3c66969e9fc729f95b7cb5bf6ed767",
+      "bytes": 1322,
+      "sha256": "ef47c8c84d468462e5c04ffe133b49985cdc59c704b32ad02314c3d9375582bb"
+    },
+    {
+      "path": "scripts/check.mjs",
+      "mode": "100644",
+      "git_blob": "2901c000c68929e20611f7d5fc581e1d3e4e700c",
+      "bytes": 3802,
+      "sha256": "9561c185242429dc6492dc2e295bcc176f4bf210de96e832532ed20c06b4a9ba"
+    },
+    {
+      "path": "scripts/cloud-smoke.mjs",
+      "mode": "100644",
+      "git_blob": "f320d9aa2e6ffa65540cf9e8c8c3c500c4e4fc71",
+      "bytes": 2938,
+      "sha256": "1004f731aa9b6776b9a311c5013f83e83672a540587c617df208ff24688cdabf"
+    },
+    {
+      "path": "scripts/rls-live.sql",
+      "mode": "100644",
+      "git_blob": "77cddf83d9fd42e9acb346f81680bd2e3eca0062",
+      "bytes": 4327,
+      "sha256": "7fb6732576d09b045d1b023d9d815e0e4cbd1e2c077dfc658af053a1eeaac2a8"
+    },
+    {
+      "path": "setup.html",
+      "mode": "100644",
+      "git_blob": "f06ee3d53056ee78b0614c04210492b9dc8437b9",
+      "bytes": 1783,
+      "sha256": "a951243de54f2e74850480cd5b65393e6bd3dc947b4a7690a9dc49992e5f4592"
+    },
+    {
+      "path": "styles.css",
+      "mode": "100644",
+      "git_blob": "be3dd1caf4feb941c406a8b0b340f30190bbec80",
+      "bytes": 26176,
+      "sha256": "1553137b88f462d08ad3dedfcca53f657ccf0bbf4c91512a4a857d11d8e9f301"
+    },
+    {
+      "path": "supabase/config.toml",
+      "mode": "100644",
+      "git_blob": "76486b42bd39070c114b48dae3fb93ba39e89454",
+      "bytes": 124,
+      "sha256": "793445b56c9f2c939ab6ef25d0dfd17db779e06808f30a7e438b1b5c8ac453ae"
+    },
+    {
+      "path": "supabase/functions/send-reminders/deno.json",
+      "mode": "100644",
+      "git_blob": "22d9460a9853130948b1f3c811dd8238528fdf1e",
+      "bytes": 37,
+      "sha256": "1358ac639f5d55bced7496356c041da0f5d397baf43b82b236c0c36d7646d5c7"
+    },
+    {
+      "path": "supabase/functions/send-reminders/index.ts",
+      "mode": "100644",
+      "git_blob": "70c1c396a379c3ae606d4a03476d10a446bf339c",
+      "bytes": 3292,
+      "sha256": "fb6e73092412509aca55b67c46701d6165672e9f58c08c22da6b3d4ced8b5fb4"
+    },
+    {
+      "path": "supabase/functions/send-reminders/logic.mjs",
+      "mode": "100644",
+      "git_blob": "c4e34ab0fb3c91e84b0634cb3950b63374be1e5e",
+      "bytes": 1782,
+      "sha256": "6b42a1cad5082111360a45e81e9182aa6213b2fada1265ec81ff96a87dc2cc99"
+    },
+    {
+      "path": "supabase/migrations/001_beta.sql",
+      "mode": "100644",
+      "git_blob": "db1165e11d9ae5ac20734a1b8dd658700ac843c0",
+      "bytes": 7378,
+      "sha256": "66ab465f0969c9c1ff77634b7ef8106f1a2fdb490327fc80a21da12cd05a4a58"
+    },
+    {
+      "path": "supabase/schedule.sql",
+      "mode": "100644",
+      "git_blob": "0515119ddb749dd4077ec41b7e1f91a84002479d",
+      "bytes": 919,
+      "sha256": "fcb225a774292a67bf1f83a196e70209c67097af24a71813f9e9578237422aa6"
+    },
+    {
+      "path": "supersets.mjs",
+      "mode": "100644",
+      "git_blob": "b25a6c9ad68ba1bd19b5b0d1f000a7036e265ade",
+      "bytes": 4253,
+      "sha256": "ad3e7103bd84cff2425de404fc89a1c875f5edeaf416e96554c70eb837ebc101"
+    },
+    {
+      "path": "sw.js",
+      "mode": "100644",
+      "git_blob": "1080a030cdb9d7e7b364fda1c7d7bf8126e40f23",
+      "bytes": 3432,
+      "sha256": "a0b8e2120691092b24f94c5670c9d62fef769925126e0b2ded9da83dddd178b0"
+    },
+    {
+      "path": "tests/additional.test.mjs",
+      "mode": "100644",
+      "git_blob": "82c060877b205f37b385cbe96bab7b9f305dce15",
+      "bytes": 4147,
+      "sha256": "016a959b8e7e7e69b3c70fde36d7fe9ebd96ac7b9115eb99822e7bba2a3e818c"
+    },
+    {
+      "path": "tests/core.test.mjs",
+      "mode": "100644",
+      "git_blob": "aa4940e21231a68cc10cd143d974c6a20f0c76f8",
+      "bytes": 13651,
+      "sha256": "e36cc89bc241e4e2ba8c07515b0b8aaff9cb648103f20dad0bd4a4ce26385438"
+    },
+    {
+      "path": "tests/feedback.test.mjs",
+      "mode": "100644",
+      "git_blob": "26ed48c9bb3fc6a8b8cfaabfe10326496f6c299b",
+      "bytes": 8054,
+      "sha256": "127e15853bb95505ffe76d3552b9f9b7ff27838978a31bf26c1d158f56780e63"
+    },
+    {
+      "path": "tests/progress.test.mjs",
+      "mode": "100644",
+      "git_blob": "d3d14ef7c08d5bbde982e5b2b6aa02754f1c589e",
+      "bytes": 6597,
+      "sha256": "d686b38db5ab2182777f908b9dd089242c99f8c2ca2d134fc50c68fd81982963"
+    },
+    {
+      "path": "tests/recipe-packs.test.mjs",
+      "mode": "100644",
+      "git_blob": "536af1162c0928a12e9ff44402f246dd495761ae",
+      "bytes": 5503,
+      "sha256": "513351692f767148b5d01d6a3e4b7f4e23d0ca379af8c0f4db70bce7dd3c187f"
+    },
+    {
+      "path": "tests/release.test.mjs",
+      "mode": "100644",
+      "git_blob": "6371c117b01c4c516337419e7c6e7f0dbb64d215",
+      "bytes": 1548,
+      "sha256": "67781548311bcfa305e5baac6b8f8557097928353421d89da78107bc9f311f67"
+    },
+    {
+      "path": "tests/supersets.test.mjs",
+      "mode": "100644",
+      "git_blob": "ebaeb2c069b543881cd7a232ef91c071615e4b47",
+      "bytes": 10282,
+      "sha256": "3c3b5e348ace2dee75690a734f583385ffebb8b6c9bb55026e9ecd9bb3f80d6c"
+    },
+    {
+      "path": "tests/training.test.mjs",
+      "mode": "100644",
+      "git_blob": "be73d5992efb65c398c4e3e7e7a72ddc6edfea6c",
+      "bytes": 6697,
+      "sha256": "faecc5e8da24d5c70bf4311419f82304b9c3c7379b42f558f3003aadd737fb51"
+    },
+    {
+      "path": "tests/ui.test.mjs",
+      "mode": "100644",
+      "git_blob": "e60d0c7c823487aef17604e08067b582cc717c72",
+      "bytes": 24431,
+      "sha256": "0aff12cf09b6c96fd8dd0adbdc13c2c6a934e336e12889d60effacc7881aee6d"
+    },
+    {
+      "path": "tests/updates.test.mjs",
+      "mode": "100644",
+      "git_blob": "e26d53985e4a34e781d8b8375827d22eda364572",
+      "bytes": 5672,
+      "sha256": "cd56d962eb12116514b159009d3f77c1b6e18afcafa5865472f1a0cff13add4e"
+    },
+    {
+      "path": "tests/upgrade-ui.test.mjs",
+      "mode": "100644",
+      "git_blob": "b519d719126f0dbe506439dfbc8bf7842c493b8c",
+      "bytes": 3804,
+      "sha256": "39b6a606962a7c1566d973d8895bbfa5ded3cda7373810f0ebd16cea1acb9e0f"
+    },
+    {
+      "path": "tests/upgrade.test.mjs",
+      "mode": "100644",
+      "git_blob": "397083ef14d327598545d95658e0dc258efacc21",
+      "bytes": 7427,
+      "sha256": "04d71a583592bd60b0370c55d82411f0190e41e18de9ac31cb2e2bcd4a0da7d6"
+    },
+    {
+      "path": "training.mjs",
+      "mode": "100644",
+      "git_blob": "771fa58ba15c88c9f8b6759bb95958b4103ab9f1",
+      "bytes": 4535,
+      "sha256": "30c84905c9c7b0caa200f8358333416e42222b3f95e50725161fd38df08f3d51"
+    },
+    {
+      "path": "update-client.mjs",
+      "mode": "100644",
+      "git_blob": "500434db63f52964b58316c917344b729cb1ed75",
+      "bytes": 1238,
+      "sha256": "92bd5a3436796142bf8f3f569d3452368f6688b794a5ea073a131aa57a4a825a"
+    },
+    {
+      "path": "update.html",
+      "mode": "100644",
+      "git_blob": "c25caf0b8fb80e5e296d5887be460bc6a1d67cf4",
+      "bytes": 1572,
+      "sha256": "379a7161238b2240db338777b63a77328c7fc1e0c92b10b5f5fff715cb88a649"
+    },
+    {
+      "path": "upgrade.mjs",
+      "mode": "100644",
+      "git_blob": "2a274857cd9d394f16d66dc027438cfdc16ca103",
+      "bytes": 2770,
+      "sha256": "4ad378e8df176964ea7605decf8a57cf55181134eaa99b9b090ff2ca299602bd"
+    },
+    {
+      "path": "workouts.mjs",
+      "mode": "100644",
+      "git_blob": "fb0adb86e732edbc15ae078ea51694d103af267f",
+      "bytes": 5325,
+      "sha256": "7c4e98f3274ab93d7715e6fd4e6deea8b951620fcd81afeac123d3b8a7e6746f"
+    }
+  ]
+}
