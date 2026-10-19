@@ -227,3 +227,57 @@ editors. Runtime environment revision 1 supplies the test public client key outs
 the archive. See `ISOLATED_BACKEND.md` for source/archive provenance, the retained
 version-1 rollback and the hosted HTTP verification limit. No GitHub push/merge,
 live-app deployment or live-backend change was performed.
+
+## Stage 7: gym setup and exercise-library context
+
+The owner approved continued frontend rebuilding while deferring physical
+two-device acceptance. The requested gym setup searches the exact location,
+uses published equipment when available, supplements it with editable common
+gym-type estimates, and permits correcting missing or wrong equipment. Estimates
+are authorized starting suggestions; they are not published facts or image
+approvals. The live app/backend, existing images and history remain protected.
+
+Exercise-library cards and guides now use the library's selected gym rather than
+the current workout's gym. Every gym shows requirements without an invented
+inventory check. Workout guides keep their recorded gym. Browsing is read-only.
+
+Gym setup now previews published-directory equipment and optional gym-type
+estimates before adding them to the editable checklist. Existing selections,
+custom apparatus, notes and limits are preserved. Published dumbbell limits need
+an explicit opt-in; templates never invent a maximum. Nothing is saved before
+Save gym. Saving snapshots the prior workspace and rolls back an unsuccessful
+storage write. Source evidence, unselected published items and estimates remain
+distinct. Changing location invalidates current source attribution; an unrelated
+notes edit preserves equipment confirmation when the inventory and limits match.
+
+Live AI lookup is not active. The current source-backed directory still contains
+only two researched locations; the estimated templates are local suggestions.
+The client has a bounded, same-origin research interface with stale-response
+guards, but no enabled server provider or AI credential has been provisioned.
+The preview truthfully disables its AI-search control. An OpenAI Developers
+connection was suggested for supported secure API setup; suggestion is not
+installation, connection, billing approval or a successful real search.
+
+Before activation, implement and validate the owner-private server endpoint,
+source/citation checks, request limits and error handling, then complete the
+provider's required key/cost approval. Store any API credential only in Sites
+runtime secrets. Send only the gym name/location/address, never account records,
+workouts, exports or backups. Confirm the exact returned address and operating
+status before adding its equipment. A paid request, live-backend change or public
+deployment is not authorized merely by this frontend stage.
+
+Stage 7 validation: all 26 Node test files passed, including 11 pure gym-autofill
+regressions, six DOM-backed gym setup cases and three library-context cases.
+Static checks and diff checks passed. Native Chromium at 360 and 430 pixels
+verified 12 estimated commercial-gym suggestions, no workspace saves before
+Save gym, manual removal/addition, preserved notes and load limits, provenance
+after reload, read-only library browsing and unchanged image bindings. Synthetic
+completed workouts, zero loads, old gyms and backup entries remained unchanged.
+No external HTTPS requests or JavaScript errors occurred.
+
+Native form validation exposed an existing increment-input constraint that
+rejected both 5 and 2.5 lb: `min=0.1` offset its half-pound step grid. The field
+now accepts positive decimal increments without changing stored values. New
+dialog content also resets its scroll position so an exercise guide opens at
+its heading and equipment explanation. The latter presentation adjustment was
+verified with the focused UI suites and a native browser follow-up.

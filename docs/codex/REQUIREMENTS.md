@@ -47,6 +47,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Recurrence supports every X days/weeks, weekday rules, start/end dates, duration, precedence and the 24-on/72-off firefighter anchor.
 - Known-gym lookup separates dated official-source facts, user confirmation and unknown equipment. A brand name or generic facility list cannot prove a specific machine/attachment.
 - Current implementation uses a curated directory (two Crunch locations) plus an external ChatGPT research prompt for unknown locations. No free live equipment API or automatic web scraping is configured. The broader automatic verified lookup remains a requested capability, not a claim of current implementation.
+- Later development clarification: the owner requests exact-location AI search with published equipment when available plus editable estimates for a common gym-type setup. Keep published facts, estimated suggestions and owner confirmation distinct. Review/apply affects an editable draft; Save gym remains explicit. Preserve manual equipment and weight limits. This does not authorize inferring image approval, silently rewriting workouts or enabling a paid provider without its required approval. See DEVELOPMENT.md stage 7 for implementation and remaining AI connection work.
 
 ## Nutrition, recipes and meal planning
 - Discoverable nutrition preferences in initial setup and Settings: current goal, diet style, food categories, main meals, breakfast, snacks, allergens, favorites, exclusions and repeat spacing.
