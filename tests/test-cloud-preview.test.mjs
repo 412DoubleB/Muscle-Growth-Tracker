@@ -49,10 +49,10 @@ test('only matching project-scoped configuration can restore a saved test sessio
  }
 });
 
-function environment(config,{savedAccount=false,projectAttribute=project}={}){
+function environment(config,{savedAccount=false,projectAttribute=project,setupStatus=200,invalidJson=false}={}){
  const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','fetch','PushManager'];
  const previous=new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
- const storage=memory(),elements=new Map(),listeners=new Map(),requests=[];
+ const storage=memory(),elements=new Map(),listeners=new Map(),requests=[];let reloads=0;
  const state=defaultState();state.nutrition.setupPromptSeen=true;state.profile.name='Synthetic saved account';state.ownerId=savedAccount?'test-user':null;
  state.logs['2026-10-01']={id:'2026-10-01',date:'2026-10-01',title:'Synthetic retained log',kind:'rest',status:'completed',gymId:'crunch',exercises:[]};
  storage.setItem('MGT_BETA_V8:'+(savedAccount?'test-user':'guest'),JSON.stringify(state));
@@ -66,10 +66,10 @@ function environment(config,{savedAccount=false,projectAttribute=project}={}){
  globalThis.document={documentElement:{dataset:{preview:'test-cloud',testProject:projectAttribute}},getElementById:id=>{if(!elements.has(id))elements.set(id,new Element(id));return elements.get(id)},activeElement:{tagName:'BODY'},hidden:false,addEventListener:(name,fn)=>listeners.set(name,[...(listeners.get(name)||[]),fn]),querySelector:()=>null,querySelectorAll:()=>[]};
  globalThis.localStorage=storage;globalThis.sessionStorage=memory();globalThis.window={addEventListener(){},scrollTo(){}};
  Object.defineProperty(globalThis,'navigator',{value:{onLine:true,vibrate(){}},configurable:true});
- globalThis.location={origin:'https://synthetic.example.invalid',pathname:'/',href:'https://synthetic.example.invalid/',hash:'',search:''};
+ globalThis.location={origin:'https://synthetic.example.invalid',pathname:'/',href:'https://synthetic.example.invalid/',hash:'',search:'',reload(){reloads++}};
  globalThis.history={replaceState(){}};globalThis.confirm=()=>false;globalThis.setInterval=()=>0;globalThis.setTimeout=()=>0;
- globalThis.fetch=async(request,options)=>{requests.push({request,options});if(request==='./config.json')return {ok:config!==null,json:async()=>config};if(request==='./media-manifest.json')return {ok:true,json:async()=>({exercises:[],assets:[],lookup:{}})};assert.ok(request.startsWith(url+'/'),'Only the isolated project may receive a request');return response(request.includes('/auth/v1/token')?session:request.includes('mgt_beta_states')?[]:request.includes('mgt_beta_commit')?{version:1}:null)};
- return {storage,state,requests,elements,async click(action,data={}){const button={dataset:{action,...data},disabled:false};for(const listener of listeners.get('click')||[])listener({target:{closest:()=>button},preventDefault(){}});await new Promise(resolve=>setImmediate(resolve))},restore(){for(const [name,descriptor]of previous)if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name]}};
+ globalThis.fetch=async(request,options)=>{requests.push({request,options});if(request==='./api/preview-config'){if(config===null)throw Error('synthetic-unsafe network failure');return {ok:setupStatus<400,status:setupStatus,json:async()=>{if(invalidJson)throw Error('synthetic-unsafe response token');return config}}};if(request==='./media-manifest.json')return {ok:true,json:async()=>({exercises:[],assets:[],lookup:{}})};assert.ok(request.startsWith(url+'/'),'Only the isolated project may receive a request');return response(request.includes('/auth/v1/signup')?{user:{id:'pending-synthetic-user'}}:request.includes('/auth/v1/token')?session:request.includes('mgt_beta_states')?[]:request.includes('mgt_beta_commit')?{version:1}:null)};
+ return {storage,state,requests,elements,get reloads(){return reloads},async click(action,data={}){const button={dataset:{action,...data},disabled:false};for(const listener of listeners.get('click')||[])listener({target:{closest:()=>button},preventDefault(){}});await new Promise(resolve=>setImmediate(resolve))},restore(){for(const [name,descriptor]of previous)if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name]}};
 }
 
 test('test-cloud account controls use runtime configuration, hide credentials and skip push on logout',async()=>{
@@ -81,6 +81,9 @@ test('test-cloud account controls use runtime configuration, hide credentials an
   assert.match(settings,/separate private beta test account/);assert.match(settings,/data-action="signup"/);assert.match(settings,/data-action="reset-password"/);assert.match(settings,/data-action="sync"/);
   assert.doesNotMatch(settings,/Advanced connection settings|name="key"|name="url"|data-action="legacy-cloud"|id="reminderForm"|data-action="enable-push"/);
   document.getElementById('cloudForm').elements={email:{value:'synthetic@example.invalid'},password:{value:'synthetic-password'}};
+  await env.click('signup');assert.ok(env.requests.some(request=>request.request.startsWith(url+'/auth/v1/signup')));assert.match(env.elements.get('cloudStatus').textContent,/Check your email/);
+  const setup=env.requests.find(request=>request.request==='./api/preview-config');assert.ok(setup);assert.equal(setup.options.cache,'no-store');assert.equal(setup.options.redirect,'error');assert.equal(setup.options.credentials,'same-origin');assert.ok(!env.requests.some(request=>request.request==='./config.json'));
+  document.getElementById('cloudForm').elements.password.value='synthetic-password';
   await env.click('signin');assert.equal(JSON.parse(env.storage.getItem(authKey)).user.id,'test-user');
   assert.ok(env.requests.some(request=>request.request.startsWith(url+'/auth/v1/token')));
   globalThis.PushManager=function(){};
@@ -92,18 +95,46 @@ test('test-cloud account controls use runtime configuration, hide credentials an
  }finally{env.restore()}
 });
 
-test('unavailable or mismatched runtime configuration keeps saved test history accessible without cloud calls',async t=>{
- for(const [name,config,projectAttribute]of [['offline',null,project],['wrong-url',{supabase:{url:'https://other.supabase.co',key:'sb_publishable_synthetic'},pushServiceReady:false},project],['wrong-pin',{supabase:{url,key:'sb_publishable_synthetic'},pushServiceReady:false},'other']])await t.test(name,async()=>{
-  const env=environment(config,{savedAccount:true,projectAttribute});
+test('unavailable or mismatched runtime configuration preserves history and reports a safe setup reason',async t=>{
+ const good={supabase:{url,key:'sb_publishable_synthetic'},pushServiceReady:false};
+ const cases=[
+  ['offline',null,{},/could not be reached/],
+  ['wrong-url',{...good,supabase:{...good.supabase,url:'https://other.supabase.co'}},{},/different backend/],
+  ['wrong-pin',good,{projectAttribute:'other'},/not linked/],
+  ['not-configured',{error:'synthetic-unsafe backend secret'},{setupStatus:503},/has not been configured/],
+  ['owner-session',{error:'synthetic-unsafe'},{setupStatus:401},/owning ChatGPT account/],
+  ['missing-route',{error:'synthetic-unsafe'},{setupStatus:404},/setup is missing/],
+  ['invalid-json',good,{invalidJson:true},/invalid test connection response/],
+  ['missing-fields',{pushServiceReady:false},{},/incomplete/],
+  ['invalid-key',{...good,supabase:{url,key:'sb_secret_synthetic-unsafe'}},{},/public test connection is invalid/]
+ ];
+ for(const [name,config,options,reason]of cases)await t.test(name,async()=>{
+  const env=environment(config,{savedAccount:true,...options});
   try{
    await import('../app.mjs?test-cloud='+name);await env.click('view',{view:'settings'});
    assert.doesNotMatch(env.elements.get('app').innerHTML,/could not open/);
-   assert.match(env.elements.get('cloudStatus').textContent,/Test cloud unavailable/);
+   const status=env.elements.get('cloudStatus').textContent;assert.match(status,/Test cloud unavailable/);assert.match(status,reason);
+   assert.match(env.elements.get('app').innerHTML,/data-action="retry-test-cloud"/);
    const saved=JSON.parse(env.storage.getItem('MGT_BETA_V8:test-user'));assert.deepEqual(saved.logs,env.state.logs);
    if(name!=='wrong-pin')assert.match(env.elements.get('app').innerHTML,/Synthetic saved account/);
    assert.equal(env.requests.filter(request=>request.request.startsWith('https:')).length,0);
+   document.getElementById('cloudForm').elements={email:{value:'synthetic@example.invalid'},password:{value:'synthetic-password'}};
+   await env.click('signup');assert.equal(env.elements.get('toast').textContent,status);
+   await env.click('sync');assert.equal(env.elements.get('toast').textContent,status);
+   assert.doesNotMatch(status+env.elements.get('toast').textContent+env.elements.get('app').innerHTML,/synthetic-unsafe|sb_secret|other\.supabase/);
    await env.click('enable-push');assert.match(env.elements.get('toast').textContent,/disabled/);
    assert.equal(env.requests.filter(request=>request.request.startsWith('https:')).length,0);
+   await env.click('retry-test-cloud');assert.equal(env.reloads,1);
   }finally{env.restore()}
  });
+});
+
+test('disabled test requests retain the setup reason even after a local sign-out',async()=>{
+ const storage=memory();let calls=0;
+ const cloud=new CloudSync({storage,allowedProject:project,disabled:true,fetcher:async()=>{calls++;return response(null)}});
+ const message='Test cloud unavailable · Saved on this device. The private preview test connection has not been configured.';
+ cloud.status(message);
+ await assert.rejects(cloud.request('/auth/v1/signup',{auth:false}),{message});
+ assert.throws(()=>cloud.configure(url,'sb_publishable_synthetic'),{message});
+ await cloud.signOut();assert.equal(cloud.lastStatus,message);assert.equal(calls,0);cloud.stop();
 });

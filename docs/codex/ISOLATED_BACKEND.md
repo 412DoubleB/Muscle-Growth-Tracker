@@ -146,3 +146,44 @@ accounts. Do not count it as end-to-end Auth or two-device acceptance.
 Version 1 remains saved for rollback to the device-only preview if needed:
 `appgprj_6ad593d6f15481918ded32373b877b03~appgver_0f252fdf739481919b974bce42be3965`.
 Use only the private-version deployment operation and preserve owner-only access.
+
+
+## Runtime configuration routing correction
+
+After version 2, the owner reported that Create account showed the generic
+private-preview cloud-disabled error. A concrete packaging collision reproduced
+that failure: `dist/client/config.json` was a static placeholder without cloud
+settings, at the same path handled by the Worker. Static-first hosting returned
+the placeholder and the client deliberately paused cloud access. Hosted HTTP
+inspection remains restricted by this environment, so the static-first behavior
+is reproduced locally rather than asserted as a captured hosted response.
+
+The test client now uses the dedicated extensionless `/api/preview-config` route,
+which has no static counterpart. The builder removes stale test-cloud
+`config.json`, and the service worker does not precache runtime settings. Both
+static-first and Worker-first dispatch can reach the handler. Local preview/live
+source configuration paths remain unchanged. Bootstrap failures produce a fixed,
+sanitized reason and a reload retry action; no response contents, runtime keys
+or email tokens are included in diagnostic messages. Saved workspaces and account
+credentials remain intact when offline or configuration is unavailable.
+
+The configuration handler serves fixed shared public-client settings behind the
+verified owner-only Sites access boundary. It does not depend on per-visitor
+identity headers and can also serve platform-authorized service calls. This is
+not a user-record endpoint: it exposes only the test publishable browser key,
+the pinned test URL and disabled-push settings. No server/service-role key is
+accepted or returned. Supabase RLS still enforces account data separation. This
+supersedes version 2's redundant per-visitor identity gate and `/config.json` route;
+Sites access restrictions remain unchanged.
+
+
+Correction validation: all 18 Node test files and static/diff checks passed. The
+actual built package is covered by an asset-first routing regression, including
+removal of a stale placeholder, runtime key exclusion, unchanged image/font bytes
+and media bindings. Synthetic browser QA also used asset-first dispatch: runtime
+configuration returned 200 and the real Create account action made exactly one
+mocked POST to the pinned test signup endpoint, then showed the email-confirmation
+status without an error. No actual backend requests were made by that test.
+Mobile layouts (1440/430/360), 84-day generation/save, offline workspace/history
+and safe failure/retry behavior passed. Hosted Auth/email acceptance still needs
+the owner's retry; the environment's network restriction remains unchanged.

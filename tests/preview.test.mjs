@@ -6,6 +6,7 @@ import path from 'node:path';
 import * as C from '../core.mjs';
 import {CloudSync} from '../cloud.mjs';
 import {buildPreview} from '../scripts/build-preview.mjs';
+import previewWorker from '../scripts/preview-config-worker.mjs';
 const memory=()=>{const rows=new Map();return {rows,getItem:k=>rows.get(k)??null,setItem:(k,v)=>rows.set(k,String(v)),removeItem:k=>rows.delete(k)}};
 
 test('private preview ignores saved cloud credentials and cannot send cloud requests',async()=>{
@@ -51,19 +52,58 @@ test('synthetic backup round trip retains zero loads, unknown set fields, meals 
  assert.deepEqual(C.importSnapshot(result,exported).state.logs,result.logs);
 });
 
-test('test-cloud package pins its network policy and contains no runtime credentials',async()=>{
+test('test-cloud runtime config reaches the Worker behind asset-first hosting without archiving credentials',async()=>{
  const output=await fs.mkdtemp(path.join(os.tmpdir(),'menei-test-cloud-package-'));
  try{
+  // Reusing an output directory must not preserve the former shadowing asset.
+  await fs.writeFile(path.join(output,'config.json'),'{"stale":true}');
   await buildPreview(output,{mode:'test-cloud'});
   const html=await fs.readFile(path.join(output,'index.html'),'utf8');
   assert.match(html,/data-preview="test-cloud" data-test-project="bhyrrxrpqaxiwpfxnwpa"/);
   assert.match(html,/connect-src 'self' https:\/\/bhyrrxrpqaxiwpfxnwpa\.supabase\.co;/);
   assert.doesNotMatch(html,/tdmwpcueqxtnqyonucam/);
-  const config=JSON.parse(await fs.readFile(path.join(output,'config.json'),'utf8'));
-  assert.deepEqual(config,{preview:{localOnly:false,projectRef:'bhyrrxrpqaxiwpfxnwpa'},pushServiceReady:false});
+  await assert.rejects(fs.access(path.join(output,'config.json')));
+  await assert.rejects(fs.access(path.join(output,'api','preview-config')));
+  const sw=await fs.readFile(path.join(output,'sw.js'),'utf8'),shell=sw.match(/const SHELL=(\[[\s\S]*?\]);/)?.[1];
+  assert.ok(shell);assert.doesNotMatch(shell,/config\.json|api\/preview-config/);
+  assert.match(await fs.readFile(path.join(output,'app.mjs'),'utf8'),/api\/preview-config/);
   assert.deepEqual(await fs.readFile(path.join(output,'media-manifest.json')),await fs.readFile(new URL('../media-manifest.json',import.meta.url)));
   assert.deepEqual(await fs.readFile(path.join(output,'setup.html')),await fs.readFile(path.join(output,'preview-guide.html')));
   const guide=await fs.readFile(path.join(output,'preview-guide.html'),'utf8');
   assert.match(guide,/Settings → Private beta cloud account/);assert.match(guide,/Scheduled push is disabled/);
+
+  const runtimeKey='sb_publishable_synthetic_runtime_only';let workerCalls=0;
+  const assets={async fetch(request){
+   const relative=new URL(request.url).pathname.slice(1)||'index.html',file=path.resolve(output,relative);
+   assert.ok(file.startsWith(output+path.sep));
+   try{return new Response(await fs.readFile(file))}
+   catch(error){if(error.code==='ENOENT')return new Response('Not found',{status:404});throw error}
+  }};
+  const nativeAssetFirst=async request=>{
+   const asset=await assets.fetch(request);
+   if(asset.status!==404)return asset;
+   workerCalls++;return previewWorker.fetch(request,{ASSETS:assets,MENEI_TEST_PUBLISHABLE_KEY:runtimeKey,SUPABASE_URL:'https://must-not-use-live.invalid'});
+  };
+  assert.equal(await (await nativeAssetFirst(new Request('https://private.example/'))).text(),html);
+  assert.equal(workerCalls,0,'Existing static assets should bypass the Worker in this hosting simulation');
+  const response=await nativeAssetFirst(new Request('https://private.example/api/preview-config',{headers:{'oai-authenticated-user-id':'synthetic-owner'}}));
+  assert.equal(workerCalls,1,'The runtime endpoint must remain reachable even when static assets take precedence');
+  assert.equal(response.status,200);assert.match(response.headers.get('Cache-Control'),/no-store/);
+  const config=await response.json();
+  assert.equal(config.supabase.url,'https://bhyrrxrpqaxiwpfxnwpa.supabase.co');assert.equal(config.supabase.key,runtimeKey);assert.equal(config.pushServiceReady,false);
+  assert.equal(config.preview.projectRef,'bhyrrxrpqaxiwpfxnwpa');assert.doesNotMatch(JSON.stringify(config),/must-not-use-live/);
+
+  async function filesIn(directory){const files=[];for(const entry of await fs.readdir(directory,{withFileTypes:true})){
+   const file=path.join(directory,entry.name);files.push(...(entry.isDirectory()?await filesIn(file):[file]));
+  }return files}
+  let preservedAssets=0;
+  for(const file of await filesIn(output)){
+   const bytes=await fs.readFile(file),relative=path.relative(output,file);
+   assert.equal(bytes.includes(Buffer.from(runtimeKey)),false,relative+' must not archive the runtime key');
+   if(/\.(svg|png|jpe?g|webp|ttf|woff2?)$/i.test(relative)){
+    assert.deepEqual(bytes,await fs.readFile(new URL('../'+relative,import.meta.url)),relative+' original bytes must be preserved');preservedAssets++;
+   }
+  }
+  assert.ok(preservedAssets>100,'The preservation check must include the original image and font collection');
  }finally{await fs.rm(output,{recursive:true,force:true})}
 });
