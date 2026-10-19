@@ -203,3 +203,33 @@ with no groups, external viewers or additional editors. Same preview URL.
 No GitHub push/merge, live-app/backend changes, image replacements or account/data
 resets were performed. Test backend schema and scheduled-push configuration remain
 unchanged. Refresh the preview to load the corrected client before retrying signup.
+
+
+## Native browser request receiver correction
+
+The owner's next screenshot showed the test connection ready and a different
+failure on Create account: `Failed to execute 'fetch' on 'Window': Illegal invocation`.
+No personal account identifiers from that screenshot are retained in source.
+The prior routing correction therefore loaded configuration, but exposed an
+existing client transport defect: the default unbound browser `fetch` was saved
+as a CloudSync property and invoked with the CloudSync object as its receiver.
+Chromium rejects that receiver before sending the request.
+
+A native Chromium reproduction confirmed the exact error with global fetch left
+unmodified and zero auth requests dispatched. Earlier browser QA had replaced
+fetch with an arrow function, which hid the receiver requirement. The corrected
+default transport binds global fetch to its global receiver. Custom injected
+transports and all request-target/account/push guards remain unchanged. A new
+receiver-sensitive regression fails before the fix and passes afterward for both
+Auth and authenticated-account requests. Existing workout records and credentials
+are not migrated, cleared or reset.
+
+
+After the fix, native Chromium with no fetch replacement passed signup, recovery,
+signin, snapshot/commit sync and signout. CDP fulfilled synthetic responses at the
+network boundary, including CORS preflights; all 12 external request attempts were
+intercepted before any transport. Signup displayed the email-confirmation status.
+No JavaScript exceptions, console API errors or online network errors occurred.
+Layout, program save and offline preservation checks also passed. All 18 Node
+test files, static checks and diff checks passed. These prove browser request
+plumbing and preservation, not real email delivery or server account acceptance.

@@ -9,6 +9,20 @@ const memory=()=>{const rows=new Map();return {rows,getItem:key=>rows.get(key)??
 const session={access_token:'synthetic-test-token',refresh_token:'synthetic-refresh',expires_at:Date.now()/1000+3600,user:{id:'test-user'}};
 const response=data=>({ok:true,status:200,text:async()=>JSON.stringify(data)});
 
+test('default browser transport retains its Window receiver for auth and account requests',async t=>{
+ const requests=[];
+ t.mock.method(globalThis,'fetch',function(request,options){
+  if(this!==globalThis)throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
+  requests.push({request,options});return Promise.resolve(response({accepted:true}));
+ });
+ const cloud=new CloudSync({storage:memory(),allowedProject:project});
+ cloud.configure(url,'sb_publishable_synthetic');
+ assert.deepEqual(await cloud.request('/auth/v1/signup',{auth:false,method:'POST',body:{email:'synthetic@example.invalid',password:'synthetic-password'}}),{accepted:true});
+ cloud.saveSession(session);
+ assert.deepEqual(await cloud.request('/auth/v1/user'),{accepted:true});
+ assert.equal(requests.length,2);cloud.stop();
+});
+
 test('test preview isolates credentials and sync bases without deleting the old workspace',async()=>{
  const storage=memory(),state=defaultState();state.ownerId=session.user.id;
  storage.setItem('MGT_BETA_CLOUD_CONFIG',JSON.stringify({url:'https://other.supabase.co',key:'sb_publishable_other'}));
