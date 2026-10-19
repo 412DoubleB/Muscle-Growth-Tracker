@@ -281,3 +281,24 @@ now accepts positive decimal increments without changing stored values. New
 dialog content also resets its scroll position so an exercise guide opens at
 its heading and equipment explanation. The latter presentation adjustment was
 verified with the focused UI suites and a native browser follow-up.
+
+Stage 7 published successfully as owner-private **version 7**, environment
+revision 1, at the same private preview URL. Post-deployment access remains one
+owner and no groups, external viewers or additional editors.
+
+- App source: `0412295d505b5c816513af65c61f19260d1ee259`.
+- Sites source: `d36b461795ffa9da86baf0dbcdec8ccadda0e1f3`.
+- Saved version: `appgprj_6ad593d6f15481918ded32373b877b03~appgver_72d3f34f5bac8191a6cbe41fdcb0aca5`.
+- Deployment: `appgdep_6ad687eb44948191b340332d4d22c98e` (succeeded).
+- Archive: 157 files, 153,068,060 bytes, SHA-256
+  `426b4c352f622d8365a2d84945afb313227befa8752dfce5a5607a041540a22a`.
+
+The package has 154 client files; all 121 shipped image/font hashes and the media
+manifest match source. Private evidence, conversations, account records, exports,
+backups and runtime key values are excluded. The Worker and runtime configuration
+are unchanged: only the isolated test backend is allowed, scheduled push stays
+disabled, and no live AI provider/API calls are enabled. OpenAI Developers was
+still not installed at the final connection check. Real live-AI research and
+physical-device acceptance of this new gym flow remain pending. No GitHub
+push/merge, live-app deployment or live-backend mutation occurred. Version 6
+remains saved for rollback.
