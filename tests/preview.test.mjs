@@ -50,3 +50,20 @@ test('synthetic backup round trip retains zero loads, unknown set fields, meals 
  assert.deepEqual(JSON.parse(storage.getItem('MGT_BETA_SNAPSHOTS:guest'))[0].state.logs,exported.logs);
  assert.deepEqual(C.importSnapshot(result,exported).state.logs,result.logs);
 });
+
+test('test-cloud package pins its network policy and contains no runtime credentials',async()=>{
+ const output=await fs.mkdtemp(path.join(os.tmpdir(),'menei-test-cloud-package-'));
+ try{
+  await buildPreview(output,{mode:'test-cloud'});
+  const html=await fs.readFile(path.join(output,'index.html'),'utf8');
+  assert.match(html,/data-preview="test-cloud" data-test-project="bhyrrxrpqaxiwpfxnwpa"/);
+  assert.match(html,/connect-src 'self' https:\/\/bhyrrxrpqaxiwpfxnwpa\.supabase\.co;/);
+  assert.doesNotMatch(html,/tdmwpcueqxtnqyonucam/);
+  const config=JSON.parse(await fs.readFile(path.join(output,'config.json'),'utf8'));
+  assert.deepEqual(config,{preview:{localOnly:false,projectRef:'bhyrrxrpqaxiwpfxnwpa'},pushServiceReady:false});
+  assert.deepEqual(await fs.readFile(path.join(output,'media-manifest.json')),await fs.readFile(new URL('../media-manifest.json',import.meta.url)));
+  assert.deepEqual(await fs.readFile(path.join(output,'setup.html')),await fs.readFile(path.join(output,'preview-guide.html')));
+  const guide=await fs.readFile(path.join(output,'preview-guide.html'),'utf8');
+  assert.match(guide,/Settings → Private beta cloud account/);assert.match(guide,/Scheduled push is disabled/);
+ }finally{await fs.rm(output,{recursive:true,force:true})}
+});

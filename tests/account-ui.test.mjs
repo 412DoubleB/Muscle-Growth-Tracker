@@ -67,3 +67,32 @@ for(const accepted of [true,false])test('genuine guest workouts import only when
   const recovery=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.deepEqual(recovery.logs,original.logs);
  }finally{env.restore()}
 });
+
+test('accepted guest workouts survive first synchronization with an existing remote account',async t=>{
+ const original=completedWorkspace(null),env=environment(original),remote=completedWorkspace('account-b'),requests=[];
+ const remoteLog=remote.logs['2026-10-01'];delete remote.logs['2026-10-01'];
+ Object.assign(remoteLog,{id:'2026-10-02',date:'2026-10-02',title:'Synthetic remote workout'});remote.logs[remoteLog.date]=remoteLog;
+ try{
+  // Exercise the real sign-in, account transition and sync; replace only HTTP.
+  t.mock.method(CloudSync.prototype,'request',async function(path,options={}){
+   requests.push({path,options});
+   if(path.includes('grant_type=password'))return {access_token:'synthetic-b',refresh_token:'synthetic-b',expires_at:Date.now()/1000+3600,user:{id:'account-b'}};
+   if(path.includes('mgt_beta_states'))return [{app_data:remote,version:4}];
+   if(path.includes('mgt_beta_commit'))return {version:5};
+   assert.fail('Unexpected cloud request: '+path);
+  });
+  await import('../app.mjs?account-workflow='+encodeURIComponent(t.name));
+  document.getElementById('cloudForm').elements={email:{value:'synthetic@example.invalid'},password:{value:'synthetic-password'}};
+  await env.click('signin');
+  assert.equal(env.elements.get('toast')?.textContent||'','');assert.equal(env.prompts.length,1);
+  const saved=JSON.parse(env.rows.get('MGT_BETA_V8:account-b'));
+  assert.deepEqual(saved.logs['2026-10-01'],original.logs['2026-10-01']);
+  assert.deepEqual(saved.logs['2026-10-02'],remote.logs['2026-10-02']);
+  const commit=requests.find(request=>request.path.includes('mgt_beta_commit'));
+  assert.ok(commit,'The accepted guest workout must be committed with the existing remote workout');
+  assert.equal(commit.options.body.expected_version,4);
+  assert.deepEqual(commit.options.body.payload.logs,saved.logs);
+  assert.deepEqual(JSON.parse(env.rows.get('MGT_BETA_V8:guest')).logs,original.logs);
+  assert.deepEqual(JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state.logs,original.logs);
+ }finally{env.restore()}
+});

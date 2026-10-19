@@ -46,8 +46,8 @@ clients, real devices or push delivery. Those remain pending.
    account passwords or import personal history for the initial tests.
 3. Retain owner-only Sites access. Connect only this exact test project through
    a reviewed preview configuration. Do not copy server keys, tokens, passwords
-   or exports into the source or deploy archive. Current preview configuration
-   remains device-local, with sync and scheduled push disabled.
+   or exports into the source or deploy archive. The isolated test-cloud preview pins every cloud request and its browser
+   network policy to the test project. Scheduled push stays disabled.
 4. Have the owner create and confirm test accounts using the normal Auth flow.
    Enter passwords only in the test app or approved private environment, never
    in chat, Git, or reports. Verify confirmation and recovery links return to
@@ -82,3 +82,34 @@ They do not default to tracked `config.json` for an execution target.
 Keep test credentials and captured results outside public Git. Missing settings
 produce an explicit skip; a skip is not a pass. No HTTP acceptance or real email
 claim is made until those checks are actually run against the isolated project.
+
+
+## Isolated test-cloud preview implementation
+
+The separate Sites preview can now run in `test-cloud` mode. Its HTML pins the
+project reference and permits connections only to the same origin and the exact
+test Supabase origin. Connection editing, original-cloud imports and push controls
+are hidden and guarded. Test credentials and sync bases use project-scoped keys;
+existing generic credentials and saved workspaces are retained. Missing runtime
+configuration pauses network activity and preserves a matching saved test-account
+workspace for offline use. Local signout remains available.
+
+The tiny Sites Worker obtains only the test publishable client key from the
+native secret environment variable `MENEI_TEST_PUBLISHABLE_KEY`. It serves that
+public client setting to signed-in owner requests at same-origin `/config.json`,
+with `private, no-store`. No runtime key is in the source or archive. This is a
+public browser key, never a service-role/server key; per-account RLS remains the
+data boundary. The Sites platform independently restricts site access to its owner.
+
+The owner's supplied dashboard screenshot shows the correct test project and the
+preview URL in Site URL and Redirect URLs. A screenshot cannot confirm a final
+Save action. Keep those settings restricted to the preview and retain email
+confirmation.
+
+An attempted anonymous HTTP acceptance run from this environment was blocked by
+the session network proxy (403 on CONNECT to the test host). It did not complete
+and is not counted as a pass. Previously completed rollback-only SQL acceptance
+remains valid. Email delivery, reset/confirmation callbacks, two-device HTTP sync
+and real-device conflicts still require testing in the owner's browser. No live
+backend changes, test Auth users, push deployment or scheduling were performed
+for this preview update.

@@ -193,3 +193,28 @@ Stage 5 verification: all 16 local Node test files passed; static checks and
 branch and have not been deployed to the private preview or live app. Real Auth
 email/redirect acceptance and two-device HTTP sync remain pending the test-only
 configuration and dedicated accounts described in `ISOLATED_BACKEND.md`.
+
+
+## Stage 6: owner-private test-cloud client
+
+The preview builder now supports a separately pinned test-cloud mode. The Sites
+Worker reads the test publishable key from native runtime secrets and provides
+same-origin owner-authenticated configuration; the key is absent from the source
+and archive. Test account controls are visible while project/key editing,
+original-cloud imports and scheduled push remain blocked. Existing live/generic
+credential keys are preserved. Matching saved test workspaces remain available
+when configuration cannot load, with network paused until reconnect/reload.
+
+Review also reproduced and fixed a first-sync preservation issue: consented guest
+workouts could be hidden by the remote-first account load. A real client-flow
+regression now verifies both the guest and pre-existing remote workout in the
+merged account/commit, with original guest records and snapshots retained.
+
+Stage 6 checks: all 18 Node test files, static validation and diff whitespace
+checks passed. Synthetic browser QA passed at 1440, 430 and 360 pixels, including
+account controls, unchanged artwork, 84-day program/save, service worker/offline
+reload and retained test account/session data. No external HTTPS requests were
+made during browser QA. Actual test-backend HTTP checks were blocked by the
+session network proxy, so they are not counted as passed. Real email callbacks,
+password recovery, two-device sync/conflicts and device push remain pending.
+No live app/backend or existing images/history were changed.
