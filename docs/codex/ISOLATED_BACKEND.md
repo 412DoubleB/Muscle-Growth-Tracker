@@ -233,3 +233,22 @@ No JavaScript exceptions, console API errors or online network errors occurred.
 Layout, program save and offline preservation checks also passed. All 18 Node
 test files, static checks and diff checks passed. These prove browser request
 plumbing and preservation, not real email delivery or server account acceptance.
+
+
+Native request correction deployed successfully as owner-private **version 4**,
+environment revision 1. Post-deployment native access verification remains sole
+owner, zero groups/external viewers/additional editors, at the same preview URL.
+
+- App source: `f326869351bef16ce6b49f5cff7444607dd4d569`.
+- Sites source: `49ca3090c4d65538227346d17cc39783bd08a776`.
+- Saved version: `appgprj_6ad593d6f15481918ded32373b877b03~appgver_7d6e9f09e6248191823ff7f34c5581db`.
+- Deployment: `appgdep_6ad65ed7e9948191b7bce3a1c962feea` (succeeded).
+- Archive: 157 files, 153,055,432 bytes, SHA-256
+  `d7338460a94c2e66df7348a5f3ce13f0bd038b6c3a023c3fb2740bd1c15f7a03`.
+
+All 121 shipped images/fonts match source bytes. No private evidence, personal
+records or runtime keys are archived. No live app/backend changes, GitHub push,
+merge, image replacement, saved-history reset or push scheduling were performed.
+Owner should refresh the preview before retrying real signup. Browser-native
+synthetic transport acceptance passed; real email delivery and two-device/server
+acceptance remain pending. The hosted-read proxy restriction remains unchanged.
