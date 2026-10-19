@@ -42,7 +42,9 @@ export function generateProgram(state,{start=state.training.startDate||iso(),day
  if(weekSlots.length<frequency)warnings.push(`Only ${weekSlots.length} eligible training days fit the selected weekly rest days.`);
  const protectedDay=d=>d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||d.exercises?.some(e=>e.sets?.some(s=>s.done||s.w!==''&&s.w!=null||s.r!==''&&s.r!=null||s.rir!==''&&s.rir!=null)));
  function layout(date){const offset=daysBetween(date,anchor),slot=((offset%7)+7)%7,week=Math.floor(offset/7),index=week*weekSlots.length+weekSlots.filter(x=>x<=slot).length-1;let lift=weekSlots.includes(slot),[title,groups]=splitSession(t.split,index);if(t.split==='legacy'){const p=LEGACY_PLAN[((offset%28)+28)%28];lift=!!p[2];title=p[0].replace(/ #\d+/g,'');groups=p[2]?p[2].split(';').map(x=>subgroup(exerciseFor(x.split('|')[0])||{group:'Core',name:x,primary:'',movement:''})):[]}return {offset,index,week,lift,title,groups:lift?groups:[],legs:lift&&groups.some(g=>['quads','hamstrings'].includes(g))}}
- const qualityWeeks=new Set();
+ // Reserve whole training weeks up front, including protected runs after the
+ // first replacement date or before a partial preview. Never rewrite those logs.
+ const qualityWeeks=new Set(Object.values(state.logs).filter(d=>protectedDay(d)&&d.status!=='skipped'&&d.run?.blocks?.length).map(d=>Math.floor(daysBetween(d.date,anchor)/7)));
  const legsAt=date=>{const d=state.logs[date];return d&&!d.deleted?(d.exercises||[]).some(e=>exerciseFor(e.exerciseId||e.name)?.group==='Legs'):layout(date).legs};
  for(let i=0;i<Math.max(1,Math.min(366,+days||28));i++){
   const date=addDays(start,i),gym=scheduledGym(state,date),l=layout(date),notes=[],selected=[],used=new Set();if(!gym)throw Error('Create at least one gym before generating a plan.');

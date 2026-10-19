@@ -1,0 +1,94 @@
+# Development toward private beta
+
+Branch: `dev/generator-preservation-private-beta`, based on handoff commit
+`88540ef6ed83a9607f494f0184c64c879e32d21d`. Development is now authorized by
+the owner. The original intake reports remain historical records. Publishing,
+merging into main and changing the live backend still require separate approval.
+
+Private originals, conversation excerpts, file identifiers and evidence stay
+outside this repository. The completed intake verified 16 transport parts,
+258 indexed members, 254 source originals and 225 original images. These counts
+do not establish approval of every image or complete conversation coverage.
+
+## Stage 1: generator failure
+
+Cause established before changing the assertion:
+
+- The original UI harness completed the real current day's workout, then built
+  a fixed block starting on 2026-10-19.
+- With the clock fixed at 2026-10-19 noon UTC, the original test reproduced
+  `15 !== 16`. With it fixed at 2026-10-18 noon UTC, all 23 UI tests passed.
+- `generateProgram` deliberately excludes protected dates from its replacement
+  rows. A clean block has 16 strength days. With October 19 completed, it has
+  15 new strength days and one unchanged completed workout in `logs`.
+- `apply-program` also protects entered workouts. Adding a sixteenth replacement
+  or overwriting that log would violate preservation requirements.
+
+The UI harness now fixes its clock inside the block and checks 15 new rows,
+16 effective strength days, no replacement row for the completed date, and deep
+identity of all logs before/after saving. Engine coverage checks completed dates
+on a lifting slot, a recovery slot and outside the block, plus a clean 16-day
+strength count. Production lifting generation was not changed for this failure.
+
+## Stage 2: recorded interval runs and regeneration
+
+Requirement: optional quality running stays limited and respects recovery.
+The existing generator capped quality runs generated in a single preview, but
+started with an empty weekly allowance. It could add another interval run to a
+week already containing a recorded interval run. A failing synthetic regression
+established this before the runtime change.
+
+The generator now reserves training weeks containing protected interval runs
+before constructing replacement days. This includes records after the first
+replacement date and records before a partial preview. Weeks use the existing
+training-start anchor. Deleted/skipped records do not reserve a week. Easy runs
+remain available. Tests verify that all existing logs remain identical.
+
+## Stage 3: mobile first-run nutrition setup
+
+Fresh-profile Chromium checks found horizontal overflow inside the initial
+nutrition dialog at 360px and 430px. The small-screen `.grid.formGrid` rule
+retained two columns despite narrow modal content. At widths up to 560px,
+form grids now use one shrinkable column. This is a presentation change only;
+no preference values, default targets or stored meals are rewritten.
+
+## Requirements comparison and remaining stages
+
+This comparison identifies existing implementation and automated evidence. It
+is not owner-device acceptance or a claim that every historical idea is done.
+
+| Area | Existing implementation / evidence | Remaining work or acceptance |
+| --- | --- | --- |
+| Identity and design | Existing logo, athlete, palette, offline font; release/UI/progress checks | Preserve bytes and bindings; review changed mobile flows locally |
+| Catalog and equipment | `catalog.mjs`, `gyms.mjs`; core/additional/feedback tests | Automatic verified gym discovery remains requested; current lookup is curated with a research handoff |
+| Programs and sessions | `core.mjs`, `training.mjs`, `workouts.mjs`, `supersets.mjs`; training/superset/UI tests | Generator count corrected in tests; recorded-quality-run gap fixed; continue actual-browser interaction coverage |
+| Nutrition | `nutrition.mjs`, `recipe-packs.mjs`, `recipes.mjs`; core/additional/recipe-pack/UI tests | First-run/mobile form acceptance, real custom imports and existing meal snapshots on a test copy |
+| History and backups | `upgrade.mjs`, core import/merge/store functions; upgrade/release/feedback tests | Owner-device export and separate-origin recovery comparison; never replace live data with fixtures |
+| Accounts and sync | Existing `cloud.mjs`; mocked two-identity/conflict/retry tests | Real confirmation/recovery emails, offline two-device conflict recovery and account isolation acceptance; no live calls performed here |
+| Notifications | Existing service-worker push/reminder logic and calendar fallback; core/update tests | Installed-device noon/closed-app delivery, permission and timezone acceptance |
+| Progress | `progress.mjs`; calculation/filter/UI tests | Real-device keyboard/touch review with a private test copy; filters must remain read-only |
+| Private beta access | No new hosting or deployment | Select access-controlled hosting or local-only testing; a public branch is not private hosting |
+| Photo continuity | Existing assets and media manifest unchanged | Reconcile original messages to exact image hashes privately; do not regenerate or remap unresolved assets |
+
+Next stages are browser/mobile/offline regression coverage, synthetic backup
+round trips and account-boundary testing, then an access-controlled beta
+candidate. External email, actual device push and live backend configuration
+remain acceptance gates. A pending complete conversation export does not block
+work supported by the saved requirement register.
+
+## Validation
+
+- `npm test`: all 12 test files passed after stages 1 and 2.
+- UI harness: all 23 tests also passed with `TZ=America/New_York`.
+- `npm run check`: passed (22 JavaScript files, 38 shell entries, 162 source
+  image identities, 113 WebP assets, 35 pairs; reminder syntax only).
+- Local Chromium 154 with a fresh synthetic profile: passed at 1440px, 430px
+  and 360px. No page/dialog horizontal overflow, artwork loaded, generator
+  preview/save succeeded, and 84 saved plan rows survived an offline reload
+  under the controlling service worker. No uncaught JavaScript exceptions.
+  External HTTPS requests were blocked throughout this browser run.
+- `git diff --check`: passed.
+
+No actual owner records, original browser storage, live backend or deployed app
+were modified. No schema, storage-key, account, manifest-identity, media-binding
+or release-version changes were needed.

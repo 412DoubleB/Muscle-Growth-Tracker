@@ -24,3 +24,42 @@ test('endurance preview schedules at most one quality run per week and none adja
 test('a 52-week preview stores compact untouched plans and expands them into full editable sets without losing logged data',()=>{const s=state('ppl','strength'),all=C.generateProgram(s,{start:s.training.startDate,days:364}).days;for(const d of all)s.plan[d.date]=C.packPlanDay(d);assert.equal(Object.keys(s.plan).length,364);const date=all.find(d=>d.kind==='strength').date,day=C.dayFor(s,date);assert.equal(day.exercises[0].sets.length,4);assert.equal(day.exercises[0].sets[0].w,'');assert.equal(day.exercises[0].sets[0].rest,240);const log=C.ensureLog(s,date);log.exercises[0].sets[0].w=75;log.exercises[0].sets[0].r=5;const packed=C.packPlanDay(log);assert.equal(packed.exercises[0].sets[0].w,75);assert.notEqual(packed.compactPlan,true);C.validateState(s);assert.ok(JSON.stringify(s).length<1500000);});
 test('PPL puts rear delts on pull days and front/side delts on push days',()=>{const s=state('ppl');const days=C.generateProgram(s,{start:s.training.startDate,days:42}).days;for(const d of days){const shoulders=d.exercises.map(e=>C.exerciseFor(e.exerciseId)).filter(e=>e.group==='Shoulders');if(d.title==='Push')assert.ok(shoulders.every(e=>['anterior','lateral'].includes(e.subgroup)));if(d.title==='Pull')assert.ok(shoulders.every(e=>e.subgroup==='rear'));}});
 test('custom routine calendars continue beyond a saved block in the chosen rotation',()=>{const s=state();s.training.mode='custom';s.routines=[{id:'a',name:'My A',exercises:[C.makeExercise(C.CATALOG[0])]},{id:'b',name:'My B',exercises:[C.makeExercise(C.CATALOG[1])]}];s.training.routineOrder=['a','b'];const d=C.dayFor(s,'2027-04-01');assert.ok(['My A','My B','Recovery','Easy aerobic run','Recovery aerobic run'].includes(d.title));const lifts=Array.from({length:14},(_,i)=>C.dayFor(s,C.addDays('2027-04-01',i))).filter(d=>d.kind==='strength');assert.ok(lifts.length>0);assert.ok(lifts.every(d=>['My A','My B'].includes(d.title)));assert.ok(lifts.every(d=>d.exercises[0].sets.every(r=>r.w===''&&!r.done)));});
+
+test('regenerating counts new strength days separately from preserved workouts',()=>{
+ for(const [date,expected] of [['2026-10-19',15],['2026-10-25',16],['2026-10-18',16]]){
+  const s=state('seven');
+  assert.equal(C.generateProgram(s,{start:s.training.startDate,days:28}).days.filter(d=>d.kind==='strength').length,16);
+  const log=C.originalDay(s,date);log.status='completed';s.logs[date]=log;
+  const before=C.clone(s.logs),result=C.generateProgram(s,{start:s.training.startDate,days:28});
+  assert.equal(result.days.filter(d=>d.kind==='strength').length,expected,date);
+  assert.ok(!result.days.some(d=>d.date===date));
+  assert.deepEqual(s.logs,before);
+ }
+});
+
+test('preserved quality runs reserve their training week before any replacement is generated',()=>{
+ for(const date of ['2026-10-26','2026-10-30']){
+  const s=state('bro','endurance');s.training.frequency=1;s.training.runEvery=1;s.training.runningQuality=true;
+  // A recorded interval run can precede or follow the first eligible new run,
+  // or fall before the requested preview while still sharing its training week.
+  s.logs[date]={id:date,date,status:'completed',kind:'run',exercises:[],run:{done:true,blocks:[{repeat:4,workMinutes:2,recoveryMinutes:2}]}};
+  const before=C.clone(s.logs);
+  for(const start of ['2026-10-26','2026-10-28']){
+   const days=C.generateProgram(s,{start,days:7}).days;
+   const sameWeek=days.filter(d=>C.daysBetween(d.date,s.training.startDate)>=7&&C.daysBetween(d.date,s.training.startDate)<14);
+   assert.ok(sameWeek.some(d=>d.run),'easy runs remain available');
+   assert.equal(sameWeek.filter(d=>d.run?.blocks?.length).length,0,`${date}, preview ${start}`);
+  }
+  assert.deepEqual(s.logs,before);
+ }
+});
+
+test('skipped and deleted interval records do not consume the quality-run allowance',()=>{
+ for(const flags of [{status:'skipped'},{status:'completed',deleted:true}]){
+  const s=state('bro','endurance');s.training.frequency=1;s.training.runEvery=1;s.training.runningQuality=true;
+  s.logs['2026-10-26']={id:'2026-10-26',date:'2026-10-26',exercises:[],kind:'run',run:{blocks:[{repeat:4}]},...flags};
+  const before=C.clone(s.logs),result=C.generateProgram(s,{start:'2026-10-26',days:7});
+  assert.equal(result.days.filter(d=>d.run?.blocks?.length).length,1);
+  assert.deepEqual(s.logs,before);
+ }
+});
