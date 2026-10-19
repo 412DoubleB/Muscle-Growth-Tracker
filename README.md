@@ -1,4 +1,6 @@
-# MENEI 8.1.1
+# MENEI 8.1.2
+
+Version 8.1.2 fixes cloud authentication and sync failing with the browser error `Failed to execute 'fetch' on 'Window': Illegal invocation`. The default cloud transport now preserves the native fetch receiver. Existing injected test transports, app identity, browser storage, accounts, and backend configuration are retained. See [cloud connection fix and validation](docs/CLOUD_FETCH_FIX_8_1_2.md).
 
 Version 8.1.1 of the existing workout and nutrition PWA, branded MENEI. The approved identity uses Pittsburgh black and gold, the owner's exact M and pointed-leaf wreath, and Strength / Nutrition / Progress dashboard cards. This update adds a true black background with the M/wreath above a gold Greek soldier lifting a stone. See the [background artwork record](docs/MENEI_BACKGROUND.md). It updates the existing app in place and retains its data and account configuration.
 

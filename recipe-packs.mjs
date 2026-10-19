@@ -1,5 +1,5 @@
-import {clone,hash,norm,now} from './core.mjs?v=8.1.1';
-import {foodFor,FOODS,recipeMacros,convertQty} from './nutrition.mjs?v=8.1.1';
+import {clone,hash,norm,now} from './core.mjs?v=8.1.2';
+import {foodFor,FOODS,recipeMacros,convertQty} from './nutrition.mjs?v=8.1.2';
 
 export const MAX_PACK_BYTES=5*1024*1024;
 export const MAX_PACK_RECIPES=250;
