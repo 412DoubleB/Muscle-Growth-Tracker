@@ -113,3 +113,36 @@ remains valid. Email delivery, reset/confirmation callbacks, two-device HTTP syn
 and real-device conflicts still require testing in the owner's browser. No live
 backend changes, test Auth users, push deployment or scheduling were performed
 for this preview update.
+
+
+## Published test-cloud preview — October 19, 2026
+
+Owner-private Sites version **2** deployed successfully with environment revision
+1. Same preview URL and project; the owner remains the sole allowed user, with
+zero groups, external visitors or additional editors. Scheduled push is disabled.
+
+- App source commit: `4ed5446344581a10e17afeedcb1e34444bb39bd4`.
+- Separate Sites source commit: `ce164e75afe400887c2d6e8edef1069987d30a09`.
+- Saved version: `appgprj_6ad593d6f15481918ded32373b877b03~appgver_e81a533259dc81919d6aa95b82e21b6b`.
+- Deployment: `appgdep_6ad65874151c8191904462c40721e506` (succeeded).
+- Archive: 158 files, 153,055,033 bytes,
+  SHA-256 `0efa91c42878747bee0aca0d7f8bd2ed9b28da416fb7ec1d9888e36963ffd31e`.
+
+The archive contains `.openai/hosting.json`, `dist/server/index.js` plus its
+asset-binding configuration, and 155 runtime files under `dist/client/`.
+All 121 shipped image/font files exactly match the existing source. The initial
+archive layout was rejected before a version was created; correcting the Worker
+entrypoint to `dist/server/index.js` resolved deployment validation. Private source
+and build helpers use the same Site ID and exact pushed source commit. No private
+records, conversations, backups, exports or runtime keys were uploaded.
+
+Native deployment and access verification passed. An additional read-only HTTP
+probe of the hosted preview was blocked by the environment proxy before reaching
+the site; independent hosted asset/owner-session configuration requests therefore
+remain unverified here. Recent native Worker error logs were empty. Local browser
+QA used a synthetic runtime key, owner identity and HTTP boundary, not real email
+accounts. Do not count it as end-to-end Auth or two-device acceptance.
+
+Version 1 remains saved for rollback to the device-only preview if needed:
+`appgprj_6ad593d6f15481918ded32373b877b03~appgver_0f252fdf739481919b974bce42be3965`.
+Use only the private-version deployment operation and preserve owner-only access.

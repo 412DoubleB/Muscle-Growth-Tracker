@@ -218,3 +218,12 @@ made during browser QA. Actual test-backend HTTP checks were blocked by the
 session network proxy, so they are not counted as passed. Real email callbacks,
 password recovery, two-device sync/conflicts and device push remain pending.
 No live app/backend or existing images/history were changed.
+
+
+Stage 6 publication: owner-private preview version 2 deployed successfully at the
+same Sites URL, using only MENEI Private Beta Test. Native post-deployment access
+verification still shows one allowed owner, no groups/external viewers/additional
+editors. Runtime environment revision 1 supplies the test public client key outside
+the archive. See `ISOLATED_BACKEND.md` for source/archive provenance, the retained
+version-1 rollback and the hosted HTTP verification limit. No GitHub push/merge,
+live-app deployment or live-backend change was performed.
