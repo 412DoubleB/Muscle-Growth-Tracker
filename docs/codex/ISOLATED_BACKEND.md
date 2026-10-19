@@ -367,3 +367,23 @@ passed. A realistic 815,347-byte synthetic sync base remained present throughout
 No external browser requests or JavaScript errors occurred. This verifies
 synthetic recovery, not the contents of the owner's private backup or acceptance
 on a second physical device.
+
+Deployed successfully as owner-private **version 6**, environment revision 1.
+Post-deployment access remains sole owner, with no groups, external viewers or
+additional editors. The URL is unchanged.
+
+- App source: `be2e51f16841f1b316d6d2497deeac164c295558`.
+- Sites source: `c09da9352face3e39f1ff9391ff0bc5261af5829`.
+- Saved version: `appgprj_6ad593d6f15481918ded32373b877b03~appgver_16f3f05cd4bc8191b89ac7229fbedec5`.
+- Deployment: `appgdep_6ad67c9f2a0881918c7e02b1ec8c8bc6` (succeeded).
+- Archive: 157 files, 153,059,756 bytes, SHA-256
+  `8bd019ce012392b65bc307d3de0822515ccfac270e3d9e15e72a1a385152e56d`.
+
+All 121 shipped image/font hashes match the existing source. The package contains
+154 runtime client files and excludes private evidence, account exports, backups
+and runtime key values. The configuration Worker is unchanged and still pins
+only MENEI Private Beta Test with scheduled push disabled. No GitHub push/merge,
+live-app/backend mutation or database migration was performed. Publication does
+not resolve the owner's pending reviews; after refresh, the owner can explicitly
+keep current nutrition and acknowledge matching copies. Closing review schedules
+sync. Physical-device acceptance of these actions remains pending.
