@@ -125,7 +125,7 @@ forms, generator preview/save and offline reload retaining 84 plan rows, with
 no JavaScript exceptions. Real email, two-device cloud sync and scheduled push
 remain excluded from this preview and require separate acceptance.
 
-### Private preview publication status
+### Private preview publication status — deployed
 
 Candidate runtime source: `b4530f9ebb85e05bbd945648d771a0e0bdffce1c`.
 The package contains 155 runtime files / 154,941,621 bytes: 143 unchanged
@@ -134,15 +134,27 @@ files. An explicit allowlist/provenance comparison found no unexpected files,
 private continuity evidence, owner records, exports or runtime configuration keys.
 The package retains the original media manifest and image bytes.
 
-A new, empty Sites project has been created with the owner as its sole allowed
-viewer and no allowed groups. Its intended URL is
-`https://menei-private-beta.crispcrown515.chatgpt.site`; this is NOT a working
-preview URL yet. It has no saved version or successful deployment.
+The separate Sites project is deployed at
+`https://menei-private-beta.crispcrown515.chatgpt.site`. Native deployment
+verification succeeded. Post-deployment access verification confirmed exactly
+one allowed owner/viewer, no groups, no external visitors and no additional
+editors. Cloud sync and scheduled push remain disabled.
 
-Upload to that project's separate source repository was blocked by automatic
+The initial upload to that project's separate source repository was blocked by automatic
 approval review. The review requires explicit owner approval for this specific
 hosting destination and sanitized source/assets upload. A second review after
 provenance and owner-only-access verification retained that requirement. Do not
-retry the upload or use another route until the owner approves it. The local
-package, source commit and site identity are retained for continuation. No push
-to GitHub main, live-backend mutation or live-app deployment occurred.
+retry the upload or use another route without that approval. The owner subsequently
+explicitly approved the exact 155-file sanitized package, separate repository and
+private-preview destination. The authorized upload and private deployment then
+succeeded. No push to GitHub main, live-backend mutation or live-app deployment
+occurred.
+
+
+Published Sites source commit: `dfcb6c9ee40710b610f87197679b1cbad68258fb`.
+Saved preview version: 1.
+Deployment: `appgdep_6ad596af80b88191b2d76ef1bb06b9e1` (succeeded).
+The archive was built from that exact pushed source. No private conversations,
+personal records, backups, exports or runtime keys were included. MENEI's account
+controls remain disabled in this preview; Sites owner-only access protects the
+site independently. Use the same owning ChatGPT account to open the test link.
