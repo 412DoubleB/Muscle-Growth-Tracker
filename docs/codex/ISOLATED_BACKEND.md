@@ -187,3 +187,19 @@ status without an error. No actual backend requests were made by that test.
 Mobile layouts (1440/430/360), 84-day generation/save, offline workspace/history
 and safe failure/retry behavior passed. Hosted Auth/email acceptance still needs
 the owner's retry; the environment's network restriction remains unchanged.
+
+
+The correction is deployed as owner-private **version 3**, environment revision 1.
+Native deployment succeeded; post-deployment access still has only the owner,
+with no groups, external viewers or additional editors. Same preview URL.
+
+- App source: `71b7bb6f537e8625807eac7d4f81334a10cb2fc3`.
+- Sites source: `498e750556789ef742c104885fb93130d816c4ec`.
+- Saved version: `appgprj_6ad593d6f15481918ded32373b877b03~appgver_087e2271da18819199d91bbb2e25be9b`.
+- Deployment: `appgdep_6ad65c59708481919b1e24b1397f2fce` (succeeded).
+- Archive: 157 files, 153,055,473 bytes, SHA-256
+  `775257aabeda2c830771a0f56887e85e1546879ecea820bbf227eee15d51e70e`.
+
+No GitHub push/merge, live-app/backend changes, image replacements or account/data
+resets were performed. Test backend schema and scheduled-push configuration remain
+unchanged. Refresh the preview to load the corrected client before retrying signup.
