@@ -317,3 +317,53 @@ live-app/backend changes, database migrations, server-side repairs or automatic
 conflict resolutions were performed. Scheduled push remains disabled. Owner review
 of differing saved nutrition values and clean two-device/offline acceptance are
 still pending; the existing conflict count is deliberately retained.
+
+
+## Explicit review while preserving current settings
+
+After selecting a preferred saved nutrition setup, the owner still had a separate
+older nutrition conflict. Both copies in that remaining entry were older than the
+selected active settings. The prior two-button screen could only restore one of
+those historical copies, so another choice could undo the desired setup.
+
+The review workflow now offers explicit Keep current settings/item and a batch
+acknowledgment for matching pairs. These actions keep active records unchanged,
+mark only selected reviews resolved and retain complete saved copies plus the
+pre-action current value in recovery records. Historical A/B selections also
+retain recovery records. Nothing is acknowledged on load, opening review or sync;
+the owner must click an action. A local snapshot precedes every modifying action.
+
+Recovery records use uniquely identified `kind: reviewed-conflict` entries in the
+existing `legacySnapshots` collection, which older clients already union during
+sync. The schema number, browser storage keys, original source entries and their
+relative order are unchanged. A new root archive field would not have the same
+old-client preservation guarantee. Reviewed entries are ordered deterministically
+for convergence; cloud no-op comparison also tolerates old-client review ordering
+and resolution-marker ordering without reordering the saved marker array.
+Authored array ordering remains meaningful. Existing conflicts/resolution IDs
+are retained; no arbitrary historical-ID collision repair is claimed.
+
+The screen shows active nutrition settings separately from saved versions A/B,
+puts genuinely different reviews first and groups matching saved copies. Reviewed
+copies remain visible in a recovery section and exported backups. Explicit restore
+preserves the then-current value for recovery before applying the selected copy.
+Original-source counts exclude these new reviewed-copy entries. No server-side
+record repair or automatic bulk cleanup is part of this feature.
+
+Validation: all 23 Node test files, static checks and diff checks passed. Synthetic
+regressions cover 107 explicit reviews, atomic validation and storage failures,
+historical selection/recovery, independent backup import and concurrent device
+reviews. Two simulated clients retain all recovery records, do not resurrect
+reviewed conflicts and settle without repeated cloud writes. Older-client review
+ordering is tolerated while actual recovery values and authored array changes
+remain meaningful.
+
+Chromium at 360 pixels verified opening review without writes, keeping current
+nutrition, acknowledging 106 matching pairs and reaching zero pending reviews
+without changing active settings, workouts, zero loads or image bindings. A
+1,840,431-byte synthetic backup restored all 107 recovery entries on a separate
+origin; explicit historical restoration and restoration of the kept value also
+passed. A realistic 815,347-byte synthetic sync base remained present throughout.
+No external browser requests or JavaScript errors occurred. This verifies
+synthetic recovery, not the contents of the owner's private backup or acceptance
+on a second physical device.

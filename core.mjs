@@ -11,6 +11,7 @@ export const clone=v=>structuredClone(v);
 // data. Arrays retain their order; optional properties follow JSON wire rules.
 export const canonicalJson=value=>JSON.stringify(value,(_key,item)=>item&&typeof item==='object'&&!Array.isArray(item)?Object.fromEntries(Object.keys(item).sort().map(key=>[key,item[key]])):item);
 export const jsonEqual=(a,b)=>canonicalJson(a)===canonicalJson(b);
+export function orderReviewedSnapshots(entries){const originals=entries.filter(entry=>entry?.kind!=='reviewed-conflict'),reviews=entries.filter(entry=>entry?.kind==='reviewed-conflict').sort((a,b)=>String(a.id)<String(b.id)?-1:String(a.id)>String(b.id)?1:0);return [...originals,...reviews]}
 export const uid=()=>globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(36).slice(2)}`;
 export const iso=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export const dateOf=s=>new Date(`${s}T12:00:00`);
@@ -155,6 +156,94 @@ export function importSnapshot(current,raw){validateState(raw);const s=clone(cur
 const objectCollections=['logs','plan','meals','shoppingChecks'];const arrayCollections=['gyms','gymSchedules','recipes','pantry','leftovers','customExercises','routines'];
 const same=jsonEqual;
 export function mergeStates(local,remote,base={}){const out=clone(local),conflicts=[];function pick(a,b,c,collection,key){if(b===undefined)return a;if(a===undefined)return b;if(same(a,b))return a;if(same(a,c))return b;if(same(b,c))return a;const comparable=v=>{if(!v||typeof v!=='object')return v;const x=clone(v);delete x.updatedAt;return x};if(same(comparable(a),comparable(b)))return a;const id=`conflict-${hash(collection+key+JSON.stringify(a)+JSON.stringify(b))}`;conflicts.push({id,collection,key,local:clone(a),remote:clone(b),reason:'Both devices edited this item. Choose the version to keep.',createdAt:now()});return a}
- for(const col of objectCollections){out[col]={};for(const key of new Set([...Object.keys(local[col]||{}),...Object.keys(remote[col]||{})]))out[col][key]=pick(local[col]?.[key],remote[col]?.[key],base[col]?.[key],col,key)}for(const col of arrayCollections){const a=new Map((local[col]||[]).map(x=>[x.id,x])),b=new Map((remote[col]||[]).map(x=>[x.id,x])),c=new Map((base[col]||[]).map(x=>[x.id,x]));out[col]=[...new Set([...a.keys(),...b.keys()])].map(k=>pick(a.get(k),b.get(k),c.get(k),col,k))}for(const col of ['profile','training','nutrition','reminders'])out[col]=pick(local[col],remote[col],base[col],col,col);const avoidedIds=new Set([...(local.avoided||[]),...(remote.avoided||[]),...(base.avoided||[])]);out.avoided=[...avoidedIds].filter(id=>{const a=(local.avoided||[]).includes(id),b=(remote.avoided||[]).includes(id),c=(base.avoided||[]).includes(id);return a===c?b:a});out.legacySnapshots=[...new Map([...(local.legacySnapshots||[]),...(remote.legacySnapshots||[])].map(x=>[x.id,x])).values()];out.resolvedConflicts=[...new Set([...(local.resolvedConflicts||[]),...(remote.resolvedConflicts||[])])];out.conflicts=[...new Map([...(local.conflicts||[]),...(remote.conflicts||[]),...conflicts].map(x=>[x.id,x])).values()].filter(c=>!out.resolvedConflicts.includes(c.id));out.updatedAt=now();return {state:out,conflicts}}
-export function resolveConflict(state,id,choice){const c=state.conflicts.find(x=>x.id===id);if(!c)throw Error('Conflict not found.');const value=touch(clone(c[choice]));if(objectCollections.includes(c.collection))state[c.collection][c.key]=value;else if(arrayCollections.includes(c.collection)){const i=state[c.collection].findIndex(x=>x.id===c.key);if(i>=0)state[c.collection][i]=value;else state[c.collection].push(value)}else state[c.collection]=value;state.resolvedConflicts=[...new Set([...(state.resolvedConflicts||[]),id])];state.conflicts=state.conflicts.filter(x=>x.id!==id);return state}
+ for(const col of objectCollections){out[col]={};for(const key of new Set([...Object.keys(local[col]||{}),...Object.keys(remote[col]||{})]))out[col][key]=pick(local[col]?.[key],remote[col]?.[key],base[col]?.[key],col,key)}for(const col of arrayCollections){const a=new Map((local[col]||[]).map(x=>[x.id,x])),b=new Map((remote[col]||[]).map(x=>[x.id,x])),c=new Map((base[col]||[]).map(x=>[x.id,x]));out[col]=[...new Set([...a.keys(),...b.keys()])].map(k=>pick(a.get(k),b.get(k),c.get(k),col,k))}for(const col of ['profile','training','nutrition','reminders'])out[col]=pick(local[col],remote[col],base[col],col,col);const avoidedIds=new Set([...(local.avoided||[]),...(remote.avoided||[]),...(base.avoided||[])]);out.avoided=[...avoidedIds].filter(id=>{const a=(local.avoided||[]).includes(id),b=(remote.avoided||[]).includes(id),c=(base.avoided||[]).includes(id);return a===c?b:a});out.legacySnapshots=orderReviewedSnapshots([...new Map([...(local.legacySnapshots||[]),...(remote.legacySnapshots||[])].map(x=>[x.id,x])).values()]);out.resolvedConflicts=[...new Set([...(local.resolvedConflicts||[]),...(remote.resolvedConflicts||[])])];out.conflicts=[...new Map([...(local.conflicts||[]),...(remote.conflicts||[]),...conflicts].map(x=>[x.id,x])).values()].filter(c=>!out.resolvedConflicts.includes(c.id));out.updatedAt=now();return {state:out,conflicts}}
+const conflictPreferences=['profile','training','nutrition','reminders'];
+const reviewRecord=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
+const reviewId=value=>typeof value==='string'&&value.trim().length>0;
+function checkConflictRecord(conflict){
+ if(!reviewRecord(conflict)||!reviewId(conflict.id)||!reviewId(conflict.key)||['__proto__','constructor','prototype'].includes(conflict.key)||![...objectCollections,...arrayCollections,...conflictPreferences].includes(conflict.collection)||conflictPreferences.includes(conflict.collection)&&conflict.key!==conflict.collection)throw Error('The saved conflict has an invalid identity or collection.');
+ canonicalJson(conflict);clone(conflict);
+ for(const choice of ['local','remote']){if(!Object.hasOwn(conflict,choice)||conflict[choice]===undefined||canonicalJson(conflict[choice])===undefined)throw Error('The saved conflict is missing a recoverable copy.');clone(conflict[choice])}
+}
+function checkConflictReviewState(state){
+ validateState(state);
+ if(!Array.isArray(state.conflicts)||!Array.isArray(state.legacySnapshots)||state.resolvedConflicts!==undefined&&(!Array.isArray(state.resolvedConflicts)||state.resolvedConflicts.some(id=>!reviewId(id))))throw Error('Conflict review records are malformed.');
+ const ids=new Set();for(const conflict of state.conflicts){checkConflictRecord(conflict);if(ids.has(conflict.id))throw Error('More than one saved conflict has this identity. Keep all copies and review the backup.');ids.add(conflict.id)}
+}
+function conflictComparable(value){const copy=clone(value);if(reviewRecord(copy))delete copy.updatedAt;return copy}
+export function conflictCopiesMatch(conflict){try{checkConflictRecord(conflict);return jsonEqual(conflictComparable(conflict.local),conflictComparable(conflict.remote))}catch{return false}}
+function pendingConflict(state,id){
+ if(!reviewId(id))throw Error('Choose a valid conflict identity.');
+ checkConflictReviewState(state);const conflict=state.conflicts.find(entry=>entry.id===id);
+ if(!conflict){if((state.resolvedConflicts||[]).includes(id))return null;throw Error('Conflict not found.')}
+ if((state.resolvedConflicts||[]).includes(id))throw Error('This conflict is already marked reviewed. Keep the saved copies for review.');
+ return conflict;
+}
+function conflictCurrent(state,conflict){
+ const collection=state[conflict.collection];
+ if(arrayCollections.includes(conflict.collection)){
+  if(!Array.isArray(collection))throw Error('The current conflict collection is malformed.');
+  const matches=collection.filter(entry=>entry?.id===conflict.key);if(matches.length>1)throw Error('The current collection contains duplicate record identities.');
+  return matches.length?{exists:true,value:clone(matches[0])}:{exists:false};
+ }
+ if(objectCollections.includes(conflict.collection)){
+  if(!reviewRecord(collection))throw Error('The current conflict collection is malformed.');
+  return Object.hasOwn(collection,conflict.key)?{exists:true,value:clone(collection[conflict.key])}:{exists:false};
+ }
+ return Object.hasOwn(state,conflict.collection)?{exists:true,value:clone(collection)}:{exists:false};
+}
+function conflictReviewArchive(state,conflict,decision,usedIds,sourceArchiveId){
+ const id='reviewed-conflict-'+uid();if(usedIds.has(id))throw Error('A unique recovery identity could not be created. Retry without changing your saved copies.');usedIds.add(id);
+ const current=conflictCurrent(state,conflict);if(current.exists&&canonicalJson(current.value)===undefined)throw Error('The current value cannot be saved as a recovery copy.');
+ const archive={id,kind:'reviewed-conflict',reviewedAt:now(),decision,data:{conflict:clone(conflict),current}};
+ if(sourceArchiveId)archive.sourceArchiveId=sourceArchiveId;
+ return archive;
+}
+function reviewedSelection(state,conflict,value){
+ const selected=clone(value);if(selected===undefined||canonicalJson(selected)===undefined)throw Error('The selected saved value cannot be restored.');
+ const plain=reviewRecord(selected)&&[Object.prototype,null].includes(Object.getPrototypeOf(selected));const next=plain?touch(selected):selected;
+ if(arrayCollections.includes(conflict.collection)){
+  if(!reviewRecord(next)||next.id!==conflict.key)throw Error('The selected copy has a different record identity.');
+  const collection=state[conflict.collection].slice(),index=collection.findIndex(entry=>entry?.id===conflict.key);if(index<0)collection.push(next);else collection[index]=next;return collection;
+ }
+ if(objectCollections.includes(conflict.collection)){
+  if(conflict.collection!=='shoppingChecks'&&!reviewRecord(next))throw Error('The selected copy is not a saved app record.');
+  return {...state[conflict.collection],[conflict.key]:next};
+ }
+ if(!reviewRecord(next))throw Error('The selected copy is not a settings record.');
+ return next;
+}
+function applyConflictReview(state,conflicts,decision,selection,sourceArchiveId){
+ const usedIds=new Set(state.legacySnapshots.map(entry=>entry?.id));const archives=conflicts.map(conflict=>conflictReviewArchive(state,conflict,decision,usedIds,sourceArchiveId));
+ const ids=new Set(sourceArchiveId?[]:conflicts.map(conflict=>conflict.id));
+ const nextConflicts=state.conflicts.filter(conflict=>!ids.has(conflict.id));
+ const nextResolved=[...(state.resolvedConflicts||[]),...[...ids].filter(id=>!(state.resolvedConflicts||[]).includes(id))];
+ const nextArchives=[...state.legacySnapshots,...archives];
+ const collection=selection?reviewedSelection(state,conflicts[0],selection.value):undefined;
+ const draft=clone(state);draft.conflicts=nextConflicts;draft.resolvedConflicts=nextResolved;draft.legacySnapshots=nextArchives;if(selection)draft[conflicts[0].collection]=collection;
+ validateState(draft);
+ if(selection)state[conflicts[0].collection]=collection;
+ state.conflicts=nextConflicts;state.resolvedConflicts=nextResolved;state.legacySnapshots=nextArchives;return state;
+}
+export function keepCurrentConflict(state,id){const conflict=pendingConflict(state,id);return conflict?applyConflictReview(state,[conflict],'keep-current'):state}
+export function acknowledgeMatchingConflicts(state){
+ checkConflictReviewState(state);const conflicts=state.conflicts.filter(conflictCopiesMatch);
+ if(conflicts.some(conflict=>(state.resolvedConflicts||[]).includes(conflict.id)))throw Error('A saved conflict is already marked reviewed.');
+ return conflicts.length?applyConflictReview(state,conflicts,'matching-copies'):state;
+}
+export function reviewedConflicts(state){return Array.isArray(state?.legacySnapshots)?state.legacySnapshots.filter(entry=>entry?.kind==='reviewed-conflict'):[]}
+export function resolveConflict(state,id,choice){
+ if(!['local','remote'].includes(choice))throw Error('Choose a saved local or remote version.');
+ const conflict=pendingConflict(state,id);return conflict?applyConflictReview(state,[conflict],choice,{value:conflict[choice]}):state;
+}
+export function restoreReviewedConflict(state,archiveId,choice){
+ if(!reviewId(archiveId)||!['local','remote','current'].includes(choice))throw Error('Choose a saved recovery version.');
+ checkConflictReviewState(state);const matches=state.legacySnapshots.filter(entry=>entry?.id===archiveId);
+ if(matches.length!==1||matches[0].kind!=='reviewed-conflict')throw Error('The reviewed conflict recovery copy was not found or has an ambiguous identity.');
+ const archive=matches[0];if(!reviewRecord(archive.data))throw Error('The reviewed conflict recovery copy is malformed.');
+ const conflict=archive.data.conflict;checkConflictRecord(conflict);const current=archive.data.current;
+ if(!reviewRecord(current)||typeof current.exists!=='boolean'||current.exists&&!Object.hasOwn(current,'value'))throw Error('The saved current value is malformed.');
+ if(choice==='current'&&!current.exists)throw Error('There was no current record at review. Choose a saved version instead.');
+ return applyConflictReview(state,[conflict],'restore-'+choice,{value:choice==='current'?current.value:conflict[choice]},archiveId);
+}
 export class LocalStore{constructor(storage){this.storage=storage;this.scope='guest';this.state=null}load(scope='guest'){this.scope=scope;const text=this.storage.getItem('MGT_BETA_V8:'+scope);this.state=text?JSON.parse(text):defaultState();validateState(this.state);return this.state}save(state){const data=JSON.stringify({...state,updatedAt:now()});this.storage.setItem('MGT_BETA_V8:'+this.scope,data);this.state=JSON.parse(data);return this.state}snapshot(){const key='MGT_BETA_SNAPSHOTS:'+this.scope;let list=[];try{list=JSON.parse(this.storage.getItem(key)||'[]')}catch{}list.unshift({at:now(),state:clone(this.state)});list=list.slice(0,3);while(list.length>1&&JSON.stringify(list).length>700000)list.pop();for(;;){try{this.storage.setItem(key,JSON.stringify(list));break}catch(e){if(list.length<=1)throw e;list.pop()}}}legacy(){for(const key of ['MGT28v6','MGT28v5']){const data=this.storage.getItem(key);if(data)return {key,data:JSON.parse(data)}}return null}}
