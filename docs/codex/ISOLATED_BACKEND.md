@@ -252,3 +252,49 @@ merge, image replacement, saved-history reset or push scheduling were performed.
 Owner should refresh the preview before retrying real signup. Browser-native
 synthetic transport acceptance passed; real email delivery and two-device/server
 acceptance remain pending. The hosted-read proxy restriction remains unchanged.
+
+
+## JSON object ordering and conflict preservation
+
+The owner reported successful phone sync with many saved conflicts. This confirms
+transport on that device, but is not a clean two-device merge acceptance. The
+client compared records using JSON.stringify text, which treats object insertion
+order as significant. PostgreSQL JSONB can return the same object values with
+keys reordered. A synthetic state with 100 original recipes, seven settings/gym
+records and one completed workout reproduced exactly 108 false conflicts when
+only object keys changed. Repeated no-edit sync also unnecessarily committed new
+revisions. No real account payloads are retained in these regression fixtures.
+
+The correction uses canonical JSON comparison, recursively ignoring object-key
+order while retaining JSON value semantics and array ordering. Missing/undefined
+object fields follow existing JSON wire normalization; null, zero, types, array
+order and substantive nested fields still matter. Existing record-level timestamp
+comparison remains limited to that record's own updatedAt. No-op cloud comparison
+ignores only the workspace's root updatedAt; nested record edits still synchronize.
+
+Existing conflict IDs, resolution IDs, raw local/remote copies and their order
+are retained. The correction does not clear or auto-resolve earlier conflicts or
+change the historical conflict-ID algorithm. The review screen classifies matching
+copies and displays genuinely differing saved values first without editing them.
+The owner should export a private preview backup before making explicit choices.
+Real nutrition/workout differences must be reviewed; they cannot be treated as
+mere object-order changes. No blanket choice or server-side data repair is part
+of this update.
+
+
+Validation: all 21 Node test files, static checks and diff checks passed. New
+regressions cover JSONB-like nested key reordering, no-base seeded records,
+undefined wire normalization, zero loads/types/null/array ordering, timestamp-only
+changes, one-sided edits with a reordered base, real concurrent set edits,
+no-edit zero-commit sync, single-edit-then-quiescent sync and preservation of all
+108 pre-existing synthetic conflict records. Opening review makes zero storage
+writes; genuine choices retain the pre-choice recovery snapshot. The final
+wording adjustment was verified by rerunning the focused review UI test.
+
+The only remote operations for this investigation were read-only aggregate
+checks against MENEI Private Beta Test. No remote records or schema were changed,
+and no complete account payloads were retrieved. Client-side fixtures use only
+synthetic records. After publication the owner should refresh both devices;
+older open client versions can still apply the old comparison logic. Existing
+saved conflicts remain until explicitly reviewed. Export private device backups
+first and do not upload them into the source repository.
