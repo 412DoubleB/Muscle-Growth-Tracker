@@ -624,3 +624,24 @@ no paid request and reset no allowance. Actual provider-result acceptance still
 requires the owner's browser; two-device sync, full conversation export and
 exact photo approval-to-file evidence remain pending. No image, history,
 schema, runtime setting, Supabase data or live-app change was made.
+
+Publication remains blocked by the hosting service. App source commit
+9650b54622b1ec5d2306b70aa298d7e97d4a945a was built into separate Sites source
+e04e83e4659d8e34438637f91f184813229597e9; the pushed remote HEAD was verified.
+The reviewed archive has 171 files, 153097377 bytes and SHA-256
+a5a3351bbfa8d8ffe9782586de5d49ad927ae57606205fd0984f4ae202ce1891.
+Both copies of the shared helper are present. All 121 protected image/font
+files, the media manifest, migrations and every unrelated archive member match
+version 12. Private evidence, records and runtime keys are excluded.
+
+The native owner-private save/deploy call returned an internal error, then a
+timeout on one retry of the same unchanged archive. Saved-version reconciliation
+after each failure found no new version or deployment; latest remains version
+12 at its existing source and deployment. The supported Git-triggered private
+publication option was also checked and returned publish_on_push_accepted=false,
+so no automatic publication is assumed. Fresh access inspection still shows one
+allowed owner, no groups and no extra editors. Do not spend another AI attempt
+to test the fix until a new saved version has deployed successfully. Resume with
+the verified Sites source/archive after hosting recovery, reconcile saved
+versions first, and retain version 12 as rollback. No additional source tests
+are needed unless code or build inputs change.

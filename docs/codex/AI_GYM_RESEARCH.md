@@ -1,7 +1,9 @@
 # Private gym-search activation review
 
 **Current review (2026-10-20):** owner-only preview version 12 has AI enabled at
-runtime revision 5. The owner tested real searches. A successful empty-result
+runtime revision 5. The address fix below is tested source, not a deployed
+preview update: native publication failed before saving a new version. The
+owner tested real searches. A successful empty-result
 screen and a separate HTTP 502 were observed; neither establishes a confirmed
 usable gym result. Synthetic reproduction found that literal token matching can
 discard an otherwise matching address when E/East, St/Street or PA/Pennsylvania
