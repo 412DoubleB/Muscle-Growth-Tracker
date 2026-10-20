@@ -512,3 +512,14 @@ messages and confirms no saved workspace is read. It passed, along with the full
 beta-entry UI file before the header adjustment, syntax and diff checks. No Auth
 configuration, email sending, authentication behavior, storage, images or backend
 records changed. Actual password-reset email delivery still needs user testing.
+
+The wording fix deployed successfully as owner-only preview **version 11** with
+runtime revision 2; AI remains disabled and no runtime setting changed.
+App source: c03904b58ba2de1c753b7743a2c47e5107e5de60.
+Separate Sites source: 5555c27f765b6f4658b97338197cdb0591f5b416 (remote verified).
+Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_21754d8fe14481918a9c5d113ece165b.
+Deployment: appgdep_6ad6c54700fc8191a74f4b256fca6dcb (succeeded).
+Archive: 169 files, 153089789 bytes, SHA-256
+71ae73b6b8b3258264f98c172c9f786ff0f5d2301f163f28c4692cf1f5ec8c27.
+Only the reviewed app message and five generated revision/cache metadata files
+differ from version 10; all 121 protected media/font assets remain identical.
