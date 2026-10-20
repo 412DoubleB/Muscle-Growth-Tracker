@@ -816,3 +816,30 @@ check passed with 26 root JavaScript modules, 42 shell entries, 162 original
 catalog assets, 113 web images and 35 paired movements. Diff/syntax and an
 independent preservation review passed. Browser/device acceptance and real
 search accuracy remain unverified; no paid search was performed for validation.
+
+Reviewed package: app source 9af8a0b7199e5b2bfd9079c83c844f9fc864b555,
+Settings preview build 9af8a0b7199e. Sites source
+325e7d008b6412523ac5ba0f74b26ef3a350f01b was pushed and remote-verified.
+Archive: 173 files, 153100985 bytes, SHA-256
+0e34d059cf597f2db7750fefedf774747d73a6da50ed08eb9e4113ee02ec08dc.
+All 121 protected media/font files, the media manifest, migrations and
+unrelated package members match owner-private version 15. Only client profile,
+UI wording, provider instructions, the shared server profile and generated
+release metadata differ. Private inputs, records, exports, backups and runtime
+keys are excluded. Prior saved preview versions remain available.
+
+Stage 13 deployed successfully as owner-only preview version 16 at
+2026-10-20T14:40:26.356766+00:00, preserving runtime revision 5:
+https://menei-private-beta.crispcrown515.chatgpt.site.
+Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_2b807624dd688191aae767b0df7503a1.
+Deployment: appgdep_6ad77d3bc3148191aaa5e1f0cc7e1bbf.
+Native provenance matches the pushed source and 173 archive members. Fresh
+access verification retains the same single owner, no groups, no extra editors
+and no automations. The live GitHub app and live backend remain unchanged.
+Owner acceptance remains: refresh the private preview, confirm Settings build
+9af8a0b7199e, reopen the gym with Commercial selected and use Preview equipment
+autofill, Add suggestions to checklist, review and Save gym. This proposes 58
+unbranded common types without a new paid search, plus distinct saved/current
+research items. An old research result is not rewritten to invent new brand
+evidence. Named Hammer Strength models need explicit cited support in research
+or manual selection; the new prompt's real-world search yield is not yet tested.
