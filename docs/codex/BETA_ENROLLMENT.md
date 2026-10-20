@@ -60,13 +60,13 @@ must not grant AI or cloud access from a cached admission marker.
 
 The initial ChatGPT-based gate was published as owner-private version 9 with AI
 disabled, then superseded by the owner's MENEI-only clarification before public
-enrollment opened. Its access policy was never widened. The revised MENEI-only build is now
-owner-private version 10, published successfully with runtime revision 2 and AI
-explicitly disabled. The owner first signs into their existing MENEI test
-account to verify hosted admission before the audience can open. The revised MENEI-only sign-in implementation passed all 35 Node test files,
+enrollment opened. Its access policy was never widened. The current MENEI-only
+build is owner-private version 12, redeployed successfully with runtime revision
+5 and AI enabled. Real owner admission is verified; broader admission remains
+closed during the first provider test. The revised MENEI-only sign-in implementation passed all 35 Node test files,
 npm run check and diff checks. Thirty entry UI regressions cover admission,
 account transitions, recovery, local offline continuation and reconnect gating.
-Eleven Auth tests validate rejection and bounded network behavior; seven Worker
+Eleven Auth tests validate rejection and bounded network behavior; eight Worker
 integration groups cover MENEI identity, admission, quotas and prior-owner
 transition safety. Native Chromium at 360/430 pixels verified MENEI sign-in,
 in-app AI with mocked responses, a full twenty-account cohort, existing-member
@@ -74,16 +74,19 @@ return without allowance reset, offline /beta reopening and reconnect
 verification. Cloud and AI responses were synthetic; no actual paid lookup or
 real Supabase account record was created by these checks.
 
-The existing approved OpenAI key remains in a separate working session's ignored
-.env.local. This session cannot read that workspace, and no supported secure
-file-to-runtime transfer has been verified. Do not display it, attach it, include
-it in a source package or create a duplicate key as a workaround. No paid search
-has run. Testers will never perform this owner-side provider setup.
+The original OpenAI key remains in a separate session's ignored .env.local;
+automatic file-to-runtime transfer was unavailable. The owner subsequently
+approved a replacement, created it manually and saved it directly in native
+Sites settings as the OPENAI_API_KEY secret. No secret value entered chat,
+source, or a deployment archive. The original key was not revoked. No paid
+lookup was run by the activation tools. Testers never perform this owner-side
+provider setup.
 
 Before opening the beta, verify hosted schema readiness and ownerAccountReady
-through the owner-private readiness endpoint, confirm real MENEI account
-admission, and verify real account-isolation/email acceptance. Before enabling
-AI, securely install the existing server key and verify readiness, then exercise
-one approved real lookup. The pending full conversation export and exact photo
+through the owner-private readiness endpoint and verify real account-isolation
+and new-tester email acceptance. Native database inspection confirmed the MENEI
+owner, closed bootstrap and unused counters before activation. The first real
+provider lookup still needs owner testing; configuration alone does not verify
+the replacement key's model access or billing availability. The pending full conversation export and exact photo
 approval-to-file links remain documented; they do not block work with sufficient
 requirements, and all existing images stay unchanged.

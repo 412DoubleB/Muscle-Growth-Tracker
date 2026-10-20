@@ -558,3 +558,32 @@ changed from version 11; all 121 protected media/font assets remain identical.
 Native access remains custom, one allowed owner, no groups or extra editors.
 The development environment could not reach the owner-private readiness URL,
 so real hosted account admission remains pending the owner's browser retry.
+
+### Owner acceptance and AI runtime activation
+
+The owner subsequently completed password recovery and reopened the app. Hosted
+MENEI owner admission was verified. The provider key originally saved in another
+session could not be transferred using the available native tools. The owner
+explicitly approved a replacement and manually saved it directly in Sites as
+the OPENAI_API_KEY secret. Native runtime revision 4 confirmed that masked entry
+alongside the unchanged test-cloud secret and private bootstrap settings.
+
+Read-only hosted checks found one matching MENEI owner/campaign, closed bootstrap,
+no member attempts, and zero original-trial usage before activation. No seats,
+history or budget counters were reset. The only tool-written runtime change
+was MENEI_GYM_AI_ENABLED from false to true, producing revision 5. Native access
+was verified as one allowed owner, no groups and no extra editors before and
+after deployment. No schedule was created.
+
+Existing saved version 12 was redeployed without a source upload or new version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_25f282205cb081919edd9e15f4d32af0.
+Deployment appgdep_6ad6d55d155c8191a41096e90d0b5c01 succeeded with runtime revision
+5 at https://menei-private-beta.crispcrown515.chatgpt.site.
+
+The tested app/Worker code, schemas, media, history and five-per-account/
+one-hundred-total accounting are unchanged, so no source test rerun was needed.
+No paid request was made by the tools; the owner's next real lookup is the
+remaining provider acceptance check and consumes an attempt. Secret metadata
+and successful deployment do not verify the secret's value, model permissions
+or billing. The original key remains untouched. No GitHub push, merge, live
+app/backend deployment, private evidence upload or audience expansion occurred.

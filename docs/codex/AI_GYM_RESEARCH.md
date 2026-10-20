@@ -1,5 +1,15 @@
 # Private gym-search activation review
 
+**Current activation (2026-10-20):** owner-only preview version 12 was redeployed
+successfully with runtime revision 5 and AI enabled. The owner approved a
+replacement key and manually entered it directly into the native Sites settings
+as a secret; it was never sent through chat or added to a source package. Native
+metadata confirms the secret entry, owner-only access and the applied runtime
+revision. Hosted MENEI owner membership and unused accounting were verified.
+The next real gym lookup still needs owner acceptance; secret presence and a
+successful deployment do not prove provider/model/billing acceptance. The
+pre-activation descriptions below are historical and superseded by this status.
+
 **Twenty-account scope update (2026-10-20):** Testers need only a MENEI account;
 no ChatGPT account, separate AI account, personal key or download is required.
  the owner subsequently approved
