@@ -959,3 +959,29 @@ modules, 42 shell entries, 162 original catalog assets, 113 web images and
 35 paired movements. Diff/syntax and independent preservation review passed.
 These are synthetic DOM/engine checks, not physical-device/browser acceptance.
 No live records, backend, AI allowance, images or private evidence were changed.
+
+Reviewed package: app source 24e7ea3957c41377fc82e7a3752a9130b1493cdf,
+Settings preview build 24e7ea3957c4. Sites source
+f35c4f52f8350fe45eb1ffc47ca7011508b053f3 was pushed and remote-verified.
+Archive: 173 files, 153102842 bytes, SHA-256
+bc303ed995e9f8983cb2b518be85b48fdb5725b46e414cec418fbaf9d78b3886.
+All 121 protected media/font files, the media manifest, gym profiles, provider
+and server modules, migrations and unrelated package members match owner-private
+version 17. Only client app/session-edit code and generated revision/cache
+metadata differ. Private inputs, records, exports, backups and runtime keys are
+excluded. Prior saved preview versions remain available.
+
+Stage 15 deployed successfully as owner-only preview version 18 at
+2026-10-20T20:51:52.849097+00:00, preserving runtime revision 5:
+https://menei-private-beta.crispcrown515.chatgpt.site.
+Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_8f1dcec1849481918585cf0c29263286.
+Deployment: appgdep_6ad7d45c02c081918ddd1ba7027cba90.
+Native provenance matches the pushed source and 173 archive members. Fresh
+access verification retains the same single owner, no groups, no extra editors
+and no automations. The live GitHub app, live backend and prior saved versions
+remain unchanged. Owner-device acceptance remains: refresh the private preview,
+confirm Settings build 24e7ea3957c4, open Edit session on an unstarted workout
+and inspect the preview while changing gym, date and calendar adjustment.
+Automatic shortfalls must block Save; changing fields alone must not save.
+Review manual short-workout handling and valid saves using synthetic entries.
+Two-device sync, installed-device push and private evidence gaps remain pending.
