@@ -523,3 +523,25 @@ Archive: 169 files, 153089789 bytes, SHA-256
 71ae73b6b8b3258264f98c172c9f786ff0f5d2301f163f28c4692cf1f5ec8c27.
 Only the reviewed app message and five generated revision/cache metadata files
 differ from version 10; all 121 protected media/font assets remain identical.
+
+### Stage 10 follow-up: hosted account verification
+
+The hosted admission request returned HTTP 503 before enrollment. Server Auth
+verification used `redirect: 'error'`, which Cloudflare Workers rejects before
+sending a request. The [current Workers Request documentation](https://developers.cloudflare.com/workers/runtime-apis/request/#parameters)
+requires `manual` mode and explicit rejection of redirect responses instead.
+The synthetic Auth regression reproduced the failure before the fix.
+
+Both server Auth verification and the gym provider adapter now use manual
+redirect handling. Their existing non-2xx checks reject all tested redirect
+statuses without a second request or forwarding credentials to another origin.
+The fixed Auth endpoint, confirmation checks, timeouts, body limits and generic
+errors remain enforced. Browser fetch behavior is unchanged. AI remains off.
+
+Validation: all 11 Auth checks, 8 Worker integration groups, the provider test
+file, 2 preview-config checks, syntax and diff checks passed. A new integration
+uses the real Auth validator with synthetic upstream responses and SQLite
+membership storage to verify owner admission without bypassing authentication.
+No actual account was created or enrolled by these tests, no email was sent, and
+there was no paid provider call. Hosted admission still requires the owner's
+retry. No schema, data, runtime settings, images or live backend changed.

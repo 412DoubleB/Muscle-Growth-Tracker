@@ -16,9 +16,9 @@ const rejects=(action,code='invalid_menei_account',status=401)=>assert.rejects(a
 
 test('only the fixed test Auth user endpoint grants the trusted id, without forwarding caller identity headers',async()=>{
  const calls=[],input=request(token(),{'x-sites-user-id':otherId,'x-user-email':'claimed@example.invalid'});
- const result=await authenticateMeneiAccount(input,{...env,MENEI_TEST_URL:'https://attacker.invalid'},{now,fetcher:async(url,options)=>{calls.push({url,options});return response(user())}});
+ const result=await authenticateMeneiAccount(input,{...env,MENEI_TEST_URL:'https://attacker.invalid'},{now,fetcher:async(url,options)=>{if(options.redirect==='error')throw new TypeError('Workers does not implement redirect:error');calls.push({url,options});return response(user())}});
  assert.deepEqual(result,{id});assert.equal(Object.isFrozen(result),true);assert.equal(calls.length,1);
- const call=calls[0];assert.equal(call.url,issuer+'/user');assert.equal(call.options.method,'GET');assert.equal(call.options.redirect,'error');assert.equal(call.options.cache,'no-store');
+ const call=calls[0];assert.equal(call.url,issuer+'/user');assert.equal(call.options.method,'GET');assert.equal(call.options.redirect,'manual');assert.equal(call.options.cache,'no-store');
  assert.deepEqual(call.options.headers,{apikey:env.MENEI_TEST_PUBLISHABLE_KEY,Authorization:'Bearer '+token(),Accept:'application/json'});assert.ok(call.options.signal instanceof AbortSignal);
  assert.equal(Object.hasOwn(call.options,'body'),false);assert.deepEqual(Object.keys(result),['id']);
 });
@@ -61,9 +61,9 @@ test('only publishable key configuration is accepted and no key or token is expo
 });
 
 test('provider failures and redirects produce generic errors with one request and unread error bodies',async()=>{
- for(const status of [401,403,429,500,503,302]){
+ for(const status of [401,403,429,500,503,301,302,303,307,308]){
   let calls=0,read=false;
-  const fetcher=async()=>{calls++;return {ok:false,status,body:{cancel:async()=>{}},text:()=>{read=true;throw Error(token())}}};
+  const fetcher=async(_url,options)=>{assert.equal(options.redirect,'manual');calls++;return {ok:false,status,body:{cancel:async()=>{}},text:()=>{read=true;throw Error(token())}}};
   await rejects(()=>authenticateMeneiAccount(request(),env,{now,fetcher}),status===401||status===403?'invalid_menei_account':'menei_auth_unavailable',status===401||status===403?401:503);
   assert.equal(calls,1);assert.equal(read,false);
  }

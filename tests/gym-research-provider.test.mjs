@@ -92,8 +92,31 @@ test('unrelated branches are omitted while closed and unknown statuses stay revi
 
 test('HTTP adapter uses a fixed endpoint, one request and no secret or user record in its JSON body',async()=>{
  const calls=[];const result=await researchGym(query,{apiKey,allowedEquipment:EQUIPMENT,now,fetcher:async(url,options)=>{calls.push({url,options});return new Response(JSON.stringify(responseBody()))}});
- assert.equal(result.locations.length,1);assert.equal(calls.length,1);const call=calls[0];assert.equal(call.url,'https://api.openai.com/v1/responses');assert.equal(call.options.method,'POST');assert.equal(call.options.redirect,'error');assert.equal(call.options.headers.Authorization,'Bearer '+apiKey);assert.ok(call.options.signal instanceof AbortSignal);
+ assert.equal(result.locations.length,1);assert.equal(calls.length,1);const call=calls[0];assert.equal(call.url,'https://api.openai.com/v1/responses');assert.equal(call.options.method,'POST');assert.equal(call.options.redirect,'manual');assert.equal(call.options.headers.Authorization,'Bearer '+apiKey);assert.ok(call.options.signal instanceof AbortSignal);
  assert.ok(!call.options.body.includes(apiKey));assert.deepEqual(JSON.parse(JSON.parse(call.options.body).input[0].content[0].text),query);
+});
+
+test('Worker-compatible fetch succeeds and rejects redirects without forwarding the provider key',async()=>{
+ const endpoint='https://api.openai.com/v1/responses',redirected='https://redirect.example.com/provider';
+ for(const status of [200,301,302,303,307,308]){
+  const calls=[];let cancelled=false;
+  const fetcher=async(url,options)=>{
+   // Workers rejects redirect:error before dispatch and otherwise follows by
+   // default. Model both behaviors so either unsafe mode breaks this regression.
+   if(!['manual','follow'].includes(options.redirect??'follow'))throw new TypeError('Unsupported redirect mode');
+   calls.push({url,headers:options.headers});
+   if(url===redirected||status===200)return new Response(JSON.stringify(responseBody()));
+   if((options.redirect??'follow')==='follow')return fetcher(redirected,options);
+   return new Response(new ReadableStream({cancel(){cancelled=true}}),{status,headers:{Location:redirected}});
+  };
+  const work=researchGym(query,{apiKey,allowedEquipment:EQUIPMENT,now,fetcher});
+  if(status===200)assert.equal((await work).locations.length,1);
+  else{
+   await assert.rejects(work,error=>error instanceof ProviderError&&error.code==='provider_unavailable'&&error.status===503&&!error.message.includes(apiKey));
+   assert.equal(cancelled,true);
+  }
+  assert.deepEqual(calls,[{url:endpoint,headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json'}}]);
+ }
 });
 
 test('provider errors are sanitized and never retried or read for raw error details',async()=>{

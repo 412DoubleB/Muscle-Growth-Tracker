@@ -62,7 +62,9 @@ export async function authenticateMeneiAccount(request,env,{fetcher=globalThis.f
  const timeout=Number.isFinite(timeoutMs)&&timeoutMs>0?Math.min(timeoutMs,MAX_TIMEOUT_MS):MAX_TIMEOUT_MS;
  const controller=new AbortController();let timer;
  const work=async()=>{
-  const response=await fetcher(ISSUER+'/user',{method:'GET',headers:{apikey:key,Authorization:'Bearer '+token,Accept:'application/json'},redirect:'error',cache:'no-store',signal:controller.signal});
+  // Workers rejects redirect:'error' before sending the request. Manual mode
+  // never follows a redirect; every non-2xx response is rejected below.
+  const response=await fetcher(ISSUER+'/user',{method:'GET',headers:{apikey:key,Authorization:'Bearer '+token,Accept:'application/json'},redirect:'manual',cache:'no-store',signal:controller.signal});
   if(!response?.ok){cancelBody(response);if(response?.status===401||response?.status===403)invalid();unavailable()}
   const raw=await boundedJson(response,controller.signal),checked=timestamp(now);
   if(claims.exp*1000<=checked)invalid();

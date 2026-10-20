@@ -148,7 +148,7 @@ export async function researchGym(query,{apiKey,allowedEquipment,fetcher,now,sig
  const cap=Number.isInteger(maxResponseBytes)&&maxResponseBytes>0?Math.min(maxResponseBytes,MAX_BYTES):MAX_BYTES;
  const controller=new AbortController();let timer,externalAbort;
  const work=async()=>{
-  const response=await (fetcher||globalThis.fetch.bind(globalThis))(PROVIDER_URL,{method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json'},body:JSON.stringify(body),redirect:'error',signal:controller.signal});
+  const response=await (fetcher||globalThis.fetch.bind(globalThis))(PROVIDER_URL,{method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json'},body:JSON.stringify(body),redirect:'manual',signal:controller.signal});
   if(!response?.ok){response?.body?.cancel?.().catch(()=>{});throw new ProviderError('provider_unavailable',503)}
   const raw=await boundedJson(response,cap,controller.signal);return parseGymResearchResponse(raw,{query,allowedEquipment,now});
  };

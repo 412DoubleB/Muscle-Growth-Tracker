@@ -25,6 +25,20 @@ test('MENEI sign-in shell and publishable config need no ChatGPT identity and ne
   assert.doesNotMatch(JSON.stringify(config),/sk-syntheticpreviewkey|OPENAI_API_KEY|GYM_AI_LIMITS|owner/);assert.equal(t.authCalls,0);assert.equal((await readBetaStatus(t.binding)).enrolled,0);
  }finally{t.close()}
 });
+test('native Auth validation admits the owner using Worker-compatible fetch and real membership storage',async()=>{
+ const t=await setup(),id='10000000-0000-4000-8000-000000000001',instant=1_800_000_000_000,issuer='https://bhyrrxrpqaxiwpfxnwpa.supabase.co/auth/v1';
+ try{
+  const claims={iss:issuer,sub:id,aud:'authenticated',role:'authenticated',is_anonymous:false,exp:Math.floor(instant/1000)+3600};
+  const token=[Buffer.from('{"alg":"HS256"}').toString('base64url'),Buffer.from(JSON.stringify(claims)).toString('base64url'),'synthetic_signature'].join('.');
+  let requests=0;const worker=createPreviewWorker({now:()=>new Date(instant),authFetcher:async(url,options)=>{
+   if(options.redirect==='error')throw new TypeError('Workers does not implement redirect:error');
+   assert.equal(options.redirect,'manual');assert.equal(url,issuer+'/user');assert.equal(options.headers.Authorization,'Bearer '+token);requests++;
+   return Response.json({id,aud:'authenticated',role:'authenticated',is_anonymous:false,email_confirmed_at:'2026-10-19T00:00:00Z',identities:[{id:'synthetic-identity',user_id:id,provider:'email'}]});
+  }});
+  const response=await worker.fetch(req('/api/beta-join',{id:token,method:'POST',body:'{}'}),{...t.env,MENEI_TEST_PUBLISHABLE_KEY:'sb_publishable_synthetic_not_a_real_key',MENEI_GYM_AI_ENABLED:'false'});
+  assert.equal(response.status,200);assert.deepEqual(await response.json(),{joined:true,role:'owner'});assert.equal(requests,1);assert.equal((await readBetaStatus(t.binding)).enrolled,1);assert.equal(t.outbound,0);
+ }finally{t.close()}
+});
 test('protected services require a MENEI bearer token; forged Sites headers grant nothing; invalid phases fail closed',async()=>{
  const t=await setup();try{
   for(const path of ['/api/beta-status','/api/gym-research-status','/api/gym-research']){const options={id:null,extra:{'oai-authenticated-user-id':'owner'},...(path==='/api/gym-research'?{method:'POST',body:JSON.stringify(query)}:{})};assert.equal((await t.worker.fetch(req(path,options),t.env)).status,401)}
