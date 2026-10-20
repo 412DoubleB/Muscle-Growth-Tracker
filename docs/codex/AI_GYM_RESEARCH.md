@@ -1,5 +1,10 @@
 # Private gym-search activation review
 
+**Current preview: version 14 (2026-10-20).** The broader research update below
+deployed successfully with owner-only access and unchanged runtime revision 5.
+All 37 test files and static/media checks passed; actual broader-result review
+remains with the owner. The app's displayed version stays 8.1.1.
+
 **Wider research update (2026-10-20):** the owner accepted a real location
 result, then requested branch-supported equipment first and annotated estimates
 from broader gym research when the branch's list is incomplete. New source
@@ -20,7 +25,7 @@ research entries carry wider-source citations. Existing selections, manual
 items, notes and load limits remain until explicit edits/Save gym. The expanded
 research needs owner acceptance after publication; see DEVELOPMENT.md.
 
-**Current review (2026-10-20):** owner-only preview version 13 deployed
+**Address-match release (2026-10-20):** owner-only preview version 13 deployed
 successfully with the address fix and safe diagnostics, preserving runtime
 revision 5 and AI enablement. A later retry of the unchanged, verified package
 succeeded after the earlier hosting errors. The owner had tested real searches
