@@ -775,3 +775,44 @@ equipment autofill, Add suggestions to checklist and Save gym. This free path
 requires no new AI search. Record the proposed and selected counts if the
 under-ten result persists; neither native publication nor synthetic testing
 proves what the owner's phone has loaded or the exact earlier phone cause.
+
+### Stage 13: fuller commercial equipment proposals
+
+After accepting the count correction, the owner requested a fuller commercial
+inventory proposal with named machines such as Hammer Strength where research
+supports them. The commercial common-setup profile now offers 58 distinct
+canonical, unbranded equipment types, preserving the previous 23 and adding
+press/row variants, leg and hip machines, calves, core, benches and functional
+basics. Other gym-type profiles remain unchanged. These are editable estimates,
+not a claim that every type is installed at the selected branch. Brands,
+attachments, uncommon specialist configurations and load limits are not inferred
+from this generic profile. The proposal count is equipment types, not quantities.
+
+The research prompt prioritizes specifically sourced missing machine variants
+within its existing twelve wider-estimate slots. Hammer Strength requires an
+explicitly supported brand plus movement/model; a general brand mention does
+not expand into every model. Branch-specific support stays Published, chain or
+broader gym-type support stays Estimated, and unsourced variants stay unknown.
+The UI explains the difference between unbranded common suggestions and sourced
+brand/variant suggestions. Search and preview remain drafts; explicit Add and
+Save are still required. Existing inventory, manual selections, notes, limits,
+history, image files/bindings and backups are not replaced.
+
+The existing runtime key and revision 5 are retained. The one-request,
+one-web-search, 2500-output-token, twelve-estimate and timeout limits are
+unchanged. No paid request, key creation, quota reset, backend mutation or
+runtime-setting change is part of this stage. Live search quality and the exact
+gym's installed models still require source/device review; synthetic tests do
+not establish a real branch inventory or guarantee complete web results.
+
+Validation: npm test passed all 37 test files on Node 24.19.0. All 41 focused
+gym UI cases passed, including 58 proposed / 38 new / 20 already selected,
+explicit Add/Save/reopen, separate published and broader-estimated Hammer
+Strength variants, no sibling model expansion, no inferred limits and preserved
+manual selections, notes and history. Focused profile/provider tests passed;
+canonical coverage, unchanged smaller profiles, missing sources, legacy response
+compatibility, published precedence and request budgets remain covered. npm run
+check passed with 26 root JavaScript modules, 42 shell entries, 162 original
+catalog assets, 113 web images and 35 paired movements. Diff/syntax and an
+independent preservation review passed. Browser/device acceptance and real
+search accuracy remain unverified; no paid search was performed for validation.

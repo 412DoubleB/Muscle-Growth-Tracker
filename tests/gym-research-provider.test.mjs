@@ -68,6 +68,7 @@ test('request pins one bounded search, strict output and only the three gym iden
  assert.equal(body.model,'gpt-6-luna');assert.deepEqual(body.reasoning,{effort:'low'});assert.equal(body.service_tier,'default');assert.equal(body.store,false);
  assert.deepEqual(body.tools,[{type:'web_search',search_context_size:'low'}]);assert.equal(body.tool_choice,'required');assert.equal(body.max_tool_calls,1);assert.equal(body.max_output_tokens,2500);assert.deepEqual(body.include,['web_search_call.action.sources']);
  assert.deepEqual(JSON.parse(body.input[0].content[0].text),query);assert.match(body.instructions,/untrusted data/);assert.match(body.instructions,/within the single available web search/);assert.match(body.instructions,/Put equipment in equipment only when that exact location source explicitly supports/);assert.match(body.instructions,/estimatedEquipment/);assert.match(body.instructions,/Estimates must never include weight limits/);
+ assert.match(body.instructions,/common unbranded setup suggestions/);assert.match(body.instructions,/Preserve explicitly supported movement variants as separate canonical types/);assert.match(body.instructions,/Within the twelve estimate slots, prioritize specifically supported missing variants/);assert.match(body.instructions,/explicitly supports both the brand and the specific movement or model/);assert.match(body.instructions,/A brand mention alone never supports every Hammer Strength variant/);
  assert.equal(body.text.format.strict,true);assert.equal(body.text.format.schema.additionalProperties,false);assert.equal(body.text.format.schema.properties.locations.maxItems,3);
  const item=body.text.format.schema.properties.locations.items;assert.equal(item.additionalProperties,false);assert.equal(item.properties.equipment.maxItems,60);assert.deepEqual(item.properties.equipment.items.properties.name.enum,EQUIPMENT.slice().sort());
  assert.deepEqual(item.required,['name','city','address','operatingStatus','url','equipment','unknown','setup','estimatedEquipment']);
@@ -119,6 +120,34 @@ test('wider estimates require actual cited sources, bounded canonical equipment 
  const raw=widerResponse();raw.output[0].action.sources.pop();expectCode(()=>parseGymResearchResponse(raw,options),'invalid_provider_response',502);
  const cited=widerResponse();cited.output[0].action.sources.pop();cited.output[1].content[0].annotations=[{type:'url_citation',url:chainUrl,title:'Cited chain context'}];assert.equal(parseGymResearchResponse(cited,options).locations[0].estimatedEquipment.length,1);
  const restricted=widerCandidate();expectCode(()=>parseGymResearchResponse(widerResponse(restricted),{...options,allowedEquipment:['Dumbbells','Bench']}),'invalid_provider_response',502);
+});
+
+test('sourced machine variants stay distinct, with branch evidence ahead of chain estimates and no brand-wide expansion',()=>{
+ const item=widerCandidate();
+ item.equipment=[
+  {name:'Hammer Strength Incline Press',detail:'The synthetic branch list names a Hammer Strength incline press; capacity is unpublished.',sourceUrl:equipmentUrl,max:null,unit:null},
+  {name:'Selectorized Shoulder Press',detail:'The branch list separately names an unbranded selectorized shoulder press.',sourceUrl:equipmentUrl,max:null,unit:null}
+ ];
+ item.estimatedEquipment=[
+  {name:'Hammer Strength Flat / Horizontal Press',detail:'The chain list names a Hammer Strength horizontal press; this branch has not published it.',sourceUrl:chainUrl},
+  {name:'Hammer Strength High Row',detail:'The chain list names a Hammer Strength high row; branch availability is an estimate.',sourceUrl:chainUrl},
+  {name:'Hammer Strength Shoulder Press',detail:'The chain list names a branded shoulder press distinct from the branch-listed selectorized machine.',sourceUrl:chainUrl},
+  {name:'Hammer Strength Incline Press',detail:'The wider list also names an incline press, but this branch publishes the stronger claim.',sourceUrl:chainUrl}
+ ];
+ const original=structuredClone(item),location=parseGymResearchResponse(widerResponse(item),options).locations[0];
+ assert.deepEqual(item,original);assert.deepEqual(location.equipment.map(entry=>entry.name),['Hammer Strength Incline Press','Selectorized Shoulder Press']);
+ assert.deepEqual(location.estimatedEquipment.map(entry=>entry.name),['Hammer Strength Flat / Horizontal Press','Hammer Strength High Row','Hammer Strength Shoulder Press']);
+ assert.ok(location.equipment.every(entry=>entry.status==='published'&&entry.sourceUrl===equipmentUrl&&!Object.hasOwn(entry,'max')));
+ assert.ok(location.estimatedEquipment.every(entry=>entry.status==='estimated'&&entry.basis==='wider-web'&&entry.sourceUrl===chainUrl&&!Object.hasOwn(entry,'max')&&!Object.hasOwn(entry,'unit')));
+ const preview=buildGymAutofillPreview({inventory:[],dbMax:80},{query,gymType:'custom',research:location,allowedEquipment:EQUIPMENT});
+ assert.equal(preview.canApply,true);assert.deepEqual(preview.items.map(entry=>entry.name).sort(),[...location.equipment,...location.estimatedEquipment].map(entry=>entry.name).sort());
+ assert.equal(preview.dbMaxProposal,null);assert.equal(preview.items.find(entry=>entry.name==='Hammer Strength Incline Press').status,'published');
+ const brandOnly=widerCandidate();brandOnly.equipment=[];brandOnly.estimatedEquipment=[];brandOnly.unknown=['Chain mentions Hammer Strength, but no individual movement or model is established.'];
+ const unspecified=parseGymResearchResponse(widerResponse(brandOnly),options).locations[0];assert.deepEqual(unspecified.equipment,[]);assert.deepEqual(unspecified.estimatedEquipment,[]);assert.deepEqual(unspecified.unknown,brandOnly.unknown);
+ for(const mutate of [entry=>entry.sourceUrl='https://uncited.example.com/brand',entry=>entry.max=300,entry=>entry.unit='lb']){
+  const invalid=widerCandidate();invalid.estimatedEquipment=[{name:'Hammer Strength High Row',detail:'Synthetic wider-source high row context.',sourceUrl:chainUrl}];mutate(invalid.estimatedEquipment[0]);
+  expectCode(()=>parseGymResearchResponse(widerResponse(invalid),options),'invalid_provider_response',502);
+ }
 });
 
 test('wider research cannot bypass closed-location or mismatched-address review guards',()=>{
