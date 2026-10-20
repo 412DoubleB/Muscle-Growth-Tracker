@@ -470,3 +470,30 @@ No migration SQL, journal or existing owner-trial accounting changed in stage
 10. No Supabase mutation, image change, history reset, GitHub push or audience
 change was performed. The reviewed MENEI-only build is ready for an owner-only
 publication using runtime revision 2 (bootstrap, AI disabled).
+
+### Stage 10 publication receipt
+
+The MENEI-only setup build was deployed successfully as **version 10** at
+https://menei-private-beta.crispcrown515.chatgpt.site with runtime revision 2.
+Native access was reread after publication: custom audience, owner only, one
+allowed user, no groups or additional editors. The audience was not widened.
+
+- App source: 85fd9396a61056fbd42dd5639da4ecc37c77265d.
+- Separate Sites source: 7cbb380b86609643bb65844580a666b1665bca8c, pushed and
+  independently matched to its remote branch before saving.
+- Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_3d4983e9b79881918fbe16cb3d6711c3.
+- Deployment: appgdep_6ad6c26bb55881919c70e4a6d3a8886c (succeeded).
+- Archive: 169 files / 153089671 bytes, SHA-256
+  c48f3a757bfe72479b669664ac7b6d8a2fbac67adba4f563ad6d63148961ac0d.
+- Client: 155 files; all 121 protected image/font assets and the media manifest
+  matched source hashes. Private records, conversation evidence, backups, exports,
+  live config, runtime keys and the obsolete report were excluded.
+
+The server key is still absent from this runtime and AI remains explicitly off.
+The owner must open the revised preview and sign into their existing MENEI test
+account to validate actual Auth, hosted storage and owner bootstrap. Deployment
+tools have no legitimate app-user session to do that for them. Actual two-account
+cloud isolation, email/reset delivery and a real provider lookup remain unverified.
+Only after owner readiness is confirmed may first-come MENEI admission open;
+normal testers will not need ChatGPT accounts. There was no paid request,
+Supabase mutation, GitHub push, merge, live deployment or image/history change.

@@ -60,7 +60,10 @@ must not grant AI or cloud access from a cached admission marker.
 
 The initial ChatGPT-based gate was published as owner-private version 9 with AI
 disabled, then superseded by the owner's MENEI-only clarification before public
-enrollment opened. Its access policy was never widened. The revised MENEI-only sign-in implementation passed all 35 Node test files,
+enrollment opened. Its access policy was never widened. The revised MENEI-only build is now
+owner-private version 10, published successfully with runtime revision 2 and AI
+explicitly disabled. The owner first signs into their existing MENEI test
+account to verify hosted admission before the audience can open. The revised MENEI-only sign-in implementation passed all 35 Node test files,
 npm run check and diff checks. Thirty entry UI regressions cover admission,
 account transitions, recovery, local offline continuation and reconnect gating.
 Eleven Auth tests validate rejection and bounded network behavior; seven Worker
