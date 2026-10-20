@@ -545,3 +545,16 @@ membership storage to verify owner admission without bypassing authentication.
 No actual account was created or enrolled by these tests, no email was sent, and
 there was no paid provider call. Hosted admission still requires the owner's
 retry. No schema, data, runtime settings, images or live backend changed.
+
+The fix deployed successfully as owner-only preview **version 12**, runtime
+revision 2. App source: 14afa49b821af3b6978649c77a27d849ae735d4e.
+Separate Sites source: be4564b3b0fff17b422629e547581ab57c69b113 (remote verified).
+Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_25f282205cb081919edd9e15f4d32af0.
+Deployment: appgdep_6ad6c7e7c020819199b1cfe4094b5419 (succeeded).
+Archive: 169 files, 153089810 bytes, SHA-256
+df33498bc6e9573536832c3636117ea35fdef7d2256cd3b09a0f0f5d8020398b.
+Only two server adapters and five generated revision/cache metadata files
+changed from version 11; all 121 protected media/font assets remain identical.
+Native access remains custom, one allowed owner, no groups or extra editors.
+The development environment could not reach the owner-private readiness URL,
+so real hosted account admission remains pending the owner's browser retry.
