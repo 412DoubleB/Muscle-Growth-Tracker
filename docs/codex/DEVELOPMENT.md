@@ -750,3 +750,28 @@ movements. Syntax, diff and independent preservation review passed. There were
 no paid requests, quota resets, provider changes, migrations or runtime-setting
 changes. The owner's exact phone result remains unconfirmed and needs the new
 visible counts/build identifier for acceptance; no cache cause is inferred.
+
+Reviewed preview package: app source 9c48b6120115f3edf465aea3ccdf4a17cf4e5ae2,
+Settings preview build 9c48b6120115. Sites source
+50ec8f32792463210280e0428dd892ea35487f88 was pushed and remote-verified.
+Archive: 173 files, 153099892 bytes, SHA-256
+1900b67ee43354dd44c3afeb392c70bfb18c237f657e118ba0a69c17a397820d.
+All 121 protected media/font files, the media manifest, server modules,
+migrations and unrelated package members match owner-private version 14. No
+private inputs, account records, exports, backups or runtime keys are packaged.
+
+Stage 12 deployed successfully as owner-only preview version 15 at
+2026-10-20T14:17:27.556657+00:00, preserving runtime revision 5:
+https://menei-private-beta.crispcrown515.chatgpt.site.
+Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_5d337258a3b88191aa1a454e4e106043.
+Deployment: appgdep_6ad777d6fa7481918988c5d61f9ec5c9.
+Native provenance matches the pushed source and all 173 archive members. Fresh
+access verification retains the same single owner, no groups, no extra editors
+and no automations. Existing saved versions remain available. The live GitHub
+app and live backend remain unchanged; this release makes no record mutations.
+Owner acceptance remains: refresh the private preview, inspect Settings build
+9c48b6120115, then reopen the gym with Commercial selected and use Preview
+equipment autofill, Add suggestions to checklist and Save gym. This free path
+requires no new AI search. Record the proposed and selected counts if the
+under-ten result persists; neither native publication nor synthetic testing
+proves what the owner's phone has loaded or the exact earlier phone cause.
