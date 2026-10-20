@@ -625,7 +625,7 @@ requires the owner's browser; two-device sync, full conversation export and
 exact photo approval-to-file evidence remain pending. No image, history,
 schema, runtime setting, Supabase data or live-app change was made.
 
-Publication remains blocked by the hosting service. App source commit
+Initial publication was blocked by the hosting service. App source commit
 9650b54622b1ec5d2306b70aa298d7e97d4a945a was built into separate Sites source
 e04e83e4659d8e34438637f91f184813229597e9; the pushed remote HEAD was verified.
 The reviewed archive has 171 files, 153097377 bytes and SHA-256
@@ -645,3 +645,17 @@ to test the fix until a new saved version has deployed successfully. Resume with
 the verified Sites source/archive after hosting recovery, reconcile saved
 versions first, and retain version 12 as rollback. No additional source tests
 are needed unless code or build inputs change.
+
+The hosting blocker cleared on a later retry of the same verified source and
+unchanged archive. Owner-only preview version 13 deployed successfully at
+2026-10-20T13:34:16.176432+00:00 with runtime revision 5:
+https://menei-private-beta.crispcrown515.chatgpt.site.
+Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_7025eb26152081918fe069700c940cf5.
+Deployment: appgdep_6ad76dcd45648191aa6ba6faa6b3df3c.
+Native saved-version provenance matches Sites source
+e04e83e4659d8e34438637f91f184813229597e9 and all 171 archive members. Fresh
+access verification confirmed one allowed owner, no groups, no extra editors
+and no automations. Version 12 remains available for rollback. There was no
+code/build input change or test rerun, paid request, counter reset, runtime
+setting change, Supabase mutation, GitHub push or live-app deployment. The
+owner's next lookup is the remaining provider-result acceptance check.
