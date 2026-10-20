@@ -880,3 +880,26 @@ carry no fabricated source/date/limit. npm run check passed with 26 root
 JavaScript modules, 42 shell entries, 162 original catalog assets, 113 web images
 and 35 paired movements. Diff/syntax and independent preservation review passed.
 No live search or device/browser acceptance was performed for validation.
+
+Reviewed package: app source 54f0404eabbc764fa278449e55a39146fb89dc1c,
+Settings preview build 54f0404eabbc. Sites source
+89394d04f82263be958adcf86cbb73e3857c4cd5 was pushed and remote-verified.
+Archive: 173 files, 153101432 bytes, SHA-256
+13f945e815a31bbd503bc6dbbae5dddf4abb589ef80a7da0a7d52d3360a92853.
+All 121 protected media/font files, the media manifest, provider code,
+migrations and unrelated package members match owner-private version 16.
+Private inputs, records, exports, backups and runtime keys are excluded.
+
+Stage 14 deployed successfully as owner-only preview version 17 at
+2026-10-20T15:01:04.788870+00:00, preserving runtime revision 5:
+https://menei-private-beta.crispcrown515.chatgpt.site.
+Saved version: appgprj_6ad593d6f15481918ded32373b877b03~appgver_d0f4b038b3dc819195ea9567091e0f2f.
+Deployment: appgdep_6ad78222696881919a7f2735f3b7515f.
+Native provenance matches the pushed source and 173 archive members. Fresh
+access verification retains the same single owner, no groups, no extra editors
+and no automations. Prior preview versions, live GitHub app and live backend
+remain unchanged. Owner acceptance remains: refresh the private preview,
+confirm Settings build 54f0404eabbc and reopen the Commercial gym autofill.
+Inspect Estimated common cable attachments, Add suggestions to checklist,
+untick unavailable grips and Save gym. No new paid search is needed. Actual gym
+availability and the owner's device presentation remain for owner review.
