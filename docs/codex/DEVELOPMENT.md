@@ -370,3 +370,47 @@ has run. The first real search needs the owner's legitimate signed-in browser;
 the shared service diagnostic does not supply visitor identity for paid POSTs.
 
 The GitHub app, GitHub main and both Supabase projects remain unchanged.
+
+## Stage 9: first-come twenty-account beta preparation
+
+The owner approved expanding the separate Sites beta to the first twenty
+signed-in ChatGPT accounts, including the owner, with five AI attempts each and
+one hundred total including earlier owner usage. This supersedes the prior
+owner-only audience requirement only after enforced admission is verified.
+
+The Worker now gates protected assets, config, diagnostics and research on
+durable membership. A same-origin POST claims a slot; GETs do not enroll. The
+owner bootstraps first while native access is still owner-only, and a permanent
+database latch prevents another owner claim. Public admission will serve only a
+minimal join/full page to nonmembers. Unknown phases and missing or partially
+migrated storage fail closed. The old trial row, spent usage and original
+migration remain intact; an additive migration provides campaign, membership
+and append-only attempt tables with atomic SQLite triggers and a shared lease.
+
+Account transitions now discard unfinished UI drafts and reject delayed
+backup, recipe and photo completions from an earlier account. A changed
+ChatGPT browser fingerprint blocks startup before workspace reads or backup
+exports. Cross-tab logout invalidates only in-memory cloud credentials. The
+service worker bypasses auth, admission and API routes. Saved records,
+workspaces, exports, image files/bindings, schema and existing storage/PWA
+identities are preserved. Testers should use separate browser profiles; the
+fingerprint guard does not encrypt or revoke offline copies.
+
+The sanitized builder excludes the obsolete beta-report.html and adds current
+admission, cloud-account and template-review instructions. It still omits live
+config, private conversations, evidence, backups, exports and runtime keys.
+
+Validation passed: all 33 Node test files, npm run check and diff checks;
+thirteen focused real-SQLite accounting tests, five Worker integration groups,
+fourteen account UI regressions, and native Chromium at 360/430 pixels covering
+owner enrollment, account-context blocking, retained workspace restoration and
+the twenty-first-account full message. No external or paid requests were made
+by browser QA. Hosted D1, real provider acceptance, email/reset delivery and
+actual two-account cloud isolation remain acceptance gaps. See
+BETA_ENROLLMENT.md for the precise admission boundary and activation sequence.
+
+Runtime revision 2 prepares owner bootstrap and explicitly disables AI. It
+preserves the existing test public key. No OpenAI secret was installed and no
+audience was widened. The existing key remains in the separate working session;
+the supported secure handoff is still unresolved. A publication receipt follows
+after the reviewed source and package are deployed.

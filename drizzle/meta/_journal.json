@@ -8,6 +8,13 @@
       "when": 1792450900229,
       "tag": "0000_menei_gym_ai_trial",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792457292940,
+      "tag": "0001_menei_beta_membership",
+      "breakpoints": true
     }
   ]
 }

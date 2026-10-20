@@ -1,5 +1,15 @@
 # Private gym-search activation review
 
+**Twenty-account scope update (2026-10-20):** the owner subsequently approved
+first-come admission for twenty ChatGPT accounts including the owner, five
+attempts each and one hundred total (including earlier owner usage), estimated
+at roughly $1.20. `BETA_ENROLLMENT.md` describes the admission boundary and
+remaining activation steps. The original five-attempt table and migration below
+remain historical accounting and are preserved. The new cohort uses an additive
+migration, durable membership and an append-only attempt ledger; deployment and
+sign-in do not reset either allowance. This approval does not establish hosted
+storage readiness, install a runtime key or prove real provider acceptance.
+
 This is prepared source, not an activated service. The existing owner-private
 preview remains version 7. No paid request, runtime-secret update, database
 provisioning, migration, source upload or deployment was performed for this stage.

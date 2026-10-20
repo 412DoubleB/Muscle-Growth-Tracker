@@ -7,7 +7,7 @@ import fs from 'node:fs/promises';
 
 const origin='https://private.example';
 const query={name:'Synthetic Fitness',location:'Example City',address:''};
-const config={MENEI_TEST_PUBLISHABLE_KEY:'sb_publishable_synthetic',MENEI_GYM_AI_ENABLED:'true',OPENAI_API_KEY:'sk-syntheticpreviewkey',GYM_AI_LIMITS:{prepare(){throw Error('Use the injected budget')}}};
+const config={MENEI_BETA_PHASE:'off',MENEI_BETA_OWNER_PRIVATE:'true',MENEI_TEST_PUBLISHABLE_KEY:'sb_publishable_synthetic',MENEI_GYM_AI_ENABLED:'true',OPENAI_API_KEY:'sk-syntheticpreviewkey',GYM_AI_LIMITS:{prepare(){throw Error('Use the injected budget')}}};
 function request({method='POST',headers={},body=JSON.stringify(query),...options}={}){
  return new Request(origin+'/api/gym-research',{method,headers:{origin,'oai-authenticated-user-id':'synthetic-owner','sec-fetch-site':'same-origin','content-type':'application/json',...headers},...(method==='GET'?{}:{body}),...options});
 }

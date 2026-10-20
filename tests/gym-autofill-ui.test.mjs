@@ -197,7 +197,7 @@ test('choosing a completed result after a manual draft edit is rejected instead 
 });
 
 test('allowance, disabled, authentication and upstream errors use safe messages without saving',async t=>{
- for(const [label,status,code,expected]of [['allowance',429,'LIMIT_REACHED',/allowance has been reached/],['busy',429,'BUSY',/already running or cooling down/],['disabled',503,'DISABLED',/not enabled/],['owner',401,'UNAUTHORIZED',/owning ChatGPT account/],['unverified',502,'INVALID_RESEARCH',/reliable source information/],['upstream',502,'UPSTREAM_UNAVAILABLE',/temporarily unavailable/]])await t.test(label,async()=>{
+ for(const [label,status,code,expected]of [['allowance',429,'LIMIT_REACHED',/allowance has been reached/],['busy',429,'BUSY',/already running or cooling down/],['disabled',503,'DISABLED',/not enabled/],['owner',401,'UNAUTHORIZED',/enrolled ChatGPT account/],['unverified',502,'INVALID_RESEARCH',/reliable source information/],['upstream',502,'UPSTREAM_UNAVAILABLE',/temporarily unavailable/]])await t.test(label,async()=>{
   const env=environment(gym(),{aiReady:true,research:async()=>researchResponse({error:code,providerText:'synthetic-unsafe-provider-secret'},status)});
   try{const before=await open(env,'ai-error-'+label),draft=C.clone(env.draft);const button=await env.click('gym-ai-search');assert.equal(button.disabled,false);const html=env.elements.get('gymLookupResults').innerHTML;assert.match(html,expected);assert.match(env.elements.get('toast').textContent,expected);assert.doesNotMatch(html+env.elements.get('toast').textContent,/synthetic-unsafe-provider-secret/);assert.deepEqual(env.draft,draft);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[])}finally{env.restore()}
  });

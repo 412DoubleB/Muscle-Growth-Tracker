@@ -116,7 +116,7 @@ test('unavailable or mismatched runtime configuration preserves history and repo
   ['wrong-url',{...good,supabase:{...good.supabase,url:'https://other.supabase.co'}},{},/different backend/],
   ['wrong-pin',good,{projectAttribute:'other'},/not linked/],
   ['not-configured',{error:'synthetic-unsafe backend secret'},{setupStatus:503},/has not been configured/],
-  ['owner-session',{error:'synthetic-unsafe'},{setupStatus:401},/owning ChatGPT account/],
+  // Auth denial is now a fatal enrollment boundary, covered by beta-account-ui.
   ['missing-route',{error:'synthetic-unsafe'},{setupStatus:404},/setup is missing/],
   ['invalid-json',good,{invalidJson:true},/invalid test connection response/],
   ['missing-fields',{pushServiceReady:false},{},/incomplete/],

@@ -1,0 +1,242 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "32a489d9-3015-4a0d-ba53-a533bc9bf5df",
+  "prevId": "286210d2-721e-4055-88cd-e4b0f2cba2b2",
+  "tables": {
+    "menei_beta_attempts": {
+      "name": "menei_beta_attempts",
+      "columns": {
+        "lease_id": {
+          "name": "lease_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "campaign_id": {
+          "name": "campaign_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_user_id": {
+          "name": "site_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reserved_at": {
+          "name": "reserved_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "menei_beta_attempt_campaign": {
+          "name": "menei_beta_attempt_campaign",
+          "value": "\"menei_beta_attempts\".\"campaign_id\" = 'menei-beta-20-1'"
+        },
+        "menei_beta_attempt_time": {
+          "name": "menei_beta_attempt_time",
+          "value": "typeof(\"menei_beta_attempts\".\"reserved_at\") = 'integer' AND \"menei_beta_attempts\".\"reserved_at\" >= 0"
+        }
+      }
+    },
+    "menei_beta_campaigns": {
+      "name": "menei_beta_campaigns",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bootstrap_closed": {
+          "name": "bootstrap_closed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lease_id": {
+          "name": "lease_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lease_until": {
+          "name": "lease_until",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "next_allowed_at": {
+          "name": "next_allowed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "menei_beta_campaign_fixed": {
+          "name": "menei_beta_campaign_fixed",
+          "value": "\"menei_beta_campaigns\".\"id\" = 'menei-beta-20-1' AND \"menei_beta_campaigns\".\"bootstrap_closed\" = 1"
+        },
+        "menei_beta_campaign_time": {
+          "name": "menei_beta_campaign_time",
+          "value": "typeof(\"menei_beta_campaigns\".\"created_at\") = 'integer' AND \"menei_beta_campaigns\".\"created_at\" >= 0"
+        }
+      }
+    },
+    "menei_beta_members": {
+      "name": "menei_beta_members",
+      "columns": {
+        "campaign_id": {
+          "name": "campaign_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_user_id": {
+          "name": "site_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "enrolled_at": {
+          "name": "enrolled_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "menei_beta_members_campaign_id_site_user_id_pk": {
+          "columns": [
+            "campaign_id",
+            "site_user_id"
+          ],
+          "name": "menei_beta_members_campaign_id_site_user_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "menei_beta_member_campaign": {
+          "name": "menei_beta_member_campaign",
+          "value": "\"menei_beta_members\".\"campaign_id\" = 'menei-beta-20-1'"
+        },
+        "menei_beta_member_role": {
+          "name": "menei_beta_member_role",
+          "value": "\"menei_beta_members\".\"role\" IN ('owner', 'member')"
+        },
+        "menei_beta_member_time": {
+          "name": "menei_beta_member_time",
+          "value": "typeof(\"menei_beta_members\".\"enrolled_at\") = 'integer' AND \"menei_beta_members\".\"enrolled_at\" >= 0"
+        }
+      }
+    },
+    "menei_gym_ai_trials": {
+      "name": "menei_gym_ai_trials",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "used": {
+          "name": "used",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "lease_id": {
+          "name": "lease_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lease_until": {
+          "name": "lease_until",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "next_allowed_at": {
+          "name": "next_allowed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}
