@@ -1,5 +1,6 @@
 // Curated official-source research. Lookup is local and never claims a live AI audit.
 // Location identity must be confirmed before applying any published equipment.
+import {gymIdentityMatches} from './gym-identity.mjs?v=8.1.1';
 export const GYM_DIRECTORY=[
  {id:'crunch-pleasant-hills-pa',name:'Crunch Pleasant Hills',city:'Pleasant Hills, PA',address:'601 Clairton Blvd, Suite 38, Pleasant Hills, PA 15236',checked:'2026-10-18',url:'https://www.crunch.com/locations/pleasant-hills',status:'Published location information',equipment:[{name:'Dumbbells',detail:'Published maximum 120 lb each; confirm at the club.',status:'published',max:120},{name:'Kettlebells',detail:'Published maximum 50 lb; confirm at the club.',status:'published',max:50}],amenities:['Olympic platforms','Strength and cardio machines (models unspecified)','Circuit training','TRX / suspension training','HIITZone'],unknown:['Individual machines and their models','Cable configuration and attachments','Racks, barbells, benches and plates','Equipment availability and working condition'],complete:false},
  {id:'crunch-monroeville-pa',name:'Crunch Monroeville',city:'Monroeville, PA',address:'3700 William Penn Hwy, Monroeville, PA 15146',checked:'2026-10-18',url:'https://www.crunch.com/locations/monroeville',status:'Official page says coming soon; hours listed closed',equipment:[],amenities:[],unknown:['Opening date','All location-specific equipment'],complete:false}
@@ -65,11 +66,7 @@ export function validateGymResearch(result,{allowedEquipment}={}){
 }
 
 function locationMatchesResearch(query,research){
- const identity=normalizedGymQuery(query),nameWords=identity.name.split(' '),name=normalize(research.name).split(' ');
- if(!nameWords.every(word=>name.includes(word)))return false;
- if(!identity.location&&!identity.address||!research.address)return false;
- const location=normalize(research.city+' '+research.address).split(' '),address=normalize(research.address).split(' ');
- return (!identity.location||identity.location.split(' ').every(word=>location.includes(word)))&&(!identity.address||identity.address.split(' ').every(word=>address.includes(word)));
+ return gymIdentityMatches(query,research);
 }
 function closedResearch(research){return research.closed===true||/\b(closed|coming soon|not yet open|not open yet|permanently shut|temporarily shut|under construction)\b/i.test([research.operatingStatus,research.status].filter(Boolean).join(' ').replace(/[-_]+/g,' '))}
 

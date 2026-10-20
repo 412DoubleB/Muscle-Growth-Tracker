@@ -21,7 +21,12 @@ export async function buildPreviewServer(checkout,{budget=false}={}){
  for(const [from,to]of imports){if(!worker.includes("from '"+from+"'"))throw Error('The Worker module imports changed; review the preview builder.');worker=worker.replace("from '"+from+"'","from '"+to+"'")}
  await fs.writeFile(path.join(output,'index.js'),worker);
  await fs.writeFile(path.join(output,'gym-equipment.mjs'),'export const EQUIPMENT='+JSON.stringify(EQUIPMENT)+';\n');
- for(const name of ['gym-research-provider.mjs','gym-research-budget.mjs','beta-membership-budget.mjs','menei-beta-auth.mjs'])await fs.copyFile(path.join(source,'server',name),path.join(output,name));
+ for(const name of ['gym-research-budget.mjs','beta-membership-budget.mjs','menei-beta-auth.mjs'])await fs.copyFile(path.join(source,'server',name),path.join(output,name));
+ let provider=await fs.readFile(path.join(source,'server/gym-research-provider.mjs'),'utf8');
+ if(!provider.includes("from '../gym-identity.mjs'"))throw Error('Review the provider identity-helper import before building.');
+ provider=provider.replace("from '../gym-identity.mjs'","from './gym-identity.mjs'");
+ await fs.writeFile(path.join(output,'gym-research-provider.mjs'),provider);
+ await fs.copyFile(path.join(source,'gym-identity.mjs'),path.join(output,'gym-identity.mjs'));
  // Sites resolves logical resources from the hosting manifest. No hosted database
  // IDs are invented or embedded. Missing injected bindings keep research disabled.
  await fs.writeFile(path.join(output,'wrangler.json'),JSON.stringify({name:'menei-private-beta',main:'index.js',compatibility_date:'2026-10-19',assets:{directory:'../client',binding:'ASSETS',run_worker_first:true}},null,2)+'\n');

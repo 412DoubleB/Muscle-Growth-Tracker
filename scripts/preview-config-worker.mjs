@@ -32,7 +32,12 @@ async function emptyJoinBody(request){
 }
 
 async function meneiOwnerReady(db){const owner=await db.prepare('SELECT owner_user_id FROM menei_beta_campaigns WHERE id=?').bind(BETA_CAMPAIGN_ID).first();return typeof owner?.owner_user_id==='string'&&owner.owner_user_id.startsWith('menei:')}
-export function createPreviewWorker({fetcher,authFetcher,now=()=>new Date(),research=researchGym,authenticate=authenticateMeneiAccount,membership=readBetaMembership,enroll=enrollBetaMember,betaQuota=readBetaQuota,betaStatus=readBetaStatus,betaReserve=reserveBetaGymResearch,betaRelease=releaseBetaGymResearch,ownerReady=meneiOwnerReady}={}){
+export function createPreviewWorker({fetcher,authFetcher,now=()=>new Date(),research=researchGym,authenticate=authenticateMeneiAccount,membership=readBetaMembership,enroll=enrollBetaMember,betaQuota=readBetaQuota,betaStatus=readBetaStatus,betaReserve=reserveBetaGymResearch,betaRelease=releaseBetaGymResearch,ownerReady=meneiOwnerReady,report=diagnostic=>console.warn(diagnostic)}={}){
+ function reportFailure(error){
+  // Only these static categories and a bounded HTTP status may enter logs.
+  // Reporting cannot change the response, retry research or delay lease release.
+  try{Promise.resolve(report({event:'gym_research_failure',...ProviderError.diagnostic(error)})).catch(()=>{})}catch{}
+ }
  async function cohort(env){const status=await betaStatus(env.GYM_AI_LIMITS);if((env.MENEI_BETA_PHASE==='open'&&!status.bootstrapClosed)||(status.bootstrapClosed&&!await ownerReady(env.GYM_AI_LIMITS)))throw Error('MENEI beta owner is not ready.');return status}
  async function researchStatus(env,userId){
   const enabled=env.MENEI_GYM_AI_ENABLED==='true',keyConfigured=/^sk-[A-Za-z0-9_-]{12,}$/.test(env.OPENAI_API_KEY||'');
@@ -87,6 +92,7 @@ export function createPreviewWorker({fetcher,authFetcher,now=()=>new Date(),rese
     if(!lease.allowed){const limited=['limit','global_limit'].includes(lease.reason);return json({error:limited?'LIMIT_REACHED':lease.reason==='not_member'?'BETA_MEMBERSHIP_REQUIRED':'BUSY'},lease.reason==='not_member'?403:429,limited?{}:{'Retry-After':'10'})}
     return json(await research(query,{apiKey:env.OPENAI_API_KEY,allowedEquipment:EQUIPMENT,fetcher,now,signal:request.signal}));
    }catch(error){
+    if(lease?.allowed)reportFailure(error);
     if(error instanceof ProviderError){const code=error.code==='invalid_query'?'INVALID_QUERY':['invalid_provider_response','response_too_large'].includes(error.code)?'INVALID_RESEARCH':'UPSTREAM_UNAVAILABLE';return json({error:code},code==='INVALID_QUERY'?400:error.status===504||error.status===499?504:502)}
     if(['INVALID_QUERY','TOO_LARGE','UNSUPPORTED_MEDIA_TYPE'].includes(error?.code))return json({error:error.code},error.status);
     return json({error:'UPSTREAM_UNAVAILABLE'},502);

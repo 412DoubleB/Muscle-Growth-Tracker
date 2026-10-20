@@ -14,12 +14,13 @@ const config={MENEI_BETA_PHASE:'bootstrap',MENEI_BETA_OWNER_PRIVATE:'true',MENEI
 function request({method='POST',headers={},body=JSON.stringify(query),...options}={}){
  return new Request(origin+'/api/gym-research',{method,headers:{origin,authorization:'Bearer synthetic-owner','sec-fetch-site':'same-origin','content-type':'application/json',...headers},...(method==='GET'?{}:{body}),...options});
 }
-function setup({result={locations:[],checked:'2026-10-19',notice:'Review location sources.'},reserveResult={allowed:true,used:1,leaseId:'synthetic-lease'},reserveError=false,releaseError=false,providerError}={}){
- const calls={reserve:[],research:[],release:[]};
+function setup({result={locations:[],checked:'2026-10-19',notice:'Review location sources.'},reserveResult={allowed:true,used:1,leaseId:'synthetic-lease'},reserveError=false,releaseError=false,providerError,report,useDefaultReport=false}={}){
+ const calls={reserve:[],research:[],release:[],reports:[]};
  const worker=createPreviewWorker({now:()=>new Date('2026-10-19T12:00:00Z'),authenticate:authFixture,ownerReady:async()=>true,membership:async()=>({member:true,role:'owner'}),betaStatus:async()=>({enrolled:1,capacity:20,remainingSlots:19,bootstrapClosed:true}),betaQuota:async()=>({used:0,remaining:5}),
   betaReserve:async(...args)=>{calls.reserve.push(args);if(reserveError)throw Error('private database details');return reserveResult},
   betaRelease:async(...args)=>{calls.release.push(args);if(releaseError)throw Error('private database details')},
-  research:async(...args)=>{calls.research.push(args);if(providerError)throw providerError;return result}
+  research:async(...args)=>{calls.research.push(args);if(providerError)throw providerError;return result},
+  ...(useDefaultReport?{}:{report:diagnostic=>{calls.reports.push(diagnostic);return report?.(diagnostic)}})
  });return {worker,calls,result};
 }
 test('feature readiness needs explicit enablement, a private key and durable binding; config never returns credentials',async()=>{
@@ -92,6 +93,40 @@ test('provider failure consumes the reservation, releases only that lease and ne
  const {worker,calls}=setup({releaseError:true});assert.equal((await worker.fetch(request(),config)).status,200);assert.equal(calls.reserve.length,1);assert.equal(calls.research.length,1);
 });
 
+test('failure reports contain only static diagnostic fields and never change public errors or lease release',async()=>{
+ const secret='sk-synthetic-private-provider-detail',privateQuery={name:'Private gym name',location:'Private city',address:'Private street address'};
+ const errors=[
+  [new ProviderError('invalid_provider_response',502,{category:'source_citation'}),'INVALID_RESEARCH',{category:'source_citation'}],
+  [new ProviderError('provider_unavailable',503,{category:'provider_http',upstreamStatus:429}),'UPSTREAM_UNAVAILABLE',{category:'provider_http',upstreamStatus:429}],
+  [new ProviderError(secret,502,{category:secret,upstreamStatus:secret}),'UPSTREAM_UNAVAILABLE',{category:'unclassified_failure'}],
+  [Object.assign(new Error(secret),{diagnosticCategory:'schema',upstreamStatus:401,headers:{Authorization:secret},body:secret}),'UPSTREAM_UNAVAILABLE',{category:'unclassified_failure'}]
+ ];
+ for(const [providerError,publicCode,diagnostic]of errors){
+  const {worker,calls}=setup({providerError}),response=await worker.fetch(request({body:JSON.stringify(privateQuery)}),config);
+  assert.equal(response.status,502);assert.deepEqual(await response.json(),{error:publicCode});
+  assert.deepEqual(calls.reports,[{event:'gym_research_failure',...diagnostic}]);
+  assert.equal(calls.reserve.length,1);assert.equal(calls.research.length,1);assert.equal(calls.release.length,1);
+  assert.doesNotMatch(JSON.stringify(calls.reports),/Private|synthetic-owner|private-provider|Authorization|lease|token|apiKey/);
+ }
+ for(const report of [()=>{throw Error(secret)},async()=>{throw Error(secret)},()=>new Promise(()=>{})]){
+  const {worker,calls}=setup({providerError:new ProviderError('invalid_provider_response',502,{category:'schema'}),report});
+  const response=await worker.fetch(request(),config);
+  assert.equal(response.status,502);assert.deepEqual(await response.json(),{error:'INVALID_RESEARCH'});
+  assert.equal(calls.reports.length,1);assert.equal(calls.research.length,1);assert.equal(calls.release.length,1);
+ }
+ const denied=setup({reserveResult:{allowed:false,reason:'limit'}});await denied.worker.fetch(request(),config);assert.deepEqual(denied.calls.reports,[]);
+ const success=setup();await success.worker.fetch(request(),config);assert.deepEqual(success.calls.reports,[]);
+});
+
+test('default failure reporting writes one sanitized structured warning',async t=>{
+ const warnings=[];t.mock.method(console,'warn',(...values)=>warnings.push(values));
+ const {worker,calls}=setup({providerError:new ProviderError('provider_unavailable',503,{category:'provider_http',upstreamStatus:401}),useDefaultReport:true});
+ const response=await worker.fetch(request(),config);
+ assert.equal(response.status,502);assert.deepEqual(await response.json(),{error:'UPSTREAM_UNAVAILABLE'});
+ assert.deepEqual(warnings,[[{event:'gym_research_failure',category:'provider_http',upstreamStatus:401}]]);
+ assert.equal(calls.research.length,1);assert.equal(calls.release.length,1);
+});
+
 test('real route, provider parser and migrated durable quota enforce five attempts across Worker instances',async()=>{
  const db=new DatabaseSync(':memory:');
  try{
@@ -100,7 +135,8 @@ test('real route, provider parser and migrated durable quota enforce five attemp
   const binding={prepare(sql){return {bind(...values){const stmt=db.prepare(sql);return {async first(){return stmt.get(...values)||null},async run(){const info=stmt.run(...values);return {success:true,meta:{changes:Number(info.changes)}}}}}}}};
   let clock=Date.parse('2026-10-19T12:00:00Z'),outbound=0;
   const fetcher=async(url,options)=>{
-   assert.equal(url,'https://api.openai.com/v1/responses');assert.equal(options.redirect,'error');outbound++;
+   // Workers supports manual redirects; a 3xx response never follows with the key.
+   assert.equal(url,'https://api.openai.com/v1/responses');assert.equal(options.redirect,'manual');outbound++;
    const body=JSON.parse(options.body);assert.equal(body.max_tool_calls,1);assert.equal(body.store,false);assert.deepEqual(JSON.parse(body.input[0].content[0].text),query);
    if(outbound===2)return new Response('private provider failure',{status:429});
    return Response.json({status:'completed',output:[{type:'web_search_call',status:'completed',action:{type:'search',sources:[]}},{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text:'{"locations":[]}',annotations:[]}]}]});

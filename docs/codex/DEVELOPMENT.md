@@ -587,3 +587,40 @@ remaining provider acceptance check and consumes an attempt. Secret metadata
 and successful deployment do not verify the secret's value, model permissions
 or billing. The original key remains untouched. No GitHub push, merge, live
 app/backend deployment, private evidence upload or audience expansion occurred.
+
+### Stage 10 follow-up: gym identity comparison and safe diagnostics
+
+An exact street address can differ from its published spelling through standard
+abbreviations. The server's former token-by-token filter rejected E/East,
+St/Street and PA/Pennsylvania variants even when the candidate named the same
+location. The client review helper repeated this comparison. Controlled,
+fictional provider responses reproduce the rejection independently of billing,
+network access or a user's account.
+
+The shared comparison now handles bounded US street, direction, state, dotted
+initial and ZIP-extension variants. It checks city and house number separately,
+rejects conflicting units, cities, directions and requested branch words, and
+keeps unfamiliar formats conservative. It does not rewrite saved queries,
+location signatures, candidate IDs, evidence or gym inventories. The new module
+is included in both the Worker artifact and offline shell. Existing equipment,
+manual items, notes and load limits survive explicit preview/apply in synthetic
+integration tests. Source citations and operating-status safeguards remain.
+
+A separate hosted request returned HTTP 502. Its raw response was not retained,
+so the abbreviation bug is not claimed as the cause of that failure. Provider
+failures now log only a fixed event, an allowlisted category and an optional
+numeric HTTP status. No query, account, key, header or provider body is logged.
+Reporting failure cannot delay the response or lease release. Public messages
+avoid blaming the address for an invalid response; an empty successful search
+is described separately. The beta search button keeps its intended label after
+completion. No automatic retry, extra tool call or budget change was added.
+
+Validation: all 37 test files passed with Node 24.19.0. npm run check passed
+(25 root JavaScript modules, 41 shell entries, 162 original catalog assets,
+113 web images and 35 paired movements). Focused tests cover both matching
+callers, wrong-location rejection, draft preservation, diagnostic redaction,
+upstream failures, durable quotas and the built Worker. This investigation made
+no paid request and reset no allowance. Actual provider-result acceptance still
+requires the owner's browser; two-device sync, full conversation export and
+exact photo approval-to-file evidence remain pending. No image, history,
+schema, runtime setting, Supabase data or live-app change was made.

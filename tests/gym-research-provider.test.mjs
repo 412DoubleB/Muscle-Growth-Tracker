@@ -14,6 +14,49 @@ const candidate=()=>({name:'Synthetic Fitness Cleveland',city:'Cleveland OH',add
 const responseBody=(locations=[candidate()])=>({status:'completed',output:[{type:'web_search_call',status:'completed',action:{type:'search',sources:[{type:'url',url,title:'Location source'},{type:'url',url:equipmentUrl,title:'Equipment source'}]}},{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text:JSON.stringify({locations}),annotations:[]}]}]});
 const expectCode=(action,code,status)=>assert.throws(action,error=>error instanceof ProviderError&&error.code===code&&error.status===status&&!error.message.includes(apiKey));
 
+test('failure diagnostics retain only known static categories and bounded numeric HTTP statuses',()=>{
+ const safe=new ProviderError('invalid_provider_response',502,{category:'source_citation',upstreamStatus:200});
+ assert.deepEqual(ProviderError.diagnostic(safe),{category:'source_citation',upstreamStatus:200});
+ for(const category of [apiKey,'private gym address',{},null,undefined]){
+  const error=new ProviderError('private code '+apiKey,502,{category,upstreamStatus:'401 '+apiKey});
+  assert.deepEqual(ProviderError.diagnostic(error),{category:'unclassified_failure'});
+  assert.equal(Object.hasOwn(error,'diagnosticCategory'),false);assert.equal(Object.hasOwn(error,'upstreamStatus'),false);
+ }
+ for(const upstreamStatus of [-1,0,99,600,401.5,NaN,Infinity,'401',{},null]){
+  const error=new ProviderError('provider_unavailable',503,{category:'provider_http',upstreamStatus});
+  assert.deepEqual(ProviderError.diagnostic(error),{category:'provider_http'});assert.equal(Object.hasOwn(error,'upstreamStatus'),false);
+ }
+ const mutated=new ProviderError('invalid_provider_response',502,{category:'schema',upstreamStatus:200});
+ mutated.diagnosticCategory=apiKey;mutated.upstreamStatus='401 '+apiKey;
+ assert.deepEqual(ProviderError.diagnostic(mutated),{category:'unclassified_failure'});
+ assert.deepEqual(ProviderError.diagnostic(Object.assign(new Error(apiKey),{diagnosticCategory:'schema',upstreamStatus:401})),{category:'unclassified_failure'});
+ let categoryReads=0,statusReads=0;
+ const changing={get category(){return ++categoryReads===1?'schema':apiKey},get upstreamStatus(){return ++statusReads===1?200:apiKey}};
+ assert.deepEqual(ProviderError.diagnostic(new ProviderError('invalid_provider_response',502,changing)),{category:'schema',upstreamStatus:200});
+ assert.equal(categoryReads,1);assert.equal(statusReads,1);
+ categoryReads=0;statusReads=0;
+ const forged=new ProviderError('invalid_provider_response',502);
+ Object.defineProperties(forged,{diagnosticCategory:{get(){return ++categoryReads===1?'schema':apiKey}},upstreamStatus:{get(){return ++statusReads===1?200:apiKey}}});
+ assert.deepEqual(ProviderError.diagnostic(forged),{category:'schema',upstreamStatus:200});assert.equal(categoryReads,1);assert.equal(statusReads,1);
+});
+
+test('parser diagnostics distinguish bounded failure stages without exposing provider output',()=>{
+ const variants=[
+  ['incomplete_response',raw=>{raw.status='incomplete';raw.incomplete_details={reason:apiKey}}],
+  ['search_evidence',raw=>{raw.output[0].status='in_progress'}],
+  ['structured_output',raw=>{raw.output[1].content[0].text='{'+apiKey}],
+  ['source_citation',raw=>{const item=candidate();item.url='https://uncited.example.com/club';raw.output[1].content[0].text=JSON.stringify({locations:[item]})}],
+  ['schema',raw=>{const item=candidate();item.equipment[0].max=apiKey;raw.output[1].content[0].text=JSON.stringify({locations:[item]})}]
+ ];
+ for(const [category,mutate]of variants){
+  const raw=responseBody();mutate(raw);
+  assert.throws(()=>parseGymResearchResponse(raw,options),error=>{
+   assert.equal(error.code,'invalid_provider_response');assert.equal(error.status,502);
+   assert.deepEqual(ProviderError.diagnostic(error),{category});assert.ok(!JSON.stringify(error).includes(apiKey));return true;
+  });
+ }
+});
+
 test('request pins one bounded search, strict output and only the three gym identity fields',()=>{
  const input={name:'  Synthetic Fitness  ',location:'Cleveland OH',address:''};
  const original=structuredClone(input),body=buildGymResearchRequest(input,{allowedEquipment:EQUIPMENT});
@@ -124,6 +167,20 @@ test('provider errors are sanitized and never retried or read for raw error deta
   let calls=0;await assert.rejects(researchGym(query,{apiKey,allowedEquipment:EQUIPMENT,now,fetcher:async(...args)=>{calls++;return failure(...args)}}),error=>error instanceof ProviderError&&!error.message.includes(apiKey)&&!JSON.stringify(error).includes(apiKey));assert.equal(calls,1);
  }
  let calls=0;await assert.rejects(researchGym(query,{apiKey:'',allowedEquipment:EQUIPMENT,fetcher:async()=>{calls++}}),error=>error.code==='provider_unavailable');assert.equal(calls,0);
+});
+
+test('HTTP failure diagnostics read only numeric status and cancel without reading error bodies or retrying',async()=>{
+ for(const status of [401,429,500,'private '+apiKey]){
+  let calls=0,cancelled=0,reads=0;
+  const forbidden=()=>{reads++;throw Error('Do not read '+apiKey)};
+  const response={ok:false,status,json:forbidden,text:forbidden,body:{cancel:async()=>{cancelled++},getReader:forbidden}};
+  await assert.rejects(researchGym(query,{apiKey,allowedEquipment:EQUIPMENT,fetcher:async()=>{calls++;return response}}),error=>{
+   assert.equal(error.code,'provider_unavailable');assert.equal(error.status,503);
+   assert.deepEqual(ProviderError.diagnostic(error),{category:'provider_http',...(typeof status==='number'?{upstreamStatus:status}:{})});
+   assert.ok(!JSON.stringify(error).includes(apiKey));return true;
+  });
+  assert.equal(calls,1);assert.equal(reads,0);assert.equal(cancelled,1);
+ }
 });
 
 test('response size is bounded by both advertised size and streamed bytes',async()=>{

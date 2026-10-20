@@ -1,14 +1,28 @@
 # Private gym-search activation review
 
-**Current activation (2026-10-20):** owner-only preview version 12 was redeployed
-successfully with runtime revision 5 and AI enabled. The owner approved a
-replacement key and manually entered it directly into the native Sites settings
-as a secret; it was never sent through chat or added to a source package. Native
-metadata confirms the secret entry, owner-only access and the applied runtime
-revision. Hosted MENEI owner membership and unused accounting were verified.
-The next real gym lookup still needs owner acceptance; secret presence and a
-successful deployment do not prove provider/model/billing acceptance. The
-pre-activation descriptions below are historical and superseded by this status.
+**Current review (2026-10-20):** owner-only preview version 12 has AI enabled at
+runtime revision 5. The owner tested real searches. A successful empty-result
+screen and a separate HTTP 502 were observed; neither establishes a confirmed
+usable gym result. Synthetic reproduction found that literal token matching can
+discard an otherwise matching address when E/East, St/Street or PA/Pennsylvania
+differ. The shared client/server comparison now recognizes bounded US address
+abbreviations, keeps city and house-number checks separate, and preserves saved
+identities, signatures and IDs. It does not infer equipment or alter gym records.
+
+The 502's original cause cannot be recovered from existing logs; raw provider
+output was not retained. New failure diagnostics record only a fixed event,
+allowlisted category and optional numeric upstream status. Queries, account
+identifiers, keys and raw provider bodies are excluded. Public messages now
+distinguish an unvalidated response from a successful search with no confirmed
+candidate. The request model, citations, limits, timeouts and no-retry policy are
+unchanged. All 37 test files and the static/media checks pass with synthetic
+data. The next owner lookup remains an acceptance check; no tool-driven paid
+request or counter reset was performed. See DEVELOPMENT.md for publication.
+
+The owner approved a replacement key and manually entered it directly in native
+Sites settings as a secret; it was never sent through chat or packaged. Native
+metadata confirms the masked entry and owner-only access. The older activation
+and pre-activation descriptions below are historical and superseded here.
 
 **Twenty-account scope update (2026-10-20):** Testers need only a MENEI account;
 no ChatGPT account, separate AI account, personal key or download is required.

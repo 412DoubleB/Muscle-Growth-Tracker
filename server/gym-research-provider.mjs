@@ -1,17 +1,34 @@
 // Server-only adapter. The client sends a gym identity, never an account or
 // workout record. Source pages and model output remain untrusted evidence.
+import {gymIdentityMatches} from '../gym-identity.mjs';
 const PROVIDER_URL='https://api.openai.com/v1/responses';
 const MAX_BYTES=131072;
 const MAX_TIMEOUT=35000;
 const NOTICE='AI-researched candidates need your review. Check the exact address, current opening status and each cited equipment claim. Published information is not a physical inventory audit.';
 const OPERATING_STATUSES=['open','closed','temporarily_closed','coming_soon','unknown'];
+const DIAGNOSTIC_CATEGORIES=new Set(['incomplete_response','search_evidence','structured_output','source_citation','schema','response_size','provider_http','provider_transport','provider_timeout','provider_configuration','cancelled','unclassified_failure']);
 const record=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
 const normalized=value=>value.toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+const safeUpstreamStatus=value=>Number.isInteger(value)&&value>=100&&value<=599;
 
 export class ProviderError extends Error{
- constructor(code,status){super('Gym research could not be completed.');this.name='ProviderError';this.code=code;this.status=status}
+ constructor(code,status,diagnostic={}){
+  super('Gym research could not be completed.');this.name='ProviderError';this.code=code;this.status=status;
+  const category=record(diagnostic)?diagnostic.category:undefined,upstreamStatus=record(diagnostic)?diagnostic.upstreamStatus:undefined;
+  if(DIAGNOSTIC_CATEGORIES.has(category))this.diagnosticCategory=category;
+  if(safeUpstreamStatus(upstreamStatus))this.upstreamStatus=upstreamStatus;
+ }
+ static diagnostic(error){
+  const result={category:'unclassified_failure'};
+  if(error instanceof ProviderError){
+   const category=error.diagnosticCategory,upstreamStatus=error.upstreamStatus;
+   if(DIAGNOSTIC_CATEGORIES.has(category))result.category=category;
+   if(safeUpstreamStatus(upstreamStatus))result.upstreamStatus=upstreamStatus;
+  }
+  return result;
+ }
 }
-const invalid=()=>{throw new ProviderError('invalid_provider_response',502)};
+const invalid=(category='schema')=>{throw new ProviderError('invalid_provider_response',502,{category})};
 function exactKeys(value,keys){if(!record(value)||Object.keys(value).length!==keys.length||keys.some(key=>!Object.hasOwn(value,key)))invalid()}
 function text(value,max,{required=true}={}){
  if(typeof value!=='string'||value.length>max||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value)||required&&!value.trim())invalid();return value.trim();
@@ -20,8 +37,8 @@ function stringList(value,{maxItems,maxLength}){
  if(!Array.isArray(value)||value.length>maxItems)invalid();return value.map(item=>text(item,maxLength));
 }
 function vocabulary(values){
- if(!(Array.isArray(values)||values instanceof Set)||!values.size&&!values.length)throw new ProviderError('provider_unavailable',503);
- const unique=new Set();for(const value of values){if(typeof value!=='string'||!value.trim()||value.length>150)throw new ProviderError('provider_unavailable',503);unique.add(value)}return [...unique].sort();
+ if(!(Array.isArray(values)||values instanceof Set)||!values.size&&!values.length)throw new ProviderError('provider_unavailable',503,{category:'provider_configuration'});
+ const unique=new Set();for(const value of values){if(typeof value!=='string'||!value.trim()||value.length>150)throw new ProviderError('provider_unavailable',503,{category:'provider_configuration'});unique.add(value)}return [...unique].sort();
 }
 function publicUrl(value){
  const input=text(value,4096);let url;try{url=new URL(input)}catch{invalid()}
@@ -64,32 +81,32 @@ export function buildGymResearchRequest(query,{allowedEquipment}={}){
 }
 function checkedDate(now){
  const date=typeof now==='function'?now():now;
- try{return new Date(date===undefined?Date.now():date).toISOString().slice(0,10)}catch{throw new ProviderError('provider_unavailable',503)}
+ try{return new Date(date===undefined?Date.now():date).toISOString().slice(0,10)}catch{throw new ProviderError('provider_unavailable',503,{category:'provider_configuration'})}
 }
 function sourceEvidence(raw){
- if(!Array.isArray(raw.output)||raw.output.length>100)invalid();
+ if(!Array.isArray(raw.output)||raw.output.length>100)invalid('search_evidence');
  const sources=new Map();let searchCalls=0,completedSearch=false;
  const retain=(url,title)=>{try{const normalizedUrl=publicUrl(url);if(!sources.has(normalizedUrl))sources.set(normalizedUrl,{url:normalizedUrl,title:typeof title==='string'&&title.trim()&&title.length<=300?title.trim():'Cited source'})}catch{/* Ignore malformed provider metadata; it cannot support a claim. */}};
  for(const item of raw.output){
-  if(!record(item))invalid();
+  if(!record(item))invalid('search_evidence');
   if(item.type==='web_search_call'){
-   if(++searchCalls>1)invalid();
+   if(++searchCalls>1)invalid('search_evidence');
    if(item.status==='completed'&&record(item.action)&&item.action.type==='search')completedSearch=true;
    if(item.status==='completed'&&record(item.action)&&Array.isArray(item.action.sources))for(const source of item.action.sources)if(record(source)&&source.type==='url')retain(source.url,source.title);
   }
   if(item.type==='message'&&item.role==='assistant'&&item.status==='completed'&&Array.isArray(item.content))for(const part of item.content)if(part?.type==='output_text'&&Array.isArray(part.annotations))for(const annotation of part.annotations)if(annotation?.type==='url_citation')retain(annotation.url,annotation.title);
  }
- if(!completedSearch)invalid();return sources;
+ if(!completedSearch)invalid('search_evidence');return sources;
 }
 function outputJson(raw){
  const parts=[];
  for(const item of raw.output){
   if(item.type!=='message')continue;
-  if(item.role!=='assistant'||item.status!=='completed'||!Array.isArray(item.content))invalid();
-  for(const part of item.content){if(!record(part)||part.type!=='output_text'||typeof part.text!=='string')invalid();parts.push(part.text)}
+  if(item.role!=='assistant'||item.status!=='completed'||!Array.isArray(item.content))invalid('structured_output');
+  for(const part of item.content){if(!record(part)||part.type!=='output_text'||typeof part.text!=='string')invalid('structured_output');parts.push(part.text)}
  }
- if(parts.length!==1||parts[0].length>MAX_BYTES)invalid();
- try{return JSON.parse(parts[0])}catch{invalid()}
+ if(parts.length!==1||parts[0].length>MAX_BYTES)invalid('structured_output');
+ try{return JSON.parse(parts[0])}catch{invalid('structured_output')}
 }
 function stableId(identity){
  // Two independent integer hashes keep IDs stable without leaking query text or
@@ -97,17 +114,15 @@ function stableId(identity){
  let a=2166136261,b=5381;for(const character of identity){const n=character.codePointAt(0);a=Math.imul(a^n,16777619)>>>0;b=(Math.imul(b,33)^n)>>>0}return 'ai-gym-'+a.toString(16).padStart(8,'0')+b.toString(16).padStart(8,'0');
 }
 function candidateMatches(query,candidate){
- const nameWords=normalized(query.name).split(' '),name=new Set(normalized(candidate.name).split(' '));
- const place=new Set(normalized(candidate.city+' '+candidate.address).split(' ')),address=new Set(normalized(candidate.address).split(' '));
- return nameWords.every(word=>name.has(word))&&normalized(query.location).split(' ').every(word=>place.has(word))&&(!query.address||normalized(query.address).split(' ').every(word=>address.has(word)));
+ return gymIdentityMatches(query,candidate);
 }
 export function parseGymResearchResponse(raw,{query,allowedEquipment,now}={}){
  const identity=normalizeGymQuery(query),allowed=new Set(vocabulary(allowedEquipment));
- if(!record(raw)||raw.status!=='completed'||raw.error||raw.incomplete_details)invalid();
+ if(!record(raw)||raw.status!=='completed'||raw.error||raw.incomplete_details)invalid('incomplete_response');
  const evidence=sourceEvidence(raw),result=outputJson(raw);exactKeys(result,['locations']);
  if(!Array.isArray(result.locations)||result.locations.length>3)invalid();
  const checked=checkedDate(now),seen=new Set(),ids=new Set(),locations=[];
- const cited=value=>{const url=publicUrl(value);if(!evidence.has(url))invalid();return url};
+ const cited=value=>{try{const url=publicUrl(value);if(!evidence.has(url))invalid('source_citation');return url}catch{invalid('source_citation')}};
  for(const value of result.locations){
   exactKeys(value,['name','city','address','operatingStatus','url','equipment','unknown']);
   const name=text(value.name,300),city=text(value.city,500),address=text(value.address,500);
@@ -130,34 +145,34 @@ export function parseGymResearchResponse(raw,{query,allowedEquipment,now}={}){
  return {locations,checked,notice:NOTICE};
 }
 async function boundedJson(response,maxBytes,signal){
- const length=Number(response.headers?.get('content-length'));if(Number.isFinite(length)&&length>maxBytes)throw new ProviderError('response_too_large',502);
- if(!response.body||typeof response.body.getReader!=='function')invalid();
+ const length=Number(response.headers?.get('content-length'));if(Number.isFinite(length)&&length>maxBytes)throw new ProviderError('response_too_large',502,{category:'response_size'});
+ if(!response.body||typeof response.body.getReader!=='function')invalid('structured_output');
  const reader=response.body.getReader(),decoder=new TextDecoder('utf-8',{fatal:true});let bytes=0,body='';
  const cancel=()=>{reader.cancel().catch(()=>{})};signal.addEventListener('abort',cancel,{once:true});
  try{
-  for(;;){const {done,value}=await reader.read();if(done)break;if(!(value instanceof Uint8Array))invalid();bytes+=value.byteLength;if(bytes>maxBytes)throw new ProviderError('response_too_large',502);body+=decoder.decode(value,{stream:true})}
+  for(;;){const {done,value}=await reader.read();if(done)break;if(!(value instanceof Uint8Array))invalid('structured_output');bytes+=value.byteLength;if(bytes>maxBytes)throw new ProviderError('response_too_large',502,{category:'response_size'});body+=decoder.decode(value,{stream:true})}
   body+=decoder.decode();return JSON.parse(body);
- }catch(error){cancel();if(error instanceof ProviderError)throw error;invalid()}
+ }catch(error){cancel();if(error instanceof ProviderError)throw error;invalid('structured_output')}
  finally{signal.removeEventListener('abort',cancel);reader.releaseLock()}
 }
 export async function researchGym(query,{apiKey,allowedEquipment,fetcher,now,signal,timeoutMs=MAX_TIMEOUT,maxResponseBytes=MAX_BYTES}={}){
  const body=buildGymResearchRequest(query,{allowedEquipment});
- if(typeof apiKey!=='string'||!/^sk-[A-Za-z0-9_-]{12,}$/.test(apiKey)||typeof (fetcher||globalThis.fetch)!=='function')throw new ProviderError('provider_unavailable',503);
- if(signal?.aborted)throw new ProviderError('cancelled',499);
+ if(typeof apiKey!=='string'||!/^sk-[A-Za-z0-9_-]{12,}$/.test(apiKey)||typeof (fetcher||globalThis.fetch)!=='function')throw new ProviderError('provider_unavailable',503,{category:'provider_configuration'});
+ if(signal?.aborted)throw new ProviderError('cancelled',499,{category:'cancelled'});
  const timeout=Number.isFinite(timeoutMs)&&timeoutMs>0?Math.min(timeoutMs,MAX_TIMEOUT):MAX_TIMEOUT;
  const cap=Number.isInteger(maxResponseBytes)&&maxResponseBytes>0?Math.min(maxResponseBytes,MAX_BYTES):MAX_BYTES;
  const controller=new AbortController();let timer,externalAbort;
  const work=async()=>{
   const response=await (fetcher||globalThis.fetch.bind(globalThis))(PROVIDER_URL,{method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json'},body:JSON.stringify(body),redirect:'manual',signal:controller.signal});
-  if(!response?.ok){response?.body?.cancel?.().catch(()=>{});throw new ProviderError('provider_unavailable',503)}
+  if(!response?.ok){response?.body?.cancel?.().catch(()=>{});throw new ProviderError('provider_unavailable',503,{category:'provider_http',upstreamStatus:response?.status})}
   const raw=await boundedJson(response,cap,controller.signal);return parseGymResearchResponse(raw,{query,allowedEquipment,now});
  };
  const aborted=new Promise((_,reject)=>{
-  externalAbort=()=>{controller.abort();reject(new ProviderError('cancelled',499))};
+  externalAbort=()=>{controller.abort();reject(new ProviderError('cancelled',499,{category:'cancelled'}))};
   signal?.addEventListener('abort',externalAbort,{once:true});
-  timer=setTimeout(()=>{controller.abort();reject(new ProviderError('provider_timeout',504))},timeout);
+  timer=setTimeout(()=>{controller.abort();reject(new ProviderError('provider_timeout',504,{category:'provider_timeout'}))},timeout);
  });
  try{return await Promise.race([work(),aborted])}
- catch(error){if(error instanceof ProviderError)throw error;throw new ProviderError('provider_unavailable',503)}
+ catch(error){if(error instanceof ProviderError)throw error;throw new ProviderError('provider_unavailable',503,{category:'provider_transport'})}
  finally{clearTimeout(timer);signal?.removeEventListener('abort',externalAbort)}
 }
