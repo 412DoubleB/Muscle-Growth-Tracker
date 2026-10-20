@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../core.mjs';
-import {GYM_DIRECTORY,buildGymAutofillPreview} from '../gyms.mjs';
+import {GYM_DIRECTORY,GYM_TYPES,buildGymAutofillPreview} from '../gyms.mjs';
 
 const stamp='2026-11-02T12:00:00.000Z',published=GYM_DIRECTORY[0];
 const decode=text=>String(text||'').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
@@ -11,7 +11,7 @@ function gym({exact=false,source=false}={}){
  if(source)value.sourceInfo=buildGymAutofillPreview(value,{query:{name:value.name,location:value.location,address:value.address},gymType:'commercial',research:published,allowedEquipment:C.EQUIPMENT}).sourceInfo;
  return value;
 }
-function environment(savedGym,{aiReady=false,previewMode='local',research=async()=>{throw Error('Unexpected synthetic research request')}}={}){
+function environment(savedGym,{aiReady=false,previewMode='local',previewRevision='',research=async()=>{throw Error('Unexpected synthetic research request')}}={}){
  const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','clearTimeout','fetch','FormData'];
  const previous=new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)])),elements=new Map(),listeners=new Map(),writes=[],requests=[],researchRequests=[],timers=new Map();let nextTimer=0;
  const state=C.defaultState();state.nutrition.setupPromptSeen=true;state.gyms=[C.clone(savedGym)];state.gymSchedules=[];state.training.defaultGym=savedGym.id;
@@ -36,7 +36,7 @@ function environment(savedGym,{aiReady=false,previewMode='local',research=async(
  }
  const element=id=>{if(!elements.has(id))elements.set(id,new Element(id));return elements.get(id)};
  const emit=async(name,target)=>{for(const listener of listeners.get(name)||[])listener({target,preventDefault(){}});await new Promise(resolve=>setImmediate(resolve))};
- globalThis.document={documentElement:{dataset:{preview:previewMode,testProject:'bhyrrxrpqaxiwpfxnwpa'}},getElementById:id=>['gymForm','usePublishedDbMax'].includes(id)?elements.get(id)||null:element(id),activeElement:{tagName:'BODY'},hidden:false,addEventListener:(name,fn)=>listeners.set(name,[...(listeners.get(name)||[]),fn]),querySelector:selector=>selector==='dialog[open]'&&element('modal').open?element('modal'):null,querySelectorAll:selector=>selector==='#gymForm [name=equipment]'?(elements.get('gymForm')?.controls||[]).filter(control=>control.name==='equipment'):selector==='#gymForm [data-equipment-evidence]'?elements.get('gymForm')?.evidence||[]:[]};
+ globalThis.document={documentElement:{dataset:{preview:previewMode,previewRevision,testProject:'bhyrrxrpqaxiwpfxnwpa'}},getElementById:id=>['gymForm','usePublishedDbMax'].includes(id)?elements.get(id)||null:element(id),activeElement:{tagName:'BODY'},hidden:false,addEventListener:(name,fn)=>listeners.set(name,[...(listeners.get(name)||[]),fn]),querySelector:selector=>selector==='dialog[open]'&&element('modal').open?element('modal'):null,querySelectorAll:selector=>selector==='#gymForm [name=equipment]'?(elements.get('gymForm')?.controls||[]).filter(control=>control.name==='equipment'):selector==='#gymForm [data-equipment-evidence]'?elements.get('gymForm')?.evidence||[]:[]};
  globalThis.localStorage={getItem:key=>rows.get(key)??null,setItem:(key,value)=>{writes.push(key);rows.set(key,String(value))},removeItem(){assert.fail('Gym drafting must not remove stored records')}};
  globalThis.sessionStorage={getItem:()=>null,setItem(){},removeItem(){}};globalThis.window={addEventListener(){},scrollTo(){}};
  Object.defineProperty(globalThis,'navigator',{value:{onLine:true,vibrate(){}},configurable:true});globalThis.location={origin:'https://synthetic.example.invalid',pathname:'/',href:'https://synthetic.example.invalid/',hash:'',search:''};
@@ -62,6 +62,34 @@ test('autofill changes only an editable draft until Save and retains manual inve
   assert.equal(saved.equipmentConfirmedAt,null);assert.equal(saved.sourceInfo.complete,false);assert.equal(saved.sourceInfo.equipment.length,0);assert.ok(saved.sourceInfo.estimates.some(item=>item.name==='Adjustable Bench'));
   assert.deepEqual(env.state.logs,JSON.parse(before[0][1]).logs);
  }finally{env.restore()}
+});
+
+test('autofill separates the full proposal from new additions and retains the complete commercial checklist after reopening',async()=>{
+ const original={...gym(),inventory:GYM_TYPES.commercial.estimates.slice(0,20)},env=environment(original);
+ try{
+  const before=await open(env,'commercial-counts'),initial=env.inventory.slice();await env.click('gym-autofill');
+  assert.match(env.elements.get('gymLookupResults').innerHTML,/23 proposed equipment types · 3 new additions · 20 already selected/);
+  assert.deepEqual(env.inventory,initial);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
+  await env.click('apply-gym-autofill');
+  assert.ok(env.inventory.length>=23);assert.deepEqual(new Set(env.inventory),new Set([...initial,...GYM_TYPES.commercial.estimates]));const selected=env.inventory.slice().sort();
+  assert.match(env.elements.get('gymLookupResults').innerHTML,new RegExp(selected.length+' equipment types selected.*Review the checked boxes below, then Save gym'));
+  assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
+  await env.submit();assert.deepEqual(env.state.gyms[0].inventory.slice().sort(),selected);
+  await env.click('gym',{id:original.id});assert.deepEqual(env.inventory.slice().sort(),selected);await env.click('gym-autofill');
+  assert.match(env.elements.get('gymLookupResults').innerHTML,/23 proposed equipment types · 0 new additions · 23 already selected/);
+  assert.equal(env.form.elements.notes.value,original.notes);assert.equal(+env.form.elements.dbMax.value,original.dbMax);assert.equal(+env.form.elements.increment.value,original.increment);
+ }finally{env.restore()}
+});
+
+test('only private previews display a valid build revision without changing the app version',async()=>{
+ for(const [mode,revision,visible]of [['local','012345abcdef',true],['test-cloud','012345abcdef',true],['','012345abcdef',false],['local','invalid-revision',false]]){
+  const env=environment(gym(),{previewMode:mode,previewRevision:revision});
+  try{
+   await open(env,'preview-revision-'+mode+'-'+revision);await env.click('close-modal');await env.click('view',{view:'settings'});
+   const html=env.elements.get('app').innerHTML;assert.match(html,/Running 8\.1\.1/);
+   if(visible)assert.match(html,/Running 8\.1\.1 · Preview build 012345abcdef/);else assert.doesNotMatch(html,/Preview build/);
+  }finally{env.restore()}
+ }
 });
 
 test('published equipment stays separate from estimates even when a suggestion is unchecked',async()=>{
@@ -147,6 +175,45 @@ test('branch equipment appears before cited wider-search estimates, with common 
   assert.ok(saved.sourceInfo.estimates.some(item=>item.name==='Kettlebells'&&item.basis==='wider-web'&&item.sourceUrl===result.estimatedEquipment[0].sourceUrl));
   assert.ok(saved.sourceInfo.equipment.every(item=>item.status==='published'));assert.deepEqual(env.state.logs,JSON.parse(before[0][1]).logs);assert.equal(env.researchRequests.length,1);
  }finally{env.restore()}
+});
+
+test('repreviewing a selected source after type, notes and checklist edits keeps its evidence without another search',async()=>{
+ const result={...widerCandidate(),setup:null},original={...gym(),gymType:'custom',inventory:[...gym().inventory,'Bench','Flat Bench','Squat Rack / Power Rack']},env=environment(original,{aiReady:true,research:async()=>researchResponse({locations:[result]})});
+ try{
+  const before=await open(env,'selected-source-repreview');await env.click('gym-ai-search');
+  assert.match(env.elements.get('gymLookupResults').innerHTML,/Choose Use this location to open the combined equipment proposal/);
+  await env.click('apply-gym-source',{id:result.id});assert.equal(env.form.elements.gymType.value,'custom');
+  assert.match(env.elements.get('gymLookupResults').innerHTML,/2 proposed equipment types/);
+  await env.set('gymType','commercial');await env.set('notes','Keep this newer synthetic manual note');await env.equipment('EZ Bar',true);await env.click('gym-autofill');
+  const html=env.elements.get('gymLookupResults').innerHTML;
+  assert.match(html,/23 proposed equipment types/);assert.match(html,/Published for this location/);assert.match(html,/Estimated from broader gym research/);assert.match(html,/Estimated from the gym type/);
+  assert.match(html,/Source describes the dumbbell area/);assert.match(html,/synthetic\.example\.invalid\/chain\/equipment/);
+  assert.equal(env.researchRequests.length,1);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
+  assert.ok(env.inventory.includes('EZ Bar'));assert.equal(env.form.elements.notes.value,'Keep this newer synthetic manual note');assert.equal(+env.form.elements.dbMax.value,80);
+  await env.click('apply-gym-autofill');assert.ok(env.inventory.length>=23);assert.ok(env.inventory.includes('EZ Bar'));assert.deepEqual(env.writes,[]);
+  const selected=env.inventory.slice().sort();await env.submit();
+  const saved=env.state.gyms[0];assert.deepEqual(saved.inventory.slice().sort(),selected);assert.equal(saved.sourceInfo.equipment[0].sourceUrl,result.equipment[0].sourceUrl);
+  assert.ok(saved.sourceInfo.estimates.some(item=>item.name==='Kettlebells'&&item.basis==='wider-web'&&item.sourceUrl===result.estimatedEquipment[0].sourceUrl));
+  await env.click('gym',{id:original.id});assert.deepEqual(env.inventory.slice().sort(),selected);assert.equal(env.researchRequests.length,1);
+ }finally{env.restore()}
+});
+
+test('identity changes, reopening and a new search cannot revive unsaved selected research',async t=>{
+ for(const mode of ['identity','reopen','new-search','new-search-failed'])await t.test(mode,async()=>{
+  const result=widerCandidate();let calls=0;
+  const env=environment(gym(),{aiReady:true,research:async()=>++calls===1?researchResponse({locations:[result]}):mode==='new-search-failed'?researchResponse({error:'UPSTREAM_UNAVAILABLE'},502):researchResponse({locations:[]})});
+  try{
+   const before=await open(env,'selected-source-invalidated-'+mode);await env.click('gym-ai-search');await env.click('apply-gym-source',{id:result.id});
+   assert.match(env.elements.get('gymLookupResults').innerHTML,/Estimated from broader gym research/);
+   if(mode==='identity'){await env.set('address','A different synthetic address');await env.set('address',result.address);const draft=C.clone(env.draft);await env.click('apply-gym-autofill');assert.match(env.elements.get('toast').textContent,/draft changed/);assert.deepEqual(env.draft,draft)}
+   if(mode==='reopen'){await env.click('close-modal');await env.click('gym',{id:'synthetic-gym'});await env.set('name',result.name);await env.set('location',result.city);await env.set('address',result.address)}
+   if(mode.startsWith('new-search')){await env.click('gym-ai-search');const draft=C.clone(env.draft);await env.click('apply-gym-autofill');assert.match(env.elements.get('toast').textContent,/draft changed/);assert.deepEqual(env.draft,draft)}
+   const draft=C.clone(env.draft);await env.click('gym-autofill');
+   const html=env.elements.get('gymLookupResults').innerHTML;
+   assert.match(html,/Estimated from the gym type/);assert.doesNotMatch(html,/Published for this location|Estimated from broader gym research|synthetic\.example\.invalid\/chain\/equipment/);
+   assert.deepEqual(env.draft,draft);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);assert.equal(env.researchRequests.length,mode.startsWith('new-search')?2:1);
+  }finally{env.restore()}
+ });
 });
 
 test('a chosen gym type survives wider research and estimated limits cannot reach the checklist',async()=>{

@@ -716,3 +716,37 @@ no automations. All 121 protected media/font files, the media manifest,
 migrations and unrelated package members match version 13. No records, private
 evidence, exports, backups or runtime keys were included. Source version 8.1.1
 and prior saved versions remain intact; no live app/backend change occurred.
+
+### Stage 12: equipment counts and retained draft research
+
+The owner reported fewer than ten items after adding suggestions, with Commercial
+gym selected. Synthetic reproduction of the current Commercial profile yields
+23 distinct common types and selects them in the editable checklist. The exact
+phone state is not available, so neither a particular cached build nor a null
+setup recommendation is claimed as the cause of that report.
+
+Two separate issues were established: the preview described only new additions,
+which can be fewer than ten when many items are already selected, and changing
+the gym type before Add could discard a newly chosen research result. The
+review now distinguishes total proposed types, new additions and already
+selected types. The post-Add message reports the actual selected checklist count
+and the need to Save gym. Candidate guidance points to the combined preview.
+Fresh selected research remains in a guarded draft context through type/notes/
+equipment edits and repreview, without another search. Location, form or account
+changes invalidate that context. No research is applied or saved implicitly.
+
+Private preview HTML now carries the source revision for a matching Settings
+build label. This distinguishes preview updates while preserving displayed app
+version 8.1.1, PWA identity, storage and release contracts. It does not claim a
+phone has loaded the newest build merely because native deployment succeeded.
+
+Validation: npm test passed all 37 test files on Node 24.19.0. The final focused
+gym UI rerun passed all 40 cases, including 23 proposed / 3 new / 20 existing,
+Save/reopen, retained published and broader-search evidence without another
+mocked request, and invalidation after identity changes, successful/failed new
+searches and reopening. npm run check passed with 26 root JavaScript modules,
+42 shell entries, 162 original catalog assets, 113 web images and 35 paired
+movements. Syntax, diff and independent preservation review passed. There were
+no paid requests, quota resets, provider changes, migrations or runtime-setting
+changes. The owner's exact phone result remains unconfirmed and needs the new
+visible counts/build identifier for acceptance; no cache cause is inferred.

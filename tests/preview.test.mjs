@@ -26,9 +26,10 @@ test('preview package excludes live configuration and retains exact image bindin
  const output=await fs.mkdtemp(path.join(os.tmpdir(),'menei-preview-test-'));
  try{
   await fs.writeFile(path.join(output,'beta-report.html'),'Superseded owner report must not survive a rebuild.');
-  await buildPreview(output);
+  const build=await buildPreview(output);
   const html=await fs.readFile(path.join(output,'index.html'),'utf8');
   assert.match(html,/data-preview="local"/);assert.match(html,/connect-src 'self'/);
+  assert.ok(html.includes('data-preview-revision="'+build.source_commit.slice(0,12)+'"'));
   assert.match(html,/Private preview/);
   const config=JSON.parse(await fs.readFile(path.join(output,'config.json'),'utf8'));
   assert.equal(config.supabase,undefined);assert.equal(config.vapidPublicKey,undefined);assert.equal(config.pushServiceReady,false);
@@ -38,7 +39,8 @@ test('preview package excludes live configuration and retains exact image bindin
   for(const n of ['.git','.env','supabase','docs','tests','AGENTS.md','beta-report.html'])await assert.rejects(fs.access(path.join(output,n)));
   const guide=await fs.readFile(path.join(output,'preview-guide.html'),'utf8');
   assert.match(guide,/device-only workspace/);assert.doesNotMatch(guide,/first 20|100 attempts|Join the limited beta/);
-  assert.equal(JSON.parse(await fs.readFile(path.join(output,'release.json'),'utf8')).target,'owner-private-sites');
+  const release=JSON.parse(await fs.readFile(path.join(output,'release.json'),'utf8'));
+  assert.equal(release.target,'owner-private-sites');assert.equal(release.source_commit,build.source_commit);
   const sw=await fs.readFile(path.join(output,'sw.js'),'utf8');assert.match(sw,/menei-owner-preview-/);assert.match(sw,/preview-guide.html/);
  }finally{await fs.rm(output,{recursive:true,force:true})}
 });
