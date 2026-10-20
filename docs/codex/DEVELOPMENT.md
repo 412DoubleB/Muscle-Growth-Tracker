@@ -659,3 +659,44 @@ and no automations. Version 12 remains available for rollback. There was no
 code/build input change or test rerun, paid request, counter reset, runtime
 setting change, Supabase mutation, GitHub push or live-app deployment. The
 owner's next lookup is the remaining provider-result acceptance check.
+
+### Stage 11: published-first equipment and broader research estimates
+
+The owner reported that the real location search worked, but its equipment list
+was sparse. They requested branch-supported items first, followed by annotated
+estimates from a wider gym search. The provider now uses the same single search
+for branch facts and broader chain/type context. Its separate estimatedEquipment
+field has up to twelve canonical items, each with an actual returned source,
+an explanation and a checked date. Status and wider-web provenance are fixed on
+the server. Estimates cannot carry max/unit fields. The optional setup suggestion
+also requires a cited source and explanation. Generic facility claims cannot
+establish a specific machine, attachment or cable configuration.
+
+The candidate and preview show published branch items first, cited wider-source
+estimates second and generic gym-type estimates separately. Published facts win
+duplicates; wider-source estimates replace generic suggestions without promoting
+them to branch facts. An explicit candidate choice can fill Custom with the
+suggested type, while a selected non-Custom type stays selected. The commercial
+profile now offers 23 common suggestions. Generic fallback items are not labeled
+as web-researched. Checklist badges retain broader estimates' sources and reasons
+through saving. Preview/add/save remain separate; manual inventory, notes,
+increments, confirmation rules, source history and weight limits are preserved.
+Only an explicitly accepted, published branch dumbbell limit can change dbMax.
+
+New fields stay separate from the old published list, so cached older clients
+can still display published results. The server parser accepts the exact legacy
+shape or the complete new shape; partial/unknown shapes fail closed. Shared
+profiles are included in the client, Worker and offline shell. Candidate IDs,
+location signatures, image bindings and storage identities are unchanged.
+
+Validation: all 37 test files and npm run check passed on Node 24.19.0, with
+26 root JavaScript modules and 42 shell entries. Synthetic tests cover cited
+specialist estimates versus generic inference, missing/unsafe sources, guessed
+limits, publication precedence, setup choice, editable removal, preserved saved
+records, legacy compatibility, closed/wrong locations, one request/search and
+the built Worker. Static checks retain 162 original catalog assets, 113 web
+images and 35 paired movements. Independent review found no material issue.
+There was no paid request, extra search, budget reset, model/output-limit
+increase, schema/runtime change, backend mutation or image/history replacement.
+Real acceptance of a broader result remains with the owner after publication;
+the existing common-profile preview is available without another AI attempt.

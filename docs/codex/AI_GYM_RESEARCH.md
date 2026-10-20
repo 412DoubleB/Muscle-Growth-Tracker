@@ -1,5 +1,25 @@
 # Private gym-search activation review
 
+**Wider research update (2026-10-20):** the owner accepted a real location
+result, then requested branch-supported equipment first and annotated estimates
+from broader gym research when the branch's list is incomplete. New source
+broadens the same single web search to chain/type context. The published list
+stays separate from up to twelve cited wider-source estimates and an optional
+cited gym-type suggestion. Each estimate has its source, explanation, checked
+date and fixed estimated provenance. It cannot supply a weight limit. Exact
+branch facts take precedence; a chain's equipment is not claimed present at the
+branch. Generic facility descriptions cannot establish specific machines or
+attachments. This remains a reviewable proposal, not a complete inventory.
+
+The editable review shows published branch items first, wider-search estimates
+next and common setup suggestions separately. Selecting a candidate can fill a
+Custom setup with its suggested type; an already selected non-Custom type stays
+selected. The common commercial profile now offers 23 optional items. Generic
+profile suggestions have no claimed web evidence; only the separate broader
+research entries carry wider-source citations. Existing selections, manual
+items, notes and load limits remain until explicit edits/Save gym. The expanded
+research needs owner acceptance after publication; see DEVELOPMENT.md.
+
 **Current review (2026-10-20):** owner-only preview version 13 deployed
 successfully with the address fix and safe diagnostics, preserving runtime
 revision 5 and AI enablement. A later retry of the unchanged, verified package
@@ -71,10 +91,11 @@ conversation transcript or private evidence is included in this source.
   or switches models automatically. An abort is not a guarantee that provider
   processing or billing stops.
 - Strict structured output is checked again on the server. At most three
-  location candidates use canonical equipment. Each location/equipment source
+  location candidates use canonical equipment. Each location/equipment/setup source
   URL must match actual returned search/citation metadata and pass public-HTTPS
-  validation. Model-supplied IDs, extra fields, estimates and uncited limits are
-  rejected. Checked dates and stable candidate IDs are assigned by the server.
+  validation. Model-supplied IDs, extra fields and uncited limits are rejected.
+  New estimates live in a separate bounded field, with server-fixed status and
+  no weight limits. Checked dates and stable candidate IDs come from the server.
 - Source citations establish where the AI attributes a claim, not independent
   proof that it interpreted that source correctly. Confirm the address,
   operating status and equipment. Source links use neutral labels rather than

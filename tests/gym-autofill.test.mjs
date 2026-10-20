@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EQUIPMENT} from '../core.mjs';
+import {ESTIMATED_EQUIPMENT} from '../gym-profiles.mjs';
 import {GYM_DIRECTORY,GYM_TYPES,gymLocationSignature,sourceInfoMatchesGym,validateGymResearch,buildGymAutofillPreview,applyGymAutofillPreview} from '../gyms.mjs';
 
 const options={allowedEquipment:EQUIPMENT};
@@ -16,6 +17,9 @@ test('six gym-type profiles offer conservative estimates without claiming precis
   assert.ok(result.items.every(item=>!/(dual cable|cable crossover|attachment|handle)/i.test(item.name)));assert.equal(result.sourceInfo.complete,false);
  }
  assert.equal(Object.isFrozen(GYM_TYPES.commercial.estimates),true);
+ assert.equal(GYM_TYPES.commercial.estimates.length,23);
+ for(const name of ['Smith Machine','Kettlebells','Pec Deck / Chest Fly','Selectorized Shoulder Press','Biceps Curl Machine','Triceps Extension Machine','Treadmill','Stationary Bike','Elliptical','Rower','Stair Climber'])assert.ok(GYM_TYPES.commercial.estimates.includes(name));
+ assert.ok(ESTIMATED_EQUIPMENT.every(name=>EQUIPMENT.includes(name)));assert.equal(new Set(ESTIMATED_EQUIPMENT).size,ESTIMATED_EQUIPMENT.length);assert.equal(Object.isFrozen(ESTIMATED_EQUIPMENT),true);
 });
 
 test('existing published directory records validate without input mutation and preserve evidence fields',()=>{
@@ -23,6 +27,7 @@ test('existing published directory records validate without input mutation and p
  const validated=validateGymResearch(input,options);
  assert.deepEqual(location,original);assert.equal(validated.complete,false);assert.deepEqual(validated.unknownEvidence,input.unknownEvidence);
  assert.equal(validated.equipment[0].sourceUrl,location.url);assert.equal(validated.equipment[0].checked,location.checked);assert.equal(validated.equipment[0].status,'published');
+ assert.equal(Object.hasOwn(validated,'setup'),false);assert.equal(Object.hasOwn(validated,'estimatedEquipment'),false);
  validated.unknownEvidence.retain.push('new');assert.deepEqual(input.unknownEvidence,{retain:['original','metadata']});
 });
 
@@ -103,4 +108,61 @@ test('profile and location changes retain flat historical evidence without apply
  assert.equal(moved.sourceInfo.priorEvidence.length,2);assert.deepEqual(moved.sourceInfo.priorEvidence[0],oldSource);assert.equal(moved.sourceInfo.priorEvidence.some(entry=>entry.name===location.name&&entry.equipment.length===2),true);assert.ok(moved.sourceInfo.priorEvidence.every(entry=>!Object.hasOwn(entry,'priorEvidence')));
  const repeatedMove=applyGymAutofillPreview(moved,hotel,{query:nextQuery,selectedEquipment:[]});assert.deepEqual(repeatedMove.sourceInfo,moved.sourceInfo);
  assert.deepEqual(current.sourceInfo,oldSource);
+});
+
+const widerSource='https://fitness.example.com/chain/equipment';
+const widerEstimate=(name='Smith Machine')=>({name,detail:'Broader chain information suggests this common equipment; this branch is unconfirmed.',sourceUrl:widerSource,status:'estimated',checked:'2026-10-20',basis:'wider-web'});
+const widerResearch=()=>({...structuredClone(location),setup:{gymType:'commercial',basis:'The broader chain source describes a commercial gym setup; individual branches vary.',sourceUrl:widerSource,checked:'2026-10-20'},estimatedEquipment:[widerEstimate()]});
+
+test('cited setup and wider estimates validate without mutating or discarding original evidence',()=>{
+ const input=widerResearch();input.sourceMetadata={keep:'Original evidence'};input.setup.originalMetadata={keep:0};input.estimatedEquipment[0].originalMetadata={keep:false};const before=structuredClone(input);
+ const result=validateGymResearch(input,options);
+ assert.deepEqual(input,before);assert.deepEqual(result.setup,input.setup);assert.deepEqual(result.estimatedEquipment,input.estimatedEquipment);assert.deepEqual(result.sourceMetadata,input.sourceMetadata);assert.equal(result.complete,false);
+ result.estimatedEquipment[0].originalMetadata.keep=true;assert.equal(input.estimatedEquipment[0].originalMetadata.keep,false);
+ const unknown=validateGymResearch({...structuredClone(location),setup:null,estimatedEquipment:[]},options);assert.equal(unknown.setup,null);assert.deepEqual(unknown.estimatedEquipment,[]);
+});
+
+test('wider estimates replace generic suggestions, published facts win and saved gym data stays untouched',()=>{
+ const research=widerResearch();research.estimatedEquipment.push(widerEstimate('Dumbbells'));
+ research.equipment.push({name:'Smith Machine',status:'estimated',detail:'Older generic suggestion'});
+ const current=manual(),before=structuredClone(current),sourceBefore=structuredClone(research),result=preview(current,{research});
+ const smith=result.items.find(item=>item.name==='Smith Machine'),dumbbells=result.items.find(item=>item.name==='Dumbbells');
+ assert.deepEqual(smith,{...research.estimatedEquipment[0],alreadySelected:false});assert.equal(dumbbells.status,'published');assert.equal(dumbbells.max,120);assert.equal(result.items.filter(item=>item.name==='Dumbbells').length,1);
+ assert.equal(result.items.find(item=>item.name==='Treadmill').basis,'commercial');assert.equal(result.dbMaxProposal.value,120);
+ assert.deepEqual(result.sourceInfo.setup,research.setup);assert.deepEqual(result.sourceInfo.estimatedEquipment,research.estimatedEquipment);assert.deepEqual(result.sourceInfo.equipment,research.equipment.map(item=>item.status==='published'?{...item,sourceUrl:location.url,checked:location.checked,unit:item.max?'lb':item.unit}:item));
+ assert.equal(result.sourceInfo.estimates.some(item=>item.name==='Dumbbells'),false);assert.equal(result.sourceInfo.estimates.find(item=>item.name==='Smith Machine').basis,'wider-web');
+ const draft=applyGymAutofillPreview(current,result,{query,selectedEquipment:['Smith Machine']});
+ assert.deepEqual(draft.inventory,['Bench','Owner-entered apparatus','Smith Machine']);assert.equal(draft.dbMax,85);assert.equal(draft.increment,2.5);assert.equal(draft.notes,current.notes);assert.deepEqual(draft.unknownPreference,current.unknownPreference);assert.deepEqual(current,before);assert.deepEqual(research,sourceBefore);
+ assert.deepEqual(draft.sourceInfo.setup,research.setup);assert.deepEqual(draft.sourceInfo.estimatedEquipment,research.estimatedEquipment);
+ const reloaded=buildGymAutofillPreview(draft,{query,gymType:'commercial',research:JSON.parse(JSON.stringify(draft.sourceInfo)),...options});assert.equal(reloaded.items.find(item=>item.name==='Smith Machine').alreadySelected,true);assert.equal(reloaded.items.find(item=>item.name==='Smith Machine').sourceUrl,widerSource);
+});
+
+test('wider estimates never supply quantitative limits and cannot replace an explicit selected profile',()=>{
+ const research=widerResearch(),result=preview(manual(),{gymType:'hotel',research});
+ assert.equal(result.gymType,'hotel');assert.deepEqual(result.items.map(item=>item.name),['Dumbbells','Kettlebells','Smith Machine']);assert.equal(result.items.some(item=>item.name==='Treadmill'),false);
+ const estimatesOnly={...research,equipment:[],estimatedEquipment:[widerEstimate('Dumbbells')]},noLimit=preview(manual(),{research:estimatesOnly});assert.equal(noLimit.dbMaxProposal,null);
+ const draft=applyGymAutofillPreview(manual(),noLimit,{query,selectedEquipment:['Dumbbells']});assert.equal(draft.dbMax,85);assert.throws(()=>applyGymAutofillPreview(manual(),noLimit,{query,usePublishedDbMax:true}),/published dumbbell maximum/);
+ for(const field of ['max','unit'])for(const value of [null,undefined,field==='max'?100:'lb']){
+  const wider=widerResearch();wider.estimatedEquipment[0][field]=value;assert.throws(()=>validateGymResearch(wider,options),/Estimated equipment/);
+  const legacy={...structuredClone(location),equipment:[{name:'Dumbbells',status:'estimated',detail:'Common estimate',[field]:value}]};assert.throws(()=>validateGymResearch(legacy,options),/Estimated equipment/);
+ }
+});
+
+test('cited wider sources may suggest canonical specialist equipment without turning it into a branch fact',()=>{
+ const input=widerResearch();input.estimatedEquipment=[{...widerEstimate('Dual Cable / Functional Trainer'),detail:'The synthetic chain source describes independent pulleys; this branch is unconfirmed.'},{...widerEstimate('D-Handles'),detail:'The synthetic chain source explicitly lists this attachment; this branch is unconfirmed.'}];
+ const validated=validateGymResearch(input,options),result=preview(manual(),{gymType:'custom',research:validated});
+ for(const name of ['Dual Cable / Functional Trainer','D-Handles']){
+  const item=result.items.find(item=>item.name===name);assert.equal(item.status,'estimated');assert.equal(item.basis,'wider-web');assert.equal(item.sourceUrl,widerSource);assert.equal(item.checked,'2026-10-20');assert.equal(Object.hasOwn(item,'max'),false);assert.equal(result.sourceInfo.estimates.some(estimate=>estimate.name===name),true);assert.equal(result.sourceInfo.equipment.some(equipment=>equipment.name===name),false);
+  assert.equal(ESTIMATED_EQUIPMENT.includes(name),false);
+  assert.throws(()=>validateGymResearch({...structuredClone(location),equipment:[{name,status:'estimated',detail:'Inferred only from a common gym type.'}]},options),/Specific equipment and attachments/);
+ }
+ assert.equal(result.sourceInfo.complete,false);
+});
+
+test('setup and wider estimate fields reject malformed provenance without changing old records',()=>{
+ for(const change of [r=>r.setup=undefined,r=>r.setup=[],r=>r.setup.gymType='unknown',r=>r.setup.basis='',r=>r.setup.basis='x'.repeat(401),r=>r.setup.sourceUrl='http://fitness.example.com/source',r=>r.setup.checked='2026-02-30',r=>delete r.setup.checked,r=>r.estimatedEquipment=null,r=>r.estimatedEquipment=Array(13).fill(widerEstimate()),r=>r.estimatedEquipment.push(widerEstimate()),r=>r.estimatedEquipment[0].status='published',r=>r.estimatedEquipment[0].basis='physical audit',r=>r.estimatedEquipment[0].name='Unknown apparatus',r=>r.estimatedEquipment[0].detail='x'.repeat(401),r=>r.estimatedEquipment[0].sourceUrl='javascript:alert(1)',r=>delete r.estimatedEquipment[0].sourceUrl,r=>r.estimatedEquipment[0].checked='2026-13-01',r=>delete r.estimatedEquipment[0].checked]){
+  const input=widerResearch();change(input);const before=structuredClone(input);assert.throws(()=>validateGymResearch(input,options));assert.deepEqual(input,before);
+ }
+ const closed=widerResearch();closed.operatingStatus='closed';assert.equal(preview(manual(),{research:closed}).canApply,false);
+ const changed={...query,address:'999 Another Street, Pleasant Hills PA 15236'};assert.equal(preview(manual(),{research:widerResearch(),query:changed}).canApply,false);
 });

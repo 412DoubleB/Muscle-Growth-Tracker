@@ -23,10 +23,12 @@ export async function buildPreviewServer(checkout,{budget=false}={}){
  await fs.writeFile(path.join(output,'gym-equipment.mjs'),'export const EQUIPMENT='+JSON.stringify(EQUIPMENT)+';\n');
  for(const name of ['gym-research-budget.mjs','beta-membership-budget.mjs','menei-beta-auth.mjs'])await fs.copyFile(path.join(source,'server',name),path.join(output,name));
  let provider=await fs.readFile(path.join(source,'server/gym-research-provider.mjs'),'utf8');
- if(!provider.includes("from '../gym-identity.mjs'"))throw Error('Review the provider identity-helper import before building.');
- provider=provider.replace("from '../gym-identity.mjs'","from './gym-identity.mjs'");
+ for(const name of ['gym-identity.mjs','gym-profiles.mjs']){
+  if(!provider.includes("from '../"+name+"'"))throw Error('Review the provider shared-module imports before building.');
+  provider=provider.replace("from '../"+name+"'","from './"+name+"'");
+  await fs.copyFile(path.join(source,name),path.join(output,name));
+ }
  await fs.writeFile(path.join(output,'gym-research-provider.mjs'),provider);
- await fs.copyFile(path.join(source,'gym-identity.mjs'),path.join(output,'gym-identity.mjs'));
  // Sites resolves logical resources from the hosting manifest. No hosted database
  // IDs are invented or embedded. Missing injected bindings keep research disabled.
  await fs.writeFile(path.join(output,'wrangler.json'),JSON.stringify({name:'menei-private-beta',main:'index.js',compatibility_date:'2026-10-19',assets:{directory:'../client',binding:'ASSETS',run_worker_first:true}},null,2)+'\n');

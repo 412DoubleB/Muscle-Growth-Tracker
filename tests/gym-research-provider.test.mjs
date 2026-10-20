@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {ProviderError,normalizeGymQuery,buildGymResearchRequest,parseGymResearchResponse,researchGym} from '../server/gym-research-provider.mjs';
 import {EQUIPMENT} from '../core.mjs';
 import {buildGymAutofillPreview} from '../gyms.mjs';
+import {GYM_TYPES} from '../gym-profiles.mjs';
 
 const query={name:'Synthetic Fitness',location:'Cleveland OH',address:''};
 const url='https://fitness.example.com/cleveland';
@@ -12,6 +13,9 @@ const options={query,allowedEquipment:EQUIPMENT,now};
 const apiKey='sk-synthetic-not-a-real-key';
 const candidate=()=>({name:'Synthetic Fitness Cleveland',city:'Cleveland OH',address:'123 Example Street, Cleveland OH 44101',operatingStatus:'open',url,equipment:[{name:'Dumbbells',detail:'Location equipment list publishes dumbbells up to 40 kg each.',sourceUrl:equipmentUrl,max:40,unit:'kg'},{name:'Bench',detail:'Location equipment checklist lists a bench, with its configuration unspecified.',sourceUrl:equipmentUrl,max:null,unit:null}],unknown:['Cable configuration and attachments','Current availability and working condition']});
 const responseBody=(locations=[candidate()])=>({status:'completed',output:[{type:'web_search_call',status:'completed',action:{type:'search',sources:[{type:'url',url,title:'Location source'},{type:'url',url:equipmentUrl,title:'Equipment source'}]}},{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text:JSON.stringify({locations}),annotations:[]}]}]});
+const chainUrl='https://fitness.example.com/chain/equipment';
+const widerCandidate=()=>({...candidate(),setup:{gymType:'commercial',basis:'The cited chain page describes a commercial full-service gym; branch equipment still needs review.',sourceUrl:chainUrl},estimatedEquipment:[{name:'Adjustable Bench',detail:'The chain equipment page lists adjustable benches; this branch has no published bench configuration.',sourceUrl:chainUrl}]});
+const widerResponse=(location=widerCandidate())=>{const raw=responseBody([location]);raw.output[0].action.sources.push({type:'url',url:chainUrl,title:'Chain equipment context'});return raw};
 const expectCode=(action,code,status)=>assert.throws(action,error=>error instanceof ProviderError&&error.code===code&&error.status===status&&!error.message.includes(apiKey));
 
 test('failure diagnostics retain only known static categories and bounded numeric HTTP statuses',()=>{
@@ -63,10 +67,67 @@ test('request pins one bounded search, strict output and only the three gym iden
  assert.deepEqual(input,original);assert.deepEqual(normalizeGymQuery(input),query);
  assert.equal(body.model,'gpt-6-luna');assert.deepEqual(body.reasoning,{effort:'low'});assert.equal(body.service_tier,'default');assert.equal(body.store,false);
  assert.deepEqual(body.tools,[{type:'web_search',search_context_size:'low'}]);assert.equal(body.tool_choice,'required');assert.equal(body.max_tool_calls,1);assert.equal(body.max_output_tokens,2500);assert.deepEqual(body.include,['web_search_call.action.sources']);
- assert.deepEqual(JSON.parse(body.input[0].content[0].text),query);assert.match(body.instructions,/untrusted data/);assert.match(body.instructions,/Never supply estimated equipment/);
+ assert.deepEqual(JSON.parse(body.input[0].content[0].text),query);assert.match(body.instructions,/untrusted data/);assert.match(body.instructions,/within the single available web search/);assert.match(body.instructions,/Put equipment in equipment only when that exact location source explicitly supports/);assert.match(body.instructions,/estimatedEquipment/);assert.match(body.instructions,/Estimates must never include weight limits/);
  assert.equal(body.text.format.strict,true);assert.equal(body.text.format.schema.additionalProperties,false);assert.equal(body.text.format.schema.properties.locations.maxItems,3);
  const item=body.text.format.schema.properties.locations.items;assert.equal(item.additionalProperties,false);assert.equal(item.properties.equipment.maxItems,60);assert.deepEqual(item.properties.equipment.items.properties.name.enum,EQUIPMENT.slice().sort());
+ assert.deepEqual(item.required,['name','city','address','operatingStatus','url','equipment','unknown','setup','estimatedEquipment']);
+ const setup=item.properties.setup.anyOf;assert.equal(setup[1].type,'null');assert.deepEqual(setup[0].properties.gymType.enum,Object.keys(GYM_TYPES));assert.equal(setup[0].additionalProperties,false);
+ const estimates=item.properties.estimatedEquipment;assert.equal(estimates.maxItems,12);assert.equal(estimates.items.additionalProperties,false);assert.deepEqual(estimates.items.required,['name','detail','sourceUrl']);assert.deepEqual(estimates.items.properties.name.enum,EQUIPMENT.slice().sort());assert.equal(estimates.items.properties.max,undefined);assert.equal(estimates.items.properties.unit,undefined);
+ const restricted=buildGymResearchRequest(query,{allowedEquipment:['Dumbbells','D-Handles']}).text.format.schema.properties.locations.items;
+ assert.deepEqual(restricted.properties.estimatedEquipment.items.properties.name.enum,['D-Handles','Dumbbells']);
  for(const bad of [{...query,ownerId:'personal'},{name:'',location:'Cleveland',address:''},{name:'Fitness',location:'',address:''},{...query,name:'a'.repeat(301)},{...query,address:'a'.repeat(501)},{...query,name:'Fitness\u0000Instructions'},null])expectCode(()=>buildGymResearchRequest(bad,{allowedEquipment:EQUIPMENT}),'invalid_query',400);
+});
+
+test('wider research keeps branch equipment first and gives cited estimates distinct provenance without changing identities',()=>{
+ const raw=widerResponse(),before=structuredClone(raw),legacy=parseGymResearchResponse(responseBody(),options).locations[0];
+ const location=parseGymResearchResponse(raw,options).locations[0];
+ assert.deepEqual(raw,before);assert.deepEqual(location.equipment,legacy.equipment);assert.equal(location.id,legacy.id);assert.equal(location.complete,false);
+ assert.deepEqual(location.setup,{...widerCandidate().setup,checked:'2026-10-19'});
+ assert.deepEqual(location.estimatedEquipment,[{...widerCandidate().estimatedEquipment[0],status:'estimated',basis:'wider-web',checked:'2026-10-19'}]);
+ assert.ok(location.equipment.every(item=>item.status==='published'));assert.ok(location.estimatedEquipment.every(item=>item.status==='estimated'&&!Object.hasOwn(item,'max')&&!Object.hasOwn(item,'unit')));
+ assert.deepEqual(location.sources.map(source=>source.url),[url,equipmentUrl,chainUrl]);
+ const saved={inventory:['Manual apparatus'],dbMax:85,notes:'Keep my notes'},original=structuredClone(saved);
+ const preview=buildGymAutofillPreview(saved,{query,gymType:'custom',research:location,allowedEquipment:EQUIPMENT});
+ assert.equal(preview.canApply,true);assert.ok(preview.items.some(item=>item.name==='Adjustable Bench'&&item.status==='estimated'&&item.sourceUrl===chainUrl));assert.deepEqual(saved,original);
+ const duplicate=widerCandidate();duplicate.estimatedEquipment.push({name:'Dumbbells',detail:'Chain-wide dumbbell context; not a branch claim.',sourceUrl:chainUrl});
+ const prioritized=parseGymResearchResponse(widerResponse(duplicate),options).locations[0];
+ assert.deepEqual(prioritized.estimatedEquipment.map(item=>item.name),['Adjustable Bench']);assert.equal(prioritized.equipment[0].max,40);
+ const unknown=widerCandidate();unknown.setup=null;unknown.estimatedEquipment=[];
+ const empty=parseGymResearchResponse(widerResponse(unknown),options).locations[0];assert.equal(empty.setup,null);assert.deepEqual(empty.estimatedEquipment,[]);
+ const specialist=widerCandidate();specialist.estimatedEquipment=[{name:'D-Handles',detail:'The cited chain equipment list names D-handles; availability at this exact branch is unconfirmed.',sourceUrl:chainUrl},{name:'Dual Cable / Functional Trainer',detail:'The chain source names dual-cable trainers; this branch has not published that configuration.',sourceUrl:chainUrl}];
+ const supported=parseGymResearchResponse(widerResponse(specialist),options).locations[0];assert.equal(supported.estimatedEquipment.length,2);assert.ok(supported.estimatedEquipment.every(item=>item.status==='estimated'&&item.basis==='wider-web'));
+ const review=buildGymAutofillPreview(saved,{query,gymType:'custom',research:supported,allowedEquipment:EQUIPMENT});assert.ok(review.items.some(item=>item.name==='D-Handles'&&item.status==='estimated'&&item.sourceUrl===chainUrl));
+});
+
+test('wider estimates require actual cited sources, bounded canonical equipment and no model-supplied status or weight limits',()=>{
+ const variants=[
+  item=>delete item.setup,item=>delete item.estimatedEquipment,
+  item=>item.setup.gymType='mega-gym',item=>item.setup.gymType='toString',
+  item=>item.setup.basis='',item=>item.setup.basis='a'.repeat(401),
+  item=>item.setup.sourceUrl='https://uncited.example.com/chain',item=>item.setup.max=120,
+  item=>item.estimatedEquipment[0].sourceUrl='https://uncited.example.com/chain',
+  item=>item.estimatedEquipment[0].sourceUrl='http://fitness.example.com/chain',
+  item=>item.estimatedEquipment[0].name='Mystery machine',item=>item.estimatedEquipment[0].detail='a'.repeat(401),
+  item=>item.estimatedEquipment[0].detail='',item=>item.estimatedEquipment[0].status='published',
+  item=>item.estimatedEquipment[0].max=120,item=>item.estimatedEquipment[0].max=null,
+  item=>item.estimatedEquipment[0].unit='lb',item=>item.estimatedEquipment[0].basis='physically confirmed',
+  item=>item.estimatedEquipment.push({...item.estimatedEquipment[0]}),
+  item=>item.estimatedEquipment=Array.from({length:13},()=>({...item.estimatedEquipment[0]})),
+  item=>item.estimatedEquipment=null,item=>item.setup=[]
+ ];
+ for(const mutate of variants){const item=widerCandidate();mutate(item);expectCode(()=>parseGymResearchResponse(widerResponse(item),options),'invalid_provider_response',502)}
+ const raw=widerResponse();raw.output[0].action.sources.pop();expectCode(()=>parseGymResearchResponse(raw,options),'invalid_provider_response',502);
+ const cited=widerResponse();cited.output[0].action.sources.pop();cited.output[1].content[0].annotations=[{type:'url_citation',url:chainUrl,title:'Cited chain context'}];assert.equal(parseGymResearchResponse(cited,options).locations[0].estimatedEquipment.length,1);
+ const restricted=widerCandidate();expectCode(()=>parseGymResearchResponse(widerResponse(restricted),{...options,allowedEquipment:['Dumbbells','Bench']}),'invalid_provider_response',502);
+});
+
+test('wider research cannot bypass closed-location or mismatched-address review guards',()=>{
+ for(const operatingStatus of ['closed','temporarily_closed','coming_soon']){
+  const item=widerCandidate();item.operatingStatus=operatingStatus;const location=parseGymResearchResponse(widerResponse(item),options).locations[0];
+  const preview=buildGymAutofillPreview({inventory:[]},{query,gymType:'commercial',research:location,allowedEquipment:EQUIPMENT});assert.equal(preview.canApply,false);
+ }
+ const item=widerCandidate();item.city='Other City OH';item.address='999 Different Street, Other City OH 44101';
+ assert.deepEqual(parseGymResearchResponse(widerResponse(item),options).locations,[]);
 });
 
 test('completed search becomes a whitelist DTO compatible with editable gym preview without changing a saved gym',()=>{

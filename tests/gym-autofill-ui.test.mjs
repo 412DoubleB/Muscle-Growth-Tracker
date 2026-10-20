@@ -124,6 +124,44 @@ const researchResponse=(data,status=200)=>({ok:status<400,status,json:async()=>d
 const candidate=()=>({id:'ai-synthetic-source-club',name:'Synthetic Source Club',city:'Synthetic City',address:'42 Synthetic Avenue, Synthetic City',status:'Reported open; confirm current hours',checked:'2026-11-02',url:'https://synthetic.example.invalid/club',sources:[{url:'https://synthetic.example.invalid/equipment',checked:'2026-11-02'}],equipment:[{name:'Dumbbells',detail:'Source describes the dumbbell area; weights need checking.',status:'published',sourceUrl:'https://synthetic.example.invalid/equipment',checked:'2026-11-02'}],unknown:['Machine models and attachments'],amenities:[],complete:false});
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 
+const widerCandidate=()=>({...candidate(),setup:{gymType:'commercial',basis:'The chain describes a full-service commercial gym; branch equipment varies.',sourceUrl:'https://synthetic.example.invalid/chain',checked:'2026-11-02'},estimatedEquipment:[{name:'Kettlebells',detail:'The chain describes kettlebell training; this branch has not confirmed them.',status:'estimated',basis:'wider-web',sourceUrl:'https://synthetic.example.invalid/chain/equipment',checked:'2026-11-02'}]});
+
+test('branch equipment appears before cited wider-search estimates, with common setup added only to a reviewed draft',async()=>{
+ const result=widerCandidate(),original={...gym(),gymType:'custom'},env=environment(original,{aiReady:true,research:async()=>researchResponse({locations:[result]})});
+ try{
+  const before=await open(env,'ai-wider-review'),draft=C.clone(env.draft);await env.click('gym-ai-search');
+  const html=env.elements.get('gymLookupResults').innerHTML;
+  assert.ok(html.indexOf('Published for this location')<html.indexOf('Estimated from broader gym research'));
+  assert.match(html,/Estimate source/);assert.match(html,/branch has not confirmed/);assert.match(html,/Suggested setup/);
+  assert.deepEqual(env.draft,draft);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
+  await env.click('apply-gym-source',{id:result.id});assert.equal(env.form.elements.gymType.value,'commercial');
+  const preview=env.elements.get('gymLookupResults').innerHTML;
+  assert.match(preview,/Published for this location/);assert.match(preview,/Estimated from broader gym research/);assert.match(preview,/Estimated from the gym type/);
+  assert.deepEqual(env.inventory,draft.inventory);assert.equal(+env.form.elements.dbMax.value,80);assert.deepEqual(env.writes,[]);
+  await env.click('apply-gym-autofill');assert.ok(env.inventory.includes('Kettlebells'));assert.ok(env.inventory.includes('Squat Rack'));assert.deepEqual(env.writes,[]);
+  const annotation=env.form.evidence.find(element=>element.dataset.equipmentEvidence==='Kettlebells').innerHTML;
+  assert.match(annotation,/Estimated · broader search/);assert.match(annotation,/branch has not confirmed/);assert.match(annotation,/Estimate source/);
+  await env.equipment('Kettlebells',false);await env.submit();
+  const saved=env.state.gyms[0];assert.equal(saved.inventory.includes('Kettlebells'),false);for(const name of original.inventory)assert.ok(saved.inventory.includes(name));
+  assert.equal(saved.dbMax,80);assert.equal(saved.notes,original.notes);assert.deepEqual(saved.sourceInfo.setup,result.setup);
+  assert.ok(saved.sourceInfo.estimates.some(item=>item.name==='Kettlebells'&&item.basis==='wider-web'&&item.sourceUrl===result.estimatedEquipment[0].sourceUrl));
+  assert.ok(saved.sourceInfo.equipment.every(item=>item.status==='published'));assert.deepEqual(env.state.logs,JSON.parse(before[0][1]).logs);assert.equal(env.researchRequests.length,1);
+ }finally{env.restore()}
+});
+
+test('a chosen gym type survives wider research and estimated limits cannot reach the checklist',async()=>{
+ for(const invalid of [false,true]){
+  const result=widerCandidate();if(invalid)result.estimatedEquipment[0].max=200;
+  const env=environment({...gym(),gymType:'hotel'},{aiReady:true,research:async()=>researchResponse({locations:[result]})});
+  try{
+   const before=await open(env,'ai-wider-type-'+invalid),draft=C.clone(env.draft);await env.click('gym-ai-search');
+   if(invalid){assert.match(env.elements.get('gymLookupResults').innerHTML,/could not be verified/);assert.deepEqual(env.draft,draft)}
+   else{await env.click('apply-gym-source',{id:result.id});assert.equal(env.form.elements.gymType.value,'hotel');await env.click('apply-gym-autofill');assert.equal(env.inventory.includes('Squat Rack'),false);assert.ok(env.inventory.includes('Kettlebells'));assert.equal(+env.form.elements.dbMax.value,80)}
+   assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);assert.equal(env.researchRequests.length,1);
+  }finally{env.restore()}
+ }
+});
+
 test('test-cloud readiness reaches the UI and AI results stay candidates until an explicit location choice',async()=>{
  const result=candidate(),original=gym(),env=environment(original,{aiReady:true,previewMode:'test-cloud',research:async()=>researchResponse({locations:[result],checked:'2026-11-02',notice:'Synthetic source candidates'})});
  try{

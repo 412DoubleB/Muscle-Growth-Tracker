@@ -1,6 +1,8 @@
 // Curated official-source research. Lookup is local and never claims a live AI audit.
 // Location identity must be confirmed before applying any published equipment.
 import {gymIdentityMatches} from './gym-identity.mjs?v=8.1.1';
+import {GYM_TYPES,ESTIMATED_EQUIPMENT} from './gym-profiles.mjs?v=8.1.1';
+export {GYM_TYPES};
 export const GYM_DIRECTORY=[
  {id:'crunch-pleasant-hills-pa',name:'Crunch Pleasant Hills',city:'Pleasant Hills, PA',address:'601 Clairton Blvd, Suite 38, Pleasant Hills, PA 15236',checked:'2026-10-18',url:'https://www.crunch.com/locations/pleasant-hills',status:'Published location information',equipment:[{name:'Dumbbells',detail:'Published maximum 120 lb each; confirm at the club.',status:'published',max:120},{name:'Kettlebells',detail:'Published maximum 50 lb; confirm at the club.',status:'published',max:50}],amenities:['Olympic platforms','Strength and cardio machines (models unspecified)','Circuit training','TRX / suspension training','HIITZone'],unknown:['Individual machines and their models','Cable configuration and attachments','Racks, barbells, benches and plates','Equipment availability and working condition'],complete:false},
  {id:'crunch-monroeville-pa',name:'Crunch Monroeville',city:'Monroeville, PA',address:'3700 William Penn Hwy, Monroeville, PA 15146',checked:'2026-10-18',url:'https://www.crunch.com/locations/monroeville',status:'Official page says coming soon; hours listed closed',equipment:[],amenities:[],unknown:['Opening date','All location-specific equipment'],complete:false}
@@ -10,20 +12,9 @@ export function lookupGyms(name,location=''){const q=normalize(name+' '+location
 export function gymResearchPrompt(name,location=''){return `Research the exact gym ${String(name).slice(0,150)} in ${String(location||'the location I will confirm').slice(0,150)} for my MENEI. Use current official location sources. First confirm its address and operating status. List each specifically supported equipment type, dumbbell maximum, source URL and checked date. Keep published claims, physical/user confirmation and estimates distinct. Do not infer specific machines, dual cables, plates, benches, racks or attachments from generic strength-equipment claims. Identify unknowns. Do not copy site photos or expressive text. Return a concise equipment checklist for me to enter in Your gyms.`}
 export function researchLink(name,location=''){return 'https://chatgpt.com/?q='+encodeURIComponent(gymResearchPrompt(name,location))}
 
-// These are optional starting suggestions, never claims about a location's floor.
-// Typical machines remain estimates; specialist attachments and dual-cable
-// arrangements are never inferred from a generic facility description.
-export const GYM_TYPES=Object.freeze(Object.fromEntries(Object.entries({
- commercial:{label:'Commercial gym',estimates:['Dumbbells','Adjustable Bench','Barbell','Olympic Plates','Squat Rack','Single Cable Column','Lat Pulldown','Leg Press 45°','Leg Extension','Seated Leg Curl','Selectorized Chest Press','Seated Cable Row'],note:'A typical commercial setup estimate. Check actual machines, configurations, attachments and available loads at this location.'},
- strength:{label:'Strength gym',estimates:['Barbell','Olympic Plates','Adjustable Bench','Squat Rack','Dumbbells'],note:'A provisional free-weight setup with a rack and adjustable bench; specialist machines and attachments remain unknown.'},
- hotel:{label:'Hotel fitness room',estimates:['Dumbbells'],note:'A small fitness room may have light dumbbells; weights and other equipment need checking.'},
- home:{label:'Home gym',estimates:[],note:'Home setups vary. Enter the equipment you actually have.'},
- workplace:{label:'Workplace / fire station',estimates:['Dumbbells','Bench'],note:'Basic workplace suggestions only; no particular station setup is verified.'},
- custom:{label:'Custom setup',estimates:[],note:'Start with your own checklist.'}
-}).map(([id,profile])=>[id,Object.freeze({...profile,estimates:Object.freeze(profile.estimates)})])));
-
 const cloneResearch=value=>structuredClone(value);
 const researchRecord=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
+const estimateNames=new Set(ESTIMATED_EQUIPMENT);
 const evidenceKey=value=>JSON.stringify(value,(_key,item)=>researchRecord(item)?Object.fromEntries(Object.keys(item).sort().map(key=>[key,item[key]])):item);
 function retainPriorEvidence(previous,next){
  const seen=new Set(),prior=[],current=cloneResearch(next);delete current.priorEvidence;const currentKey=evidenceKey(current);
@@ -53,7 +44,8 @@ export function validateGymResearch(result,{allowedEquipment}={}){
  out.equipment=result.equipment.map(entry=>{
   if(!researchRecord(entry)||!['published','estimated'].includes(entry.status))throw Error('Every equipment item needs published or estimated provenance.');
   const name=vocabulary.get(normalize(entry.name));if(!name)throw Error('Research named equipment outside the app vocabulary.');
-  if(entry.status==='estimated'&&!Object.values(GYM_TYPES).some(profile=>profile.estimates.includes(name)))throw Error('Specific equipment and attachments need published evidence or your manual checklist.');
+  if(entry.status==='estimated'&&!estimateNames.has(name))throw Error('Specific equipment and attachments need published evidence or your manual checklist.');
+  if(entry.status==='estimated'&&(Object.hasOwn(entry,'max')||Object.hasOwn(entry,'unit')))throw Error('Estimated equipment cannot supply weight limits or units.');
   const item={...cloneResearch(entry),name,detail:researchText(entry.detail,'equipment explanation',{required:true}),status:entry.status};
   const reference=entry.sourceUrl||entry.url||(entry.status==='published'?(out.url||out.sources[0]?.url):null),checked=entry.checked||(entry.status==='published'?(out.checked||out.sources[0]?.checked):null);
   if(reference)item.sourceUrl=sourceUrl(reference);if(checked)item.checked=evidenceDate(checked);
@@ -61,6 +53,25 @@ export function validateGymResearch(result,{allowedEquipment}={}){
   if(entry.max!==undefined){if(typeof entry.max!=='number'||!Number.isFinite(entry.max)||entry.max<=0||entry.max>5000)throw Error('A published equipment limit is invalid.');item.unit=entry.unit||'lb';if(!['lb','kg'].includes(item.unit))throw Error('Equipment limits need lb or kg units.')}
   return item;
  });
+ if(Object.hasOwn(result,'setup')){
+  if(result.setup===null)out.setup=null;
+  else{
+   const setup=result.setup;
+   if(!researchRecord(setup)||!Object.hasOwn(GYM_TYPES,setup.gymType))throw Error('The suggested gym setup is invalid.');
+   out.setup={...cloneResearch(setup),gymType:setup.gymType,basis:researchText(setup.basis,'setup estimate basis',{required:true,max:400}),sourceUrl:sourceUrl(setup.sourceUrl),checked:evidenceDate(setup.checked)};
+  }
+ }
+ if(Object.hasOwn(result,'estimatedEquipment')){
+  if(!Array.isArray(result.estimatedEquipment)||result.estimatedEquipment.length>12)throw Error('Wider equipment estimates must be a bounded list.');
+  const names=new Set();
+  out.estimatedEquipment=result.estimatedEquipment.map(entry=>{
+   if(!researchRecord(entry)||entry.status!=='estimated'||entry.basis!=='wider-web')throw Error('Wider equipment needs estimated provenance.');
+   const name=vocabulary.get(normalize(entry.name));
+   if(!name||names.has(name))throw Error('Wider estimates need distinct canonical equipment names.');names.add(name);
+   if(Object.hasOwn(entry,'max')||Object.hasOwn(entry,'unit'))throw Error('Estimated equipment cannot supply weight limits or units.');
+   return {...cloneResearch(entry),name,status:'estimated',basis:'wider-web',detail:researchText(entry.detail,'wider equipment explanation',{required:true,max:400}),sourceUrl:sourceUrl(entry.sourceUrl),checked:evidenceDate(entry.checked)};
+  });
+ }
  for(const key of ['amenities','unknown']){if(result[key]!==undefined&&!Array.isArray(result[key]))throw Error('Research '+key+' must be a list.');out[key]=(result[key]||[]).map(value=>researchText(value,key,{required:true}))}
  out.complete=false;return out;
 }
@@ -76,6 +87,7 @@ export function buildGymAutofillPreview(existing,{query,gymType='custom',researc
  const vocabulary=equipmentVocabulary(allowedEquipment),identity=normalizedGymQuery(query),signature=gymLocationSignature(query),profile=GYM_TYPES[gymType],published=research?validateGymResearch(research,{allowedEquipment}):null;
  const proposals=new Map();for(const name of profile.estimates){if(!vocabulary.has(normalize(name)))throw Error('The app vocabulary does not support this gym profile.');proposals.set(name,{name,status:'estimated',detail:profile.label+' starting suggestion; not verified for this location.',basis:gymType})}
  for(const item of published?.equipment||[]){const previous=proposals.get(item.name);if(!previous||previous.status!=='published'||item.status==='published')proposals.set(item.name,cloneResearch(item))}
+ for(const item of published?.estimatedEquipment||[]){if(proposals.get(item.name)?.status!=='published')proposals.set(item.name,cloneResearch(item))}
  const items=[...proposals.values()].map(item=>({...item,alreadySelected:existing.inventory.includes(item.name)})),additions=items.filter(item=>!item.alreadySelected).map(item=>item.name);
  let reason='';if(published&&!locationMatchesResearch(query,published))reason='The researched name or address does not match this gym location.';else if(published&&closedResearch(published))reason='This location is reported closed or not yet open. Review it before using equipment research.';else if(!items.length)reason='No equipment suggestions yet. Keep editing your own checklist or choose a gym type.';
  const dumbbells=items.find(item=>item.name==='Dumbbells'&&item.status==='published'&&item.max!==undefined);
