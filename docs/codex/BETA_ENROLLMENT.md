@@ -1,83 +1,86 @@
-# Twenty-account beta
+# Twenty-account MENEI beta
 
 ## Authorized scope
 
-On 2026-10-19/20 the owner approved first-come enrollment for twenty signed-in
-ChatGPT accounts, including the owner. Each admitted account receives five gym
-research attempts, with at most one hundred attempts across the cohort. The
-previous owner trial's spent attempts count within those limits. Membership and
-usage persist across sign-ins and deployments; a new browser does not grant
-another allowance to the same account. This caps accounts, not independently
-verified natural persons.
+The owner approved first-come admission for twenty accounts including the owner,
+five AI gym-research attempts each and one hundred total including earlier owner
+usage. The later clarification explicitly requires **MENEI sign-in only**:
+no ChatGPT account, separate AI account, personal API key or extra download for
+any tester. The search runs inside MENEI, using the owner's server-side provider
+configuration. This updates the existing app in an isolated preview; it does not
+replace or deploy over the live app.
 
-The estimate discussed was about $1.20 in OpenAI usage for one hundred attempts.
-It is an estimate, not a dollar billing ceiling. The enforceable limits are the
-attempt counts and the existing bounded, single-search request. Failed,
-cancelled and timed-out provider attempts remain spent. No automatic retries,
-credit purchases or billing changes are authorized.
-
-This changes only the separate Sites beta. It does not authorize GitHub main
-changes, deployment over the existing app, changes to the live Supabase project,
-scheduled push, image replacement or removal of saved records.
+The roughly $1.20 OpenAI estimate is not a hard dollar ceiling. The enforceable
+limits are request counts and the existing bounded single-search request.
+Failed, cancelled and timed-out provider attempts remain spent. There are no
+automatic retries, credit purchases or billing changes. Membership and usage
+persist across sign-ins, devices and deployments. The cap counts confirmed
+MENEI accounts rather than independently verified natural persons.
 
 ## Admission and account boundaries
 
-Sites sign-in supplies the trusted Site-scoped visitor identity. An explicit
-same-origin enrollment POST claims a durable slot; merely opening a link does
-not. Existing members keep their slot when the cohort is full. Additional
-visitors receive a full/waitlist message; no waiting-list email or personal
-record is collected. There is no automatic seat recycling or quota reset.
+The Worker validates each service caller's MENEI access token against the fixed
+MENEI Private Beta Test Auth endpoint (`bhyrrxrpqaxiwpfxnwpa`). Unverified JWT
+claims can reject a request but cannot grant access. The server rejects missing,
+expired, wrong-project, anonymous and unconfirmed identities, and accepts only
+the identity confirmed by Auth. Caller-supplied IDs, email, user metadata and
+Sites identity headers never grant beta membership or AI allowance.
 
-Admission must run before protected HTML, assets, configuration and APIs. A
-public landing page is needed for first-come joining, but app access is granted
-only to enrolled accounts. Never widen Sites access while this gate is absent
-or hosted storage is unverified. Missing or damaged storage fails closed.
+Signing into MENEI joins the beta through a same-origin authenticated POST.
+Repeated members retain their place; the twenty-first account sees a beta-full
+message and cannot use protected beta services. No email waitlist is collected.
+The owner first signs in while native Sites access is owner-only; a permanent
+database latch closes bootstrap. First-come access must not open until the
+owner's MENEI membership and hosted storage are verified. An unexpected prior
+Sites-based owner claim fails closed; do not silently reset or remap that row.
 
-The owner enrolls first while native Sites access is still owner-only. A
-one-time database latch closes owner bootstrap permanently. Only after that
-identity and the deployed gate are verified may the runtime move to open
-enrollment and native access allow the enrollment landing page.
+Public app files and the fixed publishable Supabase config allow MENEI's own
+sign-in screen to load without ChatGPT. They contain no personal records or
+provider secret. The app does not load saved workspaces or start cloud sync
+before admission. The server authorizes AI and member APIs independently of
+client state. Supabase continues to isolate saved cloud records by auth.uid().
+Its public Auth endpoint is not itself a twenty-row signup cap: the limit applies
+to beta admission and services. A strict raw Auth-row limit would require a
+separately reviewed test-backend admission integration.
 
-The MENEI cloud account is separate from ChatGPT beta admission. It continues to
-use only MENEI Private Beta Test (`bhyrrxrpqaxiwpfxnwpa`), with account-scoped
-records and existing recovery copies. The live project
-`tdmwpcueqxtnqyonucam` is outside this work. Supabase's public Auth endpoint is
-not itself a twenty-account signup limit: the twenty-account limit applies to
-beta app admission and its online services. A strict cap on raw Auth user rows
-would require a separately reviewed test-backend admission integration.
+The original generic D1 schema is retained, including the historical
+site_user_id column name; new member values use the menei: prefix followed by the
+verified MENEI user ID. The original owner-trial usage, fixed cohort, additive
+migration history and shared provider lease remain preserved. There is no reset
+endpoint or automatic seat recycling.
 
-Each tester should use their own browser profile and MENEI test account, and
-synthetic test records. Existing gym inventories and schedule templates need
-review during setup. Device workspaces and exported backups are retained.
-Downloaded offline app copies and browser-local data cannot be remotely revoked
-by an online enrollment check; do not represent this as shared-device storage
-encryption or remote data erasure.
+Each tester uses their own MENEI test account and synthetic records. Existing
+gym and repeating schedule templates need review during setup. Saved device
+workspaces and private backups remain intact. Offline copies and local records
+are not remotely revoked or encrypted by online admission; use separate browser
+profiles on shared devices. Offline continuation must remain local-only and
+must not grant AI or cloud access from a cached admission marker.
 
 ## Activation status
 
-Implementation and synthetic validation are complete. Native access remains
-owner-only while the setup build is prepared. Version 8 has AI disabled. The key created in a separate
-working session has not been installed into this Site's runtime by this session;
-no supported file-to-runtime secret transfer has been verified. Never put that
-key into a prompt, attachment, source package or ordinary tool output, and do not
-create a duplicate key to work around the missing transfer.
+The initial ChatGPT-based gate was published as owner-private version 9 with AI
+disabled, then superseded by the owner's MENEI-only clarification before public
+enrollment opened. Its access policy was never widened. The revised MENEI-only sign-in implementation passed all 35 Node test files,
+npm run check and diff checks. Thirty entry UI regressions cover admission,
+account transitions, recovery, local offline continuation and reconnect gating.
+Eleven Auth tests validate rejection and bounded network behavior; seven Worker
+integration groups cover MENEI identity, admission, quotas and prior-owner
+transition safety. Native Chromium at 360/430 pixels verified MENEI sign-in,
+in-app AI with mocked responses, a full twenty-account cohort, existing-member
+return without allowance reset, offline /beta reopening and reconnect
+verification. Cloud and AI responses were synthetic; no actual paid lookup or
+real Supabase account record was created by these checks.
 
-Before opening enrollment, verify hosted schema/binding readiness, enroll the
-owner through their real signed-in browser and verify the resulting role and
-member count. Before enabling AI, additionally install the existing approved
-key through a supported secure runtime-secret workflow and verify readiness.
-Synthetic provider fixtures do not establish actual model access, email delivery
-or two-account cloud isolation. The pending full conversation export and exact
-photo approval-to-file links remain documented; they do not block sufficient
-requirements, and existing images stay unchanged.
+The existing approved OpenAI key remains in a separate working session's ignored
+.env.local. This session cannot read that workspace, and no supported secure
+file-to-runtime transfer has been verified. Do not display it, attach it, include
+it in a source package or create a duplicate key as a workaround. No paid search
+has run. Testers will never perform this owner-side provider setup.
 
-Validation: all 33 Node test files and `npm run check` passed. The focused
-database suite covers thirteen admission/accounting cases; route integration
-covers five groups of protected-route, enrollment, quota and storage failures.
-Fourteen account UI regressions cover delayed imports, stale drafts, changed
-browser identity and cross-tab logout. Native Chromium checks at 360 and 430
-pixels exercised owner form enrollment, changed-account blocking, restoration
-of the original workspace and the twenty-first-account full message with no
-external or paid requests. Media checks retained all existing image bindings
-and expected hashes. These checks use synthetic accounts and local SQLite;
-they are not hosted D1 or real Supabase account-isolation acceptance.
+Before opening the beta, verify hosted schema readiness and ownerAccountReady
+through the owner-private readiness endpoint, confirm real MENEI account
+admission, and verify real account-isolation/email acceptance. Before enabling
+AI, securely install the existing server key and verify readiness, then exercise
+one approved real lookup. The pending full conversation export and exact photo
+approval-to-file links remain documented; they do not block work with sufficient
+requirements, and all existing images stay unchanged.

@@ -414,3 +414,59 @@ preserves the existing test public key. No OpenAI secret was installed and no
 audience was widened. The existing key remains in the separate working session;
 the supported secure handoff is still unresolved. A publication receipt follows
 after the reviewed source and package are deployed.
+
+## Stage 10: MENEI-only sign-in clarification
+
+The owner clarified that testers must not need a ChatGPT account, another AI
+account or an extra download. This supersedes stage 9's identity choice. The
+private version 9 publication completed with source a150e31b33d305a54f894d95ae0b2411728564e8,
+saved version appgprj_6ad593d6f15481918ded32373b877b03~appgver_2aeb5b587ad08191a4238cb374865100,
+deployment appgdep_6ad6bcfd62688191a229724bd4b6831e and runtime revision 2.
+It remained owner-only with AI disabled; no public enrollment was opened.
+
+The revised flow uses only MENEI test-account sign-in. A server helper checks
+each token with the fixed test Supabase Auth endpoint and returns only the
+verified account ID. It rejects anonymous/unconfirmed, expired and wrong-project
+identities and never trusts Sites headers, caller IDs or editable user metadata.
+The existing durable membership and accounting schema stays immutable; member
+keys are now explicitly namespaced to MENEI IDs. No backend schema or saved
+Supabase record is changed by this authentication integration.
+
+Public static code and publishable client configuration enable the MENEI sign-in
+screen. Private workspace loads, cloud sync and AI services require admission;
+the app gates before reading saved workspaces. New accounts can create/confirm
+their MENEI account and recover a password in the app. Signing in enrolls the
+first twenty confirmed accounts. The AI button researches a location inside
+MENEI and sends only the gym identity; it never asks a tester for an API key or
+redirects them to another AI account. The normal GitHub app flow is unchanged.
+
+The owner-side runtime key handoff and hosted storage checks remain pending;
+this clarification does not authorize exposing secrets or resetting history.
+The live app, GitHub main, live Supabase project and scheduled push stay outside
+this work. See BETA_ENROLLMENT.md for the current scope and activation boundary.
+
+Stage 10 combined validation passed all 35 Node test files, npm run check and
+diff checks. The entry suite has thirty regressions, Auth eleven and Worker
+seven integration groups. Independent review verified the fixed Auth endpoint,
+prior-Sites-owner fail-closed transition, durable quotas, account separation and
+offline network gating. Native Chromium at 360/430 pixels passed MENEI-only
+sign-in, integrated synthetic AI search, full-cohort denial, retained guest
+bytes, member return without a new slot/allowance, offline /beta reload with
+cached media manifest and reconnect revalidation. All cloud/provider responses
+were mocked; there were no external or paid requests.
+
+Previously admitted accounts can continue local workouts offline using a
+project/account/campaign-bound device receipt. No token refresh, model request
+or cloud synchronization runs offline. Reconnect pauses old sync listeners until
+configuration, Auth and membership are reverified. Explicit online denials
+remove only that operational receipt, preserving saved workspaces. Cached media
+metadata preserves the existing image references. The test-cloud service worker
+allows /beta app-shell offline fallback while still bypassing all Auth/API
+requests; the root app's existing route behavior is retained. New beta Settings
+uses sign-out to switch accounts rather than silently invalidating admission
+through an old sign-in/create-account action.
+
+No migration SQL, journal or existing owner-trial accounting changed in stage
+10. No Supabase mutation, image change, history reset, GitHub push or audience
+change was performed. The reviewed MENEI-only build is ready for an owner-only
+publication using runtime revision 2 (bootstrap, AI disabled).

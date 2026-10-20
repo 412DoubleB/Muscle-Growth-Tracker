@@ -15,8 +15,8 @@ test('Worker artifact preserves Site identity, keeps secrets outside the package
   await fs.writeFile(path.join(dir,'.env.local'),'OPENAI_API_KEY=sk-synthetic-local-only\n');
   const result=await buildPreviewServer(dir,{budget:true});assert.equal(result.project_id,'synthetic-site');assert.equal(result.budgetBinding,'GYM_AI_LIMITS');
   const built=await import(pathToFileURL(path.join(dir,'dist/server/index.js')));
-  const response=await built.default.fetch(new Request('https://private.example/api/gym-research',{method:'POST',headers:{origin:'https://private.example','oai-authenticated-user-id':'synthetic-owner'}}),{MENEI_BETA_PHASE:'off',MENEI_BETA_OWNER_PRIVATE:'true'});
-  assert.equal(response.status,503);assert.deepEqual(await response.json(),{error:'DISABLED'});
+  const response=await built.default.fetch(new Request('https://private.example/api/gym-research',{method:'POST',headers:{origin:'https://private.example','oai-authenticated-user-id':'synthetic-owner'}}),{MENEI_BETA_PHASE:'bootstrap',MENEI_BETA_OWNER_PRIVATE:'true'});
+  assert.equal(response.status,401);assert.deepEqual(await response.json(),{error:'UNAUTHORIZED'});
   const equipment=await import(pathToFileURL(path.join(dir,'dist/server/gym-equipment.mjs')));assert.deepEqual(equipment.EQUIPMENT,EQUIPMENT);
   const manifest=JSON.parse(await fs.readFile(path.join(dir,'dist/.openai/hosting.json'),'utf8'));assert.deepEqual(manifest,{project_id:'synthetic-site',d1:'GYM_AI_LIMITS'});
   const wrangler=JSON.parse(await fs.readFile(path.join(dir,'dist/server/wrangler.json'),'utf8'));assert.equal(wrangler.assets.binding,'ASSETS');assert.equal(wrangler.d1_databases,undefined);

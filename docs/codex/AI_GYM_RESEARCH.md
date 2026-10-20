@@ -1,7 +1,9 @@
 # Private gym-search activation review
 
-**Twenty-account scope update (2026-10-20):** the owner subsequently approved
-first-come admission for twenty ChatGPT accounts including the owner, five
+**Twenty-account scope update (2026-10-20):** Testers need only a MENEI account;
+no ChatGPT account, separate AI account, personal key or download is required.
+ the owner subsequently approved
+first-come admission for twenty MENEI accounts including the owner, five
 attempts each and one hundred total (including earlier owner usage), estimated
 at roughly $1.20. `BETA_ENROLLMENT.md` describes the admission boundary and
 remaining activation steps. The original five-attempt table and migration below
