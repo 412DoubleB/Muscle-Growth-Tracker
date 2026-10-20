@@ -26,6 +26,14 @@ export function workoutFromChoice(state,choice,date,gymId){
   return fresh(day,date,gymId);
 }
 function equipmentNotes(state,day){const gym=state.gyms.find(g=>g.id===day.gymId);day.notes=(day.notes||[]).filter(n=>!n.startsWith('Equipment to check:'));for(const e of day.exercises){const cat=C.exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId);const missing=C.missingEquipment(cat,gym);if(missing.length)day.notes.push('Equipment to check: '+e.name+' — '+missing.join(', '))}}
+// Validate only fresh automatic output. Existing short workouts, routines and
+// recorded history keep their original size and are never repaired implicitly.
+function reviewAutomaticWorkouts(days){
+  const issues=days.filter(day=>day.kind==='strength'&&(day.exercises.length<6||day.exercises.length>9)).map(day=>({date:day.date,gymId:day.gymId,title:day.title,count:day.exercises.length,plannedExerciseCount:day.plannedExerciseCount??day.exercises.length,notes:C.clone(day.notes||[])}));
+  if(!issues.length)return;
+  const first=issues[0],error=Error('Automatic workouts need 6–9 exercises. '+first.date+' has '+first.count+' of '+first.plannedExerciseCount+' planned exercises. Review the gym inventory or exclusions before saving; no records were changed.');
+  error.code='AUTOMATIC_WORKOUT_REVIEW';error.issues=issues;throw error;
+}
 export function editSession(state,from,{choice='keep',date=from,gymId,adjust='keep',runMinutes,saunaMinutes}={}){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||C.iso(C.dateOf(date))!==date)throw Error('Choose a valid workout date.');
   if(!['keep','swap-next','regenerate'].includes(adjust))throw Error('Choose a calendar adjustment.');
@@ -33,6 +41,7 @@ export function editSession(state,from,{choice='keep',date=from,gymId,adjust='ke
   if(!state.gyms.some(g=>g.id===gymId&&!g.deleted))throw Error('Choose an active gym.');
   if(date!==from&&hasEntries(C.dayFor(state,date)))throw Error('The destination contains entered or completed work. Choose another date; no records were changed.');
   const next=C.clone(state),notices=[];let chosen=choice==='keep'?C.clone(old):workoutFromChoice(state,choice,date,gymId);
+  if(choice==='auto')reviewAutomaticWorkouts([chosen]);
   if(choice!=='keep'&&hasEntries(old)){const key=from+'~edit-'+C.uid();next.logs[key]={...C.clone(old),id:key};notices.push('The previous entered workout is preserved in History.')}
   let swapDate=null;
   if(adjust==='swap-next'&&date===from&&choice!=='keep')for(let i=1;i<=28;i++){const d=C.addDays(from,i),candidate=C.dayFor(state,d);if(candidate.title===chosen.title&&!hasEntries(candidate)){swapDate=d;break}}
@@ -51,6 +60,7 @@ export function editSession(state,from,{choice='keep',date=from,gymId,adjust='ke
   equipmentNotes(state,chosen);next.logs[date]=chosen;
   if(adjust==='regenerate'){
     const result=C.generateProgram(next,{start:C.addDays(date,1),days:28});
+    reviewAutomaticWorkouts(result.days);
     for(const d of result.days)if(!hasEntries(next.logs[d.date]))next.logs[d.date]=d;
     notices.push('Rebuilt '+result.days.length+' future days; entered sessions were protected.');
     notices.push(...result.warnings);

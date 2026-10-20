@@ -903,3 +903,59 @@ confirm Settings build 54f0404eabbc and reopen the Commercial gym autofill.
 Inspect Estimated common cable attachments, Add suggestions to checklist,
 untick unavailable grips and Save gym. No new paid search is needed. Actual gym
 availability and the owner's device presentation remain for owner review.
+
+### Stage 15: session-edit generation review
+
+The owner accepted the current gym/attachment setup and authorized the next
+development stage at our discretion. This records acceptance of that gym flow,
+not full beta acceptance, a physical inventory audit or image approval recovery.
+Two-device sync, installed-device push and private conversation/photo evidence
+remain separate outstanding items. The live app and backend remain excluded.
+
+The next bounded stage addresses the saved 6–9-exercise requirement in Edit
+session. Before changing behavior, controlled 2027-01-04 synthetic fixtures
+reproduced two bypasses: Auto-generate for this gym could save a 1/6 or 5/9
+lifting session with sparse equipment; Auto-generate the next 28 unlogged days
+could also save incomplete strength rows, including zero-exercise days. The
+main program builder already blocks these rows. The cause is the missing
+equivalent validation in workouts.editSession, not the original count-test
+failure or a reason to rewrite stored sessions.
+
+The existing edit preview also refreshed only when the workout choice changed,
+leaving the visible exercise list stale after gym/date changes and omitting the
+shortfall notes. The intended correction makes the draft review current and
+blocks newly generated incomplete automatic edits atomically before save.
+Manual, routine, legacy, historical and entered short sessions remain allowed
+and preserved. Existing legacy-only repair rules, generator selection, image
+bindings, storage schemas, accounts and provider limits are outside this stage.
+
+The engine now checks only newly generated automatic replacements and future
+generated rows for 6–9 exercises, before any result can be returned for saving.
+Raw zero-exercise strength output is checked before the existing rest/run
+normalization. A structured review error identifies affected dates, gyms,
+counts/targets and notes. Failure rejects the complete edit, including any
+proposed date swap, conditioning change or replacement archive. The diagnostic
+workout choice still returns its shortfall for review. Manual, routine, legacy
+and existing saved short choices bypass the new automatic minimum.
+
+Edit session now starts with a populated, cloned dry-run preview of the date,
+gym, workout, exercise count/target and equipment notes. Gym/date/choice and
+calendar-adjustment changes refresh it; future regeneration shows the next
+28 days and protected-record count. Conditioning fields remain user-controlled
+on gym/date/adjustment changes. Invalid previews disable Save. Submit recomputes
+the engine result before confirmation, snapshot or state replacement, and a
+corrected draft clears only the session's prior error. Preview itself performs
+no persistence, confirmations or snapshots.
+
+Validation: npm test passed all 39 test files on Node 24.19.0. New engine tests
+passed 6/6, including controlled 5/9 and 0/7 output, atomic failed regeneration
+after proposed swap/archive/conditioning changes, complete/zero-load/history
+protection, compatible 6–9 automatic results and manual/routine/legacy/saved
+short choices. New UI tests passed 7/7 for current inputs, shortfall/error
+recovery, no preview/failed-submit writes or snapshots/confirmations, conditioning
+preservation, authoritative valid Save and archival history. Existing feedback
+and broad UI tests also passed. npm run check passed with 26 root JavaScript
+modules, 42 shell entries, 162 original catalog assets, 113 web images and
+35 paired movements. Diff/syntax and independent preservation review passed.
+These are synthetic DOM/engine checks, not physical-device/browser acceptance.
+No live records, backend, AI allowance, images or private evidence were changed.
