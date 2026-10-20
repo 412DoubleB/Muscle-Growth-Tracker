@@ -497,3 +497,18 @@ cloud isolation, email/reset delivery and a real provider lookup remain unverifi
 Only after owner readiness is confirmed may first-come MENEI admission open;
 normal testers will not need ChatGPT accounts. There was no paid request,
 Supabase mutation, GitHub push, merge, live deployment or image/history change.
+
+### Stage 10 follow-up: signup message
+
+The MENEI beta entry now describes a successful signup request without claiming
+that a confirmation email was delivered. A successful response without a session
+can also occur for an existing account. The entry gives conditional inbox/spam
+guidance and directs existing users to sign in or reset their password. Its header
+also reports only that the request was received. The response remains generic;
+the app does not infer or disclose whether an email has an account.
+
+The existing synthetic signup/reset UI check covers both the entry and header
+messages and confirms no saved workspace is read. It passed, along with the full
+beta-entry UI file before the header adjustment, syntax and diff checks. No Auth
+configuration, email sending, authentication behavior, storage, images or backend
+records changed. Actual password-reset email delivery still needs user testing.

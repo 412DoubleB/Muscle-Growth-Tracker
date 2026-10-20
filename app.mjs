@@ -135,7 +135,7 @@ async function betaEntryAction(action){
   if(action==='reset'){await cloud.resetPassword(email);betaEntryMessage='Check your email for the MENEI password reset link.';return}
   if(!password)throw Error('Enter your MENEI account password.');
   if(action==='signin')await cloud.signIn(email,password);
-  if(action==='signup'){const result=await cloud.signUp(email,password);if(!result.access_token)betaEntryMessage='Check your email to confirm your MENEI account, then return here and sign in.'}
+  if(action==='signup'){const result=await cloud.signUp(email,password);if(!result.access_token){cloud.status('Signup request received.');betaEntryMessage='Request received. If email confirmation is needed, check your inbox and spam folder. Already have a MENEI account? Choose Sign in & join beta, or Reset password.'}}
  }catch(error){if(attempt===betaActionSequence){betaEntryMessage=error.message;notify(error.message)}}
  finally{if(attempt===betaActionSequence){betaEntryBusy=false;if(!hasBetaWorkspace())showBetaEntry()}}
 }
