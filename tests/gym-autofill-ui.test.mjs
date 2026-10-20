@@ -68,15 +68,15 @@ test('autofill separates the full proposal from new additions and retains the co
  const original={...gym(),inventory:GYM_TYPES.commercial.estimates.slice(0,20)},env=environment(original);
  try{
   const before=await open(env,'commercial-counts'),initial=env.inventory.slice();await env.click('gym-autofill');
-  assert.match(env.elements.get('gymLookupResults').innerHTML,/58 proposed equipment types · 38 new additions · 20 already selected/);
+  assert.match(env.elements.get('gymLookupResults').innerHTML,/69 proposed equipment types · 49 new additions · 20 already selected/);
   assert.deepEqual(env.inventory,initial);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
   await env.click('apply-gym-autofill');
-  assert.ok(env.inventory.length>=58);assert.deepEqual(new Set(env.inventory),new Set([...initial,...GYM_TYPES.commercial.estimates]));const selected=env.inventory.slice().sort();
+  assert.ok(env.inventory.length>=69);assert.deepEqual(new Set(env.inventory),new Set([...initial,...GYM_TYPES.commercial.estimates]));const selected=env.inventory.slice().sort();
   assert.match(env.elements.get('gymLookupResults').innerHTML,new RegExp(selected.length+' equipment types selected.*Review the checked boxes below, then Save gym'));
   assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
   await env.submit();assert.deepEqual(env.state.gyms[0].inventory.slice().sort(),selected);
   await env.click('gym',{id:original.id});assert.deepEqual(env.inventory.slice().sort(),selected);await env.click('gym-autofill');
-  assert.match(env.elements.get('gymLookupResults').innerHTML,/58 proposed equipment types · 0 new additions · 58 already selected/);
+  assert.match(env.elements.get('gymLookupResults').innerHTML,/69 proposed equipment types · 0 new additions · 69 already selected/);
   assert.equal(env.form.elements.notes.value,original.notes);assert.equal(+env.form.elements.dbMax.value,original.dbMax);assert.equal(+env.form.elements.increment.value,original.increment);
  }finally{env.restore()}
 });
@@ -177,16 +177,48 @@ test('branch equipment appears before cited wider-search estimates, with common 
  }finally{env.restore()}
 });
 
+test('common cable grips are editable estimates and retain stronger attachment sources without implying a dual station',async()=>{
+ const grips=['Wide Lat Bar','Neutral Pulldown Handle','Close-Grip Pulldown Handle'],publishedUrl='https://synthetic.example.invalid/location/d-handles',estimatedUrl='https://synthetic.example.invalid/chain/wide-lat-bar';
+ const result={...widerCandidate(),equipment:[{name:'D-Handles',detail:'This location lists individual D-handles; no dual-cable station is specified.',status:'published',sourceUrl:publishedUrl,checked:'2026-11-02'}],estimatedEquipment:[{name:'Wide Lat Bar',detail:'The wider chain list includes a wide lat bar; this location has not confirmed it.',status:'estimated',basis:'wider-web',sourceUrl:estimatedUrl,checked:'2026-11-02'}]};
+ const original={...gym(),inventory:[...gym().inventory,'Bench','Flat Bench','Squat Rack / Power Rack']},env=environment(original,{aiReady:true,research:async()=>researchResponse({locations:[result]})});
+ try{
+  const before=await open(env,'common-cable-grips'),initial=env.inventory.slice();await env.click('gym-autofill');
+  const generic=env.elements.get('gymLookupResults').innerHTML,attachmentAt=generic.indexOf('Estimated common cable attachments');assert.ok(attachmentAt>=0);
+  for(const name of [...grips,'D-Handles'])assert.ok(generic.slice(attachmentAt).includes('<b>'+name+'</b>'));
+  assert.doesNotMatch(generic,/Published for this location|Estimated from broader gym research/);assert.deepEqual(env.inventory,initial);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);assert.equal(env.researchRequests.length,0);
+  await env.click('gym-ai-search');await env.click('apply-gym-source',{id:result.id});
+  const preview=env.elements.get('gymLookupResults').innerHTML,publishedAt=preview.indexOf('Published for this location'),broaderAt=preview.indexOf('Estimated from broader gym research'),commonAt=preview.indexOf('Estimated common cable attachments');
+  assert.match(preview,/69 proposed equipment types/);assert.ok(publishedAt>=0&&publishedAt<broaderAt&&broaderAt<commonAt);
+  assert.ok(preview.slice(publishedAt,broaderAt).includes('<b>D-Handles</b>'));assert.ok(preview.slice(publishedAt,broaderAt).includes(publishedUrl));
+  assert.ok(preview.slice(broaderAt,commonAt).includes('<b>Wide Lat Bar</b>'));assert.ok(preview.slice(broaderAt,commonAt).includes(estimatedUrl));
+  assert.equal(preview.slice(commonAt).includes('<b>D-Handles</b>'),false);assert.equal(preview.slice(commonAt).includes('<b>Wide Lat Bar</b>'),false);
+  for(const name of grips.slice(1))assert.ok(preview.slice(commonAt).includes('<b>'+name+'</b>'));
+  assert.deepEqual(env.inventory,initial);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
+  await env.click('apply-gym-autofill');for(const name of [...grips,'D-Handles'])assert.ok(env.inventory.includes(name));
+  assert.equal(env.inventory.includes('Dual Cable / Functional Trainer'),false);assert.equal(env.inventory.includes('Cable Crossover'),false);
+  assert.match(env.form.evidence.find(element=>element.dataset.equipmentEvidence==='D-Handles').innerHTML,/>Published</);
+  assert.match(env.form.evidence.find(element=>element.dataset.equipmentEvidence==='Wide Lat Bar').innerHTML,/Estimated · broader search/);
+  for(const name of grips.slice(1))assert.match(env.form.evidence.find(element=>element.dataset.equipmentEvidence===name).innerHTML,/Estimated · common setup/);
+  await env.equipment('Close-Grip Pulldown Handle',false);const selected=env.inventory.slice().sort();assert.deepEqual(env.writes,[]);await env.submit();
+  const saved=env.state.gyms[0];assert.deepEqual(saved.inventory.slice().sort(),selected);assert.equal(saved.dbMax,original.dbMax);assert.equal(saved.increment,original.increment);assert.equal(saved.equipmentConfirmedAt,null);
+  assert.ok(saved.sourceInfo.equipment.some(item=>item.name==='D-Handles'&&item.status==='published'&&item.sourceUrl===publishedUrl));
+  assert.ok(saved.sourceInfo.estimates.some(item=>item.name==='Wide Lat Bar'&&item.basis==='wider-web'&&item.sourceUrl===estimatedUrl));
+  assert.ok(saved.sourceInfo.estimates.some(item=>item.name==='Neutral Pulldown Handle'&&item.basis==='commercial'&&item.status==='estimated'));
+  await env.click('gym',{id:original.id});assert.deepEqual(env.inventory.slice().sort(),selected);assert.equal(env.inventory.includes('Close-Grip Pulldown Handle'),false);assert.ok(env.inventory.includes('Wide Lat Bar'));assert.ok(env.inventory.includes('Neutral Pulldown Handle'));assert.ok(env.inventory.includes('D-Handles'));
+  assert.equal(env.inventory.includes('Dual Cable / Functional Trainer'),false);assert.equal(env.inventory.includes('Cable Crossover'),false);assert.equal(env.researchRequests.length,1);assert.deepEqual(env.state.logs,JSON.parse(before[0][1]).logs);
+ }finally{env.restore()}
+});
+
 test('specific published and broader machine variants stay distinct from the generic commercial list through Save and reopen',async()=>{
  const publishedName='Hammer Strength Incline Press',estimatedName='Hammer Strength Low Row',publishedUrl='https://synthetic.example.invalid/location/incline-press',estimatedUrl='https://synthetic.example.invalid/chain/low-row';
  const result={...widerCandidate(),sources:[{url:publishedUrl,checked:'2026-11-02'},{url:estimatedUrl,checked:'2026-11-02'}],equipment:[{name:publishedName,detail:'The location lists this specific incline press; available loads are not listed.',status:'published',sourceUrl:publishedUrl,checked:'2026-11-02'}],estimatedEquipment:[{name:estimatedName,detail:'The broader chain list includes this specific low row; this location remains unconfirmed.',status:'estimated',basis:'wider-web',sourceUrl:estimatedUrl,checked:'2026-11-02'}]};
  const original={...gym(),inventory:[...gym().inventory,'Bench','Flat Bench','Squat Rack / Power Rack']},env=environment(original,{aiReady:true,research:async()=>researchResponse({locations:[result]})});
  const brandedInventory=inventory=>inventory.filter(name=>name.startsWith('Hammer Strength')).sort();
  try{
-  const before=await open(env,'ai-specific-machines');assert.equal(GYM_TYPES.commercial.estimates.length,58);assert.deepEqual(brandedInventory(GYM_TYPES.commercial.estimates),[]);
+  const before=await open(env,'ai-specific-machines');assert.equal(GYM_TYPES.commercial.estimates.length,69);assert.deepEqual(brandedInventory(GYM_TYPES.commercial.estimates),[]);
   await env.click('gym-ai-search');await env.click('apply-gym-source',{id:result.id});
   const preview=env.elements.get('gymLookupResults').innerHTML,publishedAt=preview.indexOf('Published for this location'),broaderAt=preview.indexOf('Estimated from broader gym research'),commonAt=preview.indexOf('Estimated from the gym type');
-  assert.match(preview,/60 proposed equipment types/);assert.ok(publishedAt>=0&&publishedAt<broaderAt&&broaderAt<commonAt);
+  assert.match(preview,/71 proposed equipment types/);assert.ok(publishedAt>=0&&publishedAt<broaderAt&&broaderAt<commonAt);
   const publishedSection=preview.slice(publishedAt,broaderAt),broaderSection=preview.slice(broaderAt,commonAt),commonSection=preview.slice(commonAt);
   assert.ok(publishedSection.includes(publishedName)&&publishedSection.includes(publishedUrl));assert.equal(publishedSection.includes(estimatedName),false);
   assert.ok(broaderSection.includes(estimatedName)&&broaderSection.includes(estimatedUrl));assert.match(broaderSection,/location remains unconfirmed/);assert.equal(broaderSection.includes(publishedName),false);
@@ -214,11 +246,11 @@ test('repreviewing a selected source after type, notes and checklist edits keeps
   assert.match(env.elements.get('gymLookupResults').innerHTML,/2 proposed equipment types/);
   await env.set('gymType','commercial');await env.set('notes','Keep this newer synthetic manual note');await env.equipment('EZ Bar',true);await env.click('gym-autofill');
   const html=env.elements.get('gymLookupResults').innerHTML;
-  assert.match(html,/58 proposed equipment types/);assert.match(html,/Published for this location/);assert.match(html,/Estimated from broader gym research/);assert.match(html,/Estimated from the gym type/);
+  assert.match(html,/69 proposed equipment types/);assert.match(html,/Published for this location/);assert.match(html,/Estimated from broader gym research/);assert.match(html,/Estimated from the gym type/);
   assert.match(html,/Source describes the dumbbell area/);assert.match(html,/synthetic\.example\.invalid\/chain\/equipment/);
   assert.equal(env.researchRequests.length,1);assert.deepEqual([...env.rows],before);assert.deepEqual(env.writes,[]);
   assert.ok(env.inventory.includes('EZ Bar'));assert.equal(env.form.elements.notes.value,'Keep this newer synthetic manual note');assert.equal(+env.form.elements.dbMax.value,80);
-  await env.click('apply-gym-autofill');assert.ok(env.inventory.length>=58);assert.ok(env.inventory.includes('EZ Bar'));assert.deepEqual(env.writes,[]);
+  await env.click('apply-gym-autofill');assert.ok(env.inventory.length>=69);assert.ok(env.inventory.includes('EZ Bar'));assert.deepEqual(env.writes,[]);
   const selected=env.inventory.slice().sort();await env.submit();
   const saved=env.state.gyms[0];assert.deepEqual(saved.inventory.slice().sort(),selected);assert.equal(saved.sourceInfo.equipment[0].sourceUrl,result.equipment[0].sourceUrl);
   assert.ok(saved.sourceInfo.estimates.some(item=>item.name==='Kettlebells'&&item.basis==='wider-web'&&item.sourceUrl===result.estimatedEquipment[0].sourceUrl));

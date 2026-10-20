@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {EQUIPMENT} from '../core.mjs';
-import {ESTIMATED_EQUIPMENT} from '../gym-profiles.mjs';
+import {EQUIPMENT,exerciseFor,normalizedInventory,supports} from '../core.mjs';
+import {COMMON_CABLE_ATTACHMENTS,ESTIMATED_EQUIPMENT} from '../gym-profiles.mjs';
 import {GYM_DIRECTORY,GYM_TYPES,gymLocationSignature,sourceInfoMatchesGym,validateGymResearch,buildGymAutofillPreview,applyGymAutofillPreview} from '../gyms.mjs';
 
 const options={allowedEquipment:EQUIPMENT};
@@ -14,10 +14,12 @@ test('six gym-type profiles offer conservative estimates without claiming precis
  for(const [gymType,profile]of Object.entries(GYM_TYPES)){
   const result=buildGymAutofillPreview(manual(),{query,gymType,...options});
   assert.deepEqual(result.items.map(item=>item.name),[...profile.estimates]);assert.ok(result.items.every(item=>item.status==='estimated'));assert.equal(result.dbMaxProposal,null);
-  assert.ok(result.items.every(item=>!/(dual cable|cable crossover|attachment|handle)/i.test(item.name)));assert.equal(result.sourceInfo.complete,false);
+  assert.ok(result.items.every(item=>!/(dual cable|cable crossover)/i.test(item.name)));
+  if(gymType!=='commercial')assert.ok(result.items.every(item=>!/(attachment|handle)/i.test(item.name)));
+  assert.equal(result.sourceInfo.complete,false);
  }
  assert.equal(Object.isFrozen(GYM_TYPES.commercial.estimates),true);
- assert.equal(GYM_TYPES.commercial.estimates.length,58);
+ assert.equal(GYM_TYPES.commercial.estimates.length,69);
  for(const name of ['Smith Machine','Kettlebells','Pec Deck / Chest Fly','Selectorized Shoulder Press','Biceps Curl Machine','Triceps Extension Machine','Treadmill','Stationary Bike','Elliptical','Rower','Stair Climber'])assert.ok(GYM_TYPES.commercial.estimates.includes(name));
  assert.ok(ESTIMATED_EQUIPMENT.every(name=>EQUIPMENT.includes(name)));assert.equal(new Set(ESTIMATED_EQUIPMENT).size,ESTIMATED_EQUIPMENT.length);assert.equal(Object.isFrozen(ESTIMATED_EQUIPMENT),true);
 });
@@ -34,10 +36,49 @@ test('the fuller optional commercial proposal covers distinct generic machine gr
   ['Horizontal / Seated Leg Press','Hack Squat','Lying Leg Curl','Ab Crunch Machine','Back Extension Machine','45° Back Extension'],
   ['Medicine Balls','Resistance Bands','Step / Plyo Box','Air Bike','Spin Bike']
  ])for(const name of group)assert.ok(names.includes(name),'Offer the editable common type '+name);
- assert.equal(new Set(names).size,58);assert.ok(names.every(name=>EQUIPMENT.includes(name)));
- for(const excluded of ['Bench','Flat Bench','Curl Bar','Half Rack','Squat Rack / Power Rack','Cable Station','Cable Attachments','Dual Cable / Functional Trainer','Cable Crossover','D-Handles','Rope Attachment','Pendulum Squat','Jacobs Ladder'])assert.equal(names.includes(excluded),false,'Do not inflate or infer '+excluded);
+ assert.equal(new Set(names).size,69);assert.ok(names.every(name=>EQUIPMENT.includes(name)));
+ for(const excluded of ['Bench','Flat Bench','Curl Bar','Half Rack','Squat Rack / Power Rack','Cable Station','Cable Attachments','Dual Cable / Functional Trainer','Cable Crossover','Pendulum Squat','Jacobs Ladder'])assert.equal(names.includes(excluded),false,'Do not inflate or infer '+excluded);
  assert.ok(names.every(name=>!/^Hammer Strength /.test(name)));
  assert.match(GYM_TYPES.commercial.note,/optional|estimated/i);assert.match(GYM_TYPES.commercial.note,/Review every item/);
+});
+
+test('eleven canonical common attachments extend the original 58 suggestions without fabricated location evidence',()=>{
+ const original58=[
+  'Dumbbells','Adjustable Bench','Barbell','Olympic Plates','Squat Rack','Single Cable Column','Lat Pulldown','Leg Press 45°','Leg Extension','Seated Leg Curl','Selectorized Chest Press','Seated Cable Row','Smith Machine','Kettlebells','Pec Deck / Chest Fly','Selectorized Shoulder Press','Biceps Curl Machine','Triceps Extension Machine','Treadmill','Stationary Bike','Elliptical','Rower','Stair Climber',
+  'Decline Bench','EZ Bar','Fixed Barbells','Preacher Bench','Bench-Press Rack',
+  'Selectorized Incline Press','Plate-Loaded Chest Press','Plate-Loaded Incline Press','Plate-Loaded Decline Press','Plate-Loaded Shoulder Press','Plate-Loaded Pulldown','Plate-Loaded Row','Chest-Supported Row Machine','Reverse Pec Deck','Lateral Raise Machine','Preacher Curl Machine',
+  'Horizontal / Seated Leg Press','Hack Squat','Lying Leg Curl','Hip Abductor','Hip Adductor','Standing Calf Raise','Seated Calf Raise','Glute Drive / Hip Thrust','Glute Kickback Machine',
+  'Ab Crunch Machine','Back Extension Machine','45° Back Extension','Assisted Pull-up / Dip','Captain’s Chair',
+  'Medicine Balls','Resistance Bands','Step / Plyo Box','Air Bike','Spin Bike'
+ ];
+ const attachments=['Rope Attachment','D-Handles','Straight Bar Attachment','EZ Cable Bar','V-Bar Attachment','Ankle Strap','Wide Lat Bar','Neutral Pulldown Handle','Close-Grip Pulldown Handle','Straight Lat Bar','Close Neutral Row Handle'];
+ assert.deepEqual(COMMON_CABLE_ATTACHMENTS,attachments);assert.equal(Object.isFrozen(COMMON_CABLE_ATTACHMENTS),true);assert.equal(new Set(COMMON_CABLE_ATTACHMENTS).size,11);
+ assert.deepEqual(GYM_TYPES.commercial.estimates,[...original58,...attachments]);assert.ok(COMMON_CABLE_ATTACHMENTS.every(name=>EQUIPMENT.includes(name)&&ESTIMATED_EQUIPMENT.includes(name)));
+ const current=manual(),before=structuredClone(current),proposal=preview(current,{research:null});
+ for(const name of attachments){
+  const item=proposal.items.find(item=>item.name===name);assert.equal(item.status,'estimated');assert.equal(item.basis,'commercial');assert.match(item.detail,/not verified for this location/);
+  for(const key of ['sourceUrl','checked','max','unit'])assert.equal(Object.hasOwn(item,key),false,'Do not fabricate '+key+' for '+name);
+  assert.deepEqual(proposal.sourceInfo.estimates.find(estimate=>estimate.name===name),{name,status:'estimated',detail:item.detail,basis:'commercial'});
+ }
+ assert.equal(proposal.dbMaxProposal,null);assert.equal(proposal.sourceInfo.complete,false);assert.deepEqual(current,before);
+});
+
+test('pulldown grips still require a compatible actual station and never imply a dual-cable configuration',()=>{
+ const grips=[['Wide-Grip Lat Pulldown','Wide Lat Bar'],['Neutral-Grip Lat Pulldown','Neutral Pulldown Handle'],['Close-Grip Lat Pulldown','Close-Grip Pulldown Handle'],['Close-Neutral Lat Pulldown','Close Neutral Row Handle'],['Underhand Lat Pulldown','Straight Lat Bar'],['Single-Arm Lat Pulldown','D-Handles']];
+ for(const [exerciseName,grip]of grips){
+  const exercise=exerciseFor(exerciseName);assert.ok(exercise,'Use the real exercise '+exerciseName);
+  assert.equal(supports(exercise,{inventory:[...COMMON_CABLE_ATTACHMENTS]}),false,'Attachments alone cannot support '+exerciseName);
+  for(const station of ['Lat Pulldown','Single Cable Column','Dual Cable / Functional Trainer']){
+   assert.equal(supports(exercise,{inventory:[station]}),false,'The station alone lacks '+grip);
+   assert.equal(supports(exercise,{inventory:[station,...COMMON_CABLE_ATTACHMENTS.filter(name=>name!==grip)]}),false,'A different grip must not substitute for '+grip);
+   assert.equal(supports(exercise,{inventory:[station,grip]}),true,'An actual compatible station and exact grip support '+exerciseName);
+  }
+ }
+ const attachmentInventory=normalizedInventory({inventory:[...COMMON_CABLE_ATTACHMENTS]});
+ for(const station of ['Lat Pulldown','Single Cable Column','Dual Cable / Functional Trainer','Cable Crossover'])assert.equal(attachmentInventory.has(station),false);
+ const fly=exerciseFor('Cable Fly');assert.ok(fly);
+ assert.equal(supports(fly,{inventory:['Single Cable Column','D-Handles']}),false);assert.equal(supports(fly,{inventory:[...GYM_TYPES.commercial.estimates]}),false);
+ assert.equal(supports(fly,{inventory:['Dual Cable / Functional Trainer','D-Handles']}),true);
 });
 
 test('the fuller commercial proposal leaves smaller gym-type suggestions unchanged',()=>{
@@ -101,8 +142,10 @@ test('source signatures detect changed queries without treating spelling case an
  assert.equal(sourceInfoMatchesGym({name:query.name,url:location.url},query),false,'older evidence without a request identity is not certified for a newly supplied location');
 });
 
-test('unknown equipment and inferred specific cable/attachment setups are rejected',()=>{
- for(const equipment of [[{name:'Mystery machine',status:'published',detail:'Unrecognized item'}],[{name:'Dual Cable / Functional Trainer',status:'estimated',detail:'Inferred from generic strength facilities'}],[{name:'D-Handles',status:'estimated',detail:'Inferred from a gym type'}]])assert.throws(()=>validateGymResearch({...structuredClone(location),equipment},options));
+test('unknown equipment and uncited specialist setups remain rejected while common attachments are estimates',()=>{
+ for(const equipment of [[{name:'Mystery machine',status:'published',detail:'Unrecognized item'}],[{name:'Dual Cable / Functional Trainer',status:'estimated',detail:'Inferred from generic strength facilities'}],[{name:'Safety Squat Bar',status:'estimated',detail:'Inferred from a gym type'}]])assert.throws(()=>validateGymResearch({...structuredClone(location),equipment},options));
+ const common=validateGymResearch({...structuredClone(location),equipment:COMMON_CABLE_ATTACHMENTS.map(name=>({name,status:'estimated',detail:'Optional common commercial attachment; this branch is unconfirmed.'}))},options);
+ assert.deepEqual(common.equipment.map(item=>item.name),[...COMMON_CABLE_ATTACHMENTS]);assert.ok(common.equipment.every(item=>item.status==='estimated'));assert.equal(common.complete,false);
  assert.throws(()=>validateGymResearch({...structuredClone(location),equipment:[{name:'Dumbbells',detail:'Missing provenance'}]},options));
  assert.throws(()=>validateGymResearch(location,{allowedEquipment:['Bench']}));
 });
@@ -140,6 +183,27 @@ const widerSource='https://fitness.example.com/chain/equipment';
 const widerEstimate=(name='Smith Machine')=>({name,detail:'Broader chain information suggests this common equipment; this branch is unconfirmed.',sourceUrl:widerSource,status:'estimated',checked:'2026-10-20',basis:'wider-web'});
 const widerResearch=()=>({...structuredClone(location),setup:{gymType:'commercial',basis:'The broader chain source describes a commercial gym setup; individual branches vary.',sourceUrl:widerSource,checked:'2026-10-20'},estimatedEquipment:[widerEstimate()]});
 
+test('published and wider attachment evidence overrides common estimates while applying only reviewed draft additions',()=>{
+ const current=manual(),before=structuredClone(current),research=widerResearch(),branchSource='https://fitness.example.com/exact-branch/equipment';
+ research.equipment=[{name:'Wide Lat Bar',status:'published',detail:'The synthetic branch source explicitly lists its wide lat bar.',sourceUrl:branchSource,checked:'2026-10-19'}];
+ research.estimatedEquipment=[widerEstimate('Wide Lat Bar'),widerEstimate('Neutral Pulldown Handle')];
+ const sourceBefore=structuredClone(research),proposal=preview(current,{research});
+ const wide=proposal.items.find(item=>item.name==='Wide Lat Bar'),neutral=proposal.items.find(item=>item.name==='Neutral Pulldown Handle'),close=proposal.items.find(item=>item.name==='Close-Grip Pulldown Handle');
+ assert.equal(proposal.items.length,69);assert.equal(wide.status,'published');assert.equal(wide.sourceUrl,branchSource);assert.equal(wide.checked,'2026-10-19');
+ assert.equal(neutral.status,'estimated');assert.equal(neutral.basis,'wider-web');assert.equal(neutral.sourceUrl,widerSource);assert.equal(neutral.checked,'2026-10-20');assert.equal(neutral.detail,research.estimatedEquipment[1].detail);
+ assert.equal(close.status,'estimated');assert.equal(close.basis,'commercial');assert.equal(Object.hasOwn(close,'sourceUrl'),false);assert.equal(Object.hasOwn(close,'checked'),false);
+ assert.ok(proposal.items.every(item=>!Object.hasOwn(item,'max')&&!Object.hasOwn(item,'unit')));assert.equal(proposal.dbMaxProposal,null);
+ assert.deepEqual(proposal.sourceInfo.equipment,research.equipment);assert.deepEqual(proposal.sourceInfo.estimatedEquipment,research.estimatedEquipment);assert.equal(proposal.sourceInfo.estimates.some(item=>item.name==='Wide Lat Bar'),false);assert.equal(proposal.sourceInfo.complete,false);
+ assert.deepEqual(current,before);assert.deepEqual(research,sourceBefore);
+ const selected=['Wide Lat Bar','Neutral Pulldown Handle'],draft=applyGymAutofillPreview(current,proposal,{query,selectedEquipment:selected});
+ assert.deepEqual(draft.inventory,[...before.inventory,...selected]);assert.equal(draft.inventory.includes('Close-Grip Pulldown Handle'),false);
+ assert.equal(draft.dbMax,before.dbMax);assert.equal(draft.increment,before.increment);assert.equal(draft.notes,before.notes);assert.deepEqual(draft.unknownPreference,before.unknownPreference);assert.deepEqual(current,before);assert.deepEqual(research,sourceBefore);
+ const normalized=normalizedInventory(draft);for(const station of ['Lat Pulldown','Single Cable Column','Dual Cable / Functional Trainer','Cable Crossover'])assert.equal(normalized.has(station),false);
+ assert.ok(draft.inventory.every(name=>!/^Hammer Strength /.test(name)));assert.equal(draft.sourceInfo.complete,false);assert.deepEqual(draft.sourceInfo.equipment,research.equipment);assert.deepEqual(draft.sourceInfo.estimatedEquipment,research.estimatedEquipment);
+ const reloaded=buildGymAutofillPreview(draft,{query,gymType:'commercial',research:JSON.parse(JSON.stringify(draft.sourceInfo)),...options});
+ assert.equal(reloaded.items.find(item=>item.name==='Wide Lat Bar').status,'published');assert.equal(reloaded.items.find(item=>item.name==='Neutral Pulldown Handle').sourceUrl,widerSource);assert.equal(reloaded.items.find(item=>item.name==='Close-Grip Pulldown Handle').alreadySelected,false);
+});
+
 test('cited setup and wider estimates validate without mutating or discarding original evidence',()=>{
  const input=widerResearch();input.sourceMetadata={keep:'Original evidence'};input.setup.originalMetadata={keep:0};input.estimatedEquipment[0].originalMetadata={keep:false};const before=structuredClone(input);
  const result=validateGymResearch(input,options);
@@ -175,9 +239,9 @@ test('wider estimates never supply quantitative limits and cannot replace an exp
 });
 
 test('cited wider sources may suggest canonical specialist equipment without turning it into a branch fact',()=>{
- const input=widerResearch();input.estimatedEquipment=[{...widerEstimate('Dual Cable / Functional Trainer'),detail:'The synthetic chain source describes independent pulleys; this branch is unconfirmed.'},{...widerEstimate('D-Handles'),detail:'The synthetic chain source explicitly lists this attachment; this branch is unconfirmed.'}];
+ const input=widerResearch();input.estimatedEquipment=[{...widerEstimate('Dual Cable / Functional Trainer'),detail:'The synthetic chain source describes independent pulleys; this branch is unconfirmed.'},{...widerEstimate('Safety Squat Bar'),detail:'The synthetic chain source explicitly lists this specialist bar; this branch is unconfirmed.'}];
  const validated=validateGymResearch(input,options),result=preview(manual(),{gymType:'custom',research:validated});
- for(const name of ['Dual Cable / Functional Trainer','D-Handles']){
+ for(const name of ['Dual Cable / Functional Trainer','Safety Squat Bar']){
   const item=result.items.find(item=>item.name===name);assert.equal(item.status,'estimated');assert.equal(item.basis,'wider-web');assert.equal(item.sourceUrl,widerSource);assert.equal(item.checked,'2026-10-20');assert.equal(Object.hasOwn(item,'max'),false);assert.equal(result.sourceInfo.estimates.some(estimate=>estimate.name===name),true);assert.equal(result.sourceInfo.equipment.some(equipment=>equipment.name===name),false);
   assert.equal(ESTIMATED_EQUIPMENT.includes(name),false);
   assert.throws(()=>validateGymResearch({...structuredClone(location),equipment:[{name,status:'estimated',detail:'Inferred only from a common gym type.'}]},options),/Specific equipment and attachments/);
@@ -191,7 +255,7 @@ test('explicit sourced Hammer Strength variants coexist with the generic commerc
  research.equipment.push({name:publishedName,status:'published',detail:'The synthetic branch source explicitly identifies this branded incline press.',sourceUrl:branchSource,checked:'2026-10-20'});
  research.estimatedEquipment=[{...widerEstimate(estimatedName),detail:'The synthetic broader chain source identifies this branded high row; this branch is unconfirmed.'}];
  const sourceBefore=structuredClone(research),proposal=preview(current,{research});
- assert.equal(proposal.items.length,60);assert.ok(proposal.items.some(item=>item.name==='Plate-Loaded Incline Press'&&item.status==='estimated'));assert.ok(proposal.items.some(item=>item.name==='Plate-Loaded Row'&&item.status==='estimated'));
+ assert.equal(proposal.items.length,71);assert.ok(proposal.items.some(item=>item.name==='Plate-Loaded Incline Press'&&item.status==='estimated'));assert.ok(proposal.items.some(item=>item.name==='Plate-Loaded Row'&&item.status==='estimated'));
  const published=proposal.items.find(item=>item.name===publishedName),estimated=proposal.items.find(item=>item.name===estimatedName);
  assert.equal(published.status,'published');assert.equal(published.sourceUrl,branchSource);assert.equal(published.checked,'2026-10-20');
  assert.equal(estimated.status,'estimated');assert.equal(estimated.basis,'wider-web');assert.equal(estimated.sourceUrl,widerSource);assert.equal(estimated.checked,'2026-10-20');assert.equal(Object.hasOwn(estimated,'max'),false);assert.equal(Object.hasOwn(estimated,'unit'),false);
@@ -200,7 +264,7 @@ test('explicit sourced Hammer Strength variants coexist with the generic commerc
  const draft=applyGymAutofillPreview(current,proposal,{query,selectedEquipment:[publishedName,estimatedName]});
  assert.deepEqual(draft.inventory,['Bench','Owner-entered apparatus',publishedName,estimatedName]);assert.equal(draft.dbMax,85);assert.equal(draft.increment,2.5);assert.equal(draft.notes,before.notes);assert.deepEqual(draft.unknownPreference,before.unknownPreference);assert.deepEqual(current,before);
  assert.equal(draft.sourceInfo.equipment.find(item=>item.name===publishedName).sourceUrl,branchSource);assert.equal(draft.sourceInfo.estimates.find(item=>item.name===estimatedName).sourceUrl,widerSource);assert.equal(draft.sourceInfo.estimates.some(item=>item.name===publishedName),false);
- const withoutResearch=preview(current,{research:null});assert.equal(withoutResearch.items.length,58);assert.ok(withoutResearch.items.every(item=>item.status==='estimated'&&!/^Hammer Strength /.test(item.name)));assert.equal(withoutResearch.dbMaxProposal,null);assert.equal(withoutResearch.sourceInfo.complete,false);
+ const withoutResearch=preview(current,{research:null});assert.equal(withoutResearch.items.length,69);assert.ok(withoutResearch.items.every(item=>item.status==='estimated'&&!/^Hammer Strength /.test(item.name)));assert.equal(withoutResearch.dbMaxProposal,null);assert.equal(withoutResearch.sourceInfo.complete,false);
 });
 
 test('setup and wider estimate fields reject malformed provenance without changing old records',()=>{

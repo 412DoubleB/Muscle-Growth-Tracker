@@ -843,3 +843,40 @@ unbranded common types without a new paid search, plus distinct saved/current
 research items. An old research result is not rewritten to invent new brand
 evidence. Named Hammer Strength models need explicit cited support in research
 or manual selection; the new prompt's real-world search yield is not yet tested.
+
+### Stage 14: common cable attachments and pulldown grips
+
+The owner approved editable common attachment estimates and explicitly requested
+close, wide and neutral lat-pulldown grips. The commercial proposal adds eleven
+existing canonical attachment types to the previous 58, for 69 distinct types:
+rope, D-handles, straight cable bar, EZ cable bar, V-bar, ankle strap, wide lat
+bar, neutral pulldown handle, close-grip pulldown handle, straight lat bar and
+close neutral row handle. Other gym-type profiles are unchanged. This list
+describes equipment types rather than quantities or proof of installation.
+
+Common attachments have their own Estimated section. Published branch claims
+remain first and take precedence; separately cited wider estimates keep their
+sources and labels. Attachments remain removable before Save. Adding a handle
+does not infer a cable configuration, dual station, available load or physical
+confirmation. The existing exercise compatibility rules still require the
+matching station and grip; no exercise/image binding or alias was changed.
+The common-estimate allowlist now includes the explicitly approved attachments,
+while unsupported specialist hardware still requires evidence or manual entry.
+
+No AI request is needed for the expanded common list. Provider code, search
+limits, runtime revision 5, scheduled push and backend settings are unchanged.
+This stage makes no paid requests, key changes, quota resets, migrations or
+record mutations. Search/preview affect the draft until explicit Add and Save;
+existing equipment, notes, history, backups and private evidence remain intact.
+
+Validation: npm test passed all 37 test files on Node 24.19.0. Focused equipment
+tests passed all 22 cases, including the exact close/wide/neutral grip plus
+compatible station requirements, rejection of grips alone or a mismatched grip,
+and no dual-cable/crossover inference from the complete commercial proposal.
+All 42 focused UI cases passed: 69 proposed / 49 new / 20 existing, source
+precedence, explicit Add, removal of a grip before Save, and saved/reopened
+inventory with original manual limits and history preserved. Common estimates
+carry no fabricated source/date/limit. npm run check passed with 26 root
+JavaScript modules, 42 shell entries, 162 original catalog assets, 113 web images
+and 35 paired movements. Diff/syntax and independent preservation review passed.
+No live search or device/browser acceptance was performed for validation.
