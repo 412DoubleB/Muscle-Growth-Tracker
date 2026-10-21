@@ -22,13 +22,15 @@ export function progressRecords(state, catalog = []) {
     Number.isFinite(Date.parse(log.date+'T12:00:00Z')) && !log.deleted && log.status !== 'skipped'
   ).flatMap(([, log]) => (log.exercises || []).flatMap(exercise => {
     const definition = meta.find(e => e.id === exercise.exerciseId || (!exercise.exerciseId && norm(e.name) === norm(exercise.name)));
-    const sets = completedSets(exercise).filter(s => s.w != null && Number.isInteger(+s.r));
+    const repUnit = definition?.repUnit || exercise.repUnit || 'reps';
+    const measured = ['seconds','metres'].includes(repUnit);
+    const sets = completedSets(exercise).filter(s => s.w != null && (measured || Number.isInteger(+s.r)));
     if (!sets.length) return [];
     return [{
       date:log.date, exerciseId:definition?.id || identity(exercise), name:definition?.name || exercise.name || 'Exercise',
       gymId:log.gymId || 'unknown', gym:state.gyms?.find(g => g.id === log.gymId)?.name || 'Unspecified gym',
       format:progressionContext(exercise), loadMode:exercise.loadMode || definition?.loadMode || 'total',
-      repUnit:definition?.repUnit || exercise.repUnit || 'reps', sets
+      repUnit, sets
     }];
   })).sort((a,b) => a.date.localeCompare(b.date));
 }

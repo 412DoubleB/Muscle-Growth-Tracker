@@ -74,7 +74,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 
 ## Progress and offline behavior
 - Graph uses existing checked working/top sets; no additional logging. Default estimated strength uses Epley for 2–10 reps and actual logged load for a single.
-- Offer actual Weight, Reps and Working volume. Per-hand volume counts both hands. Assistance uses lower counterweight; bodyweight defaults to reps without inventing historical weight; timed/distance movements retain units.
+- Offer actual Weight, Reps and Working volume. Per-hand volume counts both hands. Assistance uses lower counterweight; bodyweight defaults to reps without inventing historical weight; timed/distance movements retain units and valid fractional measurements in logging and progress. Ordinary rep trends still require whole-number counts.
 - Exclude warm-up/ramp/back-off/drop, unchecked/incomplete, skipped/deleted/future and preserved conflict duplicates.
 - Exercise, gym, straight/superset and 30d/90d/1y/all filters; actual dates, honest first-to-latest changes including decreases, keyboard/tap details and exact table. Empty/one-session states cannot invent gains. Filters never write history.
 - Preserve responsive/PWA/offline behavior, correct project-path caches, account separation, recovery after quota problems and a refresh/update route that does not clear data.

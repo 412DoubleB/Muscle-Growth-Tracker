@@ -1515,3 +1515,33 @@ represent the synthetic merge as an owner phone-history restore. Basic calendar,
 phone-to-Mac meal/purchase/pantry/shopping and new meal-plan checks stay passed.
 Concurrent conflict recovery, full recipe/leftover edge cases, installed push
 and private conversation/photo evidence reconciliation remain pending.
+
+
+### Stage 23: measured workout counts in logging and progress
+
+Owner acceptance: after selecting a backup and canceling review, meals remained
+and workouts appeared unchanged. The basic phone preview/cancel check passes at
+that reported scope; exact full-workout comparison and real restore stay separate.
+
+The next training/progress review reproduced that valid checked fractional seconds
+and metres were discarded by the graph's whole-number reps filter. Measured
+counts now retain decimals using catalog/custom/saved unit metadata. Reps remain
+whole-number trend data. Logging fields for time/distance offer decimal input and
+accept any positive precision, with actual units in their accessible labels;
+ordinary rep inputs keep their existing whole-number presentation. Checked,
+auxiliary, date, archive and incompleteness filters stay intact. No strength or
+rep-volume estimate is invented for measured counts. Existing recorded values,
+workout recommendation rules, schema and images are unchanged.
+
+Three focused model cases and one logging-to-progress DOM flow were red before
+the fix and pass afterward. They cover fractional measured values, custom/saved
+metadata, retained exclusions, decimal field labels and read-only graph views.
+Final full checks and private preview receipt follow below.
+
+Final checks: npm test passed all 53 test files; npm run check and git diff
+--check passed. All 15 progress-model cases and the new measured logging DOM
+case pass. The dedicated logging flow and static check were repeated after
+restricting unit labels to the known seconds/metres/reps values. No unchecked
+unit text is interpolated into an input label. Checks use synthetic workouts
+and controlled dates; no real account/backend/provider requests. Actual phone
+decimal-keyboard/graph acceptance remains pending.

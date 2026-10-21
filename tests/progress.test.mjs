@@ -68,3 +68,13 @@ test('null or omitted loads are incomplete; a real zero-load bodyweight set rema
  const s=state({'2026-10-01':log('2026-10-01',[set(null,8),set(undefined,8),set(0,10)])});
  assert.equal(model(s,{metric:'reps'}).latest.set.w,0);assert.equal(model(s,{metric:'reps'}).latest.sets.length,1);
 });
+
+test('fractional seconds and metres remain visible with their measured unit without strength or rep-volume estimates',()=>{
+ for(const repUnit of ['seconds','metres']){const s=state({'2026-10-01':log('2026-10-01',[set(0,30.25)]),'2026-10-08':log('2026-10-08',[set(0,35.75)])}),before=structuredClone(s),m=buildProgress(s,[{...catalog[0],repUnit}],{period:'all'},'2026-10-18');assert.equal(m.points.length,2);assert.equal(m.latest.value,35.75);assert.equal(m.change,5.5);assert.equal(m.unit,repUnit==='seconds'?'sec':'m');assert.ok(!m.metrics.some(([id])=>['strength','volume'].includes(id)));const html=progressPanel(m);assert.match(html,/30.25/);assert.match(html,/35.75/);assert.deepEqual(s,before)}
+});
+test('measured custom exercise metadata works without a catalog entry while fractional reps stay excluded',()=>{
+ const s=state({'2026-10-01':log('2026-10-01',[set(10,20.5)])});s.customExercises=[{id:'press',name:'Synthetic distance',repUnit:'metres',loadMode:'total'}];assert.equal(buildProgress(s,[],{period:'all'},'2026-10-18').latest.value,20.5);s.customExercises=[];s.logs['2026-10-01'].exercises[0].repUnit='seconds';assert.equal(buildProgress(s,[],{period:'all'},'2026-10-18').latest.value,20.5);delete s.logs['2026-10-01'].exercises[0].repUnit;assert.equal(model(s,{metric:'reps'}).points.length,0);
+});
+test('measured trends still exclude unchecked, auxiliary, archived, deleted and future records',()=>{
+ const s=state({'2026-10-01':log('2026-10-01',[set(0,20.5),set(0,90.5,{done:false}),set(0,100.5,{role:'warmup'})]),'2026-10-01~copy':log('2026-10-01',[set(0,300.5)]),'2026-10-02':log('2026-10-02',[set(0,200.5)],{deleted:true}),'2026-10-20':log('2026-10-20',[set(0,400.5)])});const m=buildProgress(s,[{...catalog[0],repUnit:'seconds'}],{period:'all'},'2026-10-18');assert.equal(m.points.length,1);assert.equal(m.latest.value,20.5);assert.equal(m.latest.sets.length,1);
+});
