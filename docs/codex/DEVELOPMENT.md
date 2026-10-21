@@ -1454,3 +1454,32 @@ must require a new preview before saving. Basic phone-to-Mac meal edit and
 purchase/pantry/shopping sync plus calendar import remain passed. Concurrent
 conflict recovery, complete phone recipe/leftover edge cases, installed push and
 exact private conversation/photo evidence reconciliation remain pending.
+
+
+### Stage 22: review a backup before merging
+
+Owner acceptance: generating and saving a new meal plan on the phone appeared
+good with existing meals unchanged. Basic phone meal-plan acceptance passes.
+This does not establish removed-record byte auditing, stale-input phone checks
+or concurrent conflict recovery. Earlier calendar and basic cross-device meal,
+purchase, pantry and shopping checks remain passed at their reported scope.
+
+The next saved requirement is backup/recovery. File selection previously merged
+after a generic confirmation. It now prepares the existing merge in memory and
+shows backup format, record/set-row/meal/recipe/gym counts, source/current units
+and pending conflict-review count. Counts include removed/preserved records.
+Selection and Cancel do not write; Merge is explicit, checks account and exact
+workspace freshness, snapshots for recovery, then applies the reviewed result.
+Closing/Escape, account changes and later file selections invalidate the pending
+review. Invalid files fail before persistence, and failed saves restore in-memory
+state. Existing import conversion/conflict rules and original legacy bytes remain.
+No live backend, schema, account authentication, image, workout or AI changes.
+
+Final checks: npm test passed all 52 test files; npm run check and git diff
+--check passed. Five new pure checks and three DOM contract checks exercise
+summary/read-only review, explicit merge, recovery snapshot, legacy conversion,
+zeroes/unknown fields, canceled/stale/invalid imports and preserved account
+identity. The earlier short-session restoration UI check now explicitly clicks
+Merge after review, retaining all its history-preservation assertions. Existing
+account-switch-during-file-read checks also pass. Synthetic data only; no real
+backup import, paid API or backend request. Phone review remains pending.

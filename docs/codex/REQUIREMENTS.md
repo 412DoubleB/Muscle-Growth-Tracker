@@ -66,7 +66,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 ## History, sync and notifications
 - Copy legacy MGT28v6, or MGT28v5 only when v6 is absent; keep original bytes/keys and raw snapshot. Repeated migration/import must be idempotent.
 - Existing V8 data wins; conflicts retain both versions. Shared legacy data goes to the guest workspace before explicit import into a signed-in account. Never silently mix accounts.
-- JSON backup/export, recovery copies, preserve zero loads, unknown fields, unit conversions and entered history. New beta origins do not inherit live browser storage.
+- JSON backup/export, recovery copies, preserve zero loads, unknown fields, unit conversions and entered history. File imports show a read-only summary before explicit merge, reject stale/account-changed reviews and snapshot the current workspace before applying. Cancel does not import. New beta origins do not inherit live browser storage.
 - Supabase email/password account creation, confirmation, sign-in and recovery; per-account isolation; automatic active-app sync, offline queue, compare-and-swap revisions, three-way merge/conflict review and five cloud revision backups.
 - Original cloud-backup import remains read-only; no resetting original tables to make a new build work.
 - Noon reminders while closed through service-worker Push, permission/device controls, protected reminder job and completion suppression. Preserve test and calendar fallback.
