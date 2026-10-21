@@ -1076,3 +1076,12 @@ reminder alarm. Calendar applications may retain previously imported events;
 device-specific import/update behavior has not been verified here. Prior
 session-edit phone acceptance, two-device sync, installed-device push and the
 private conversation/photo-evidence gaps remain pending.
+
+Owner acceptance update: the owner reported that the exported calendar imported
+successfully on the phone, then accepted the requested event date, time, gym
+and reminder check. Basic phone-calendar export/import acceptance is now passed
+by owner report. Calendar-client/version details and repeated-import behavior
+were not independently observed. Prior session-edit phone acceptance, two-device
+sync, installed-device push and private evidence reconciliation remain pending.
+This status update changes documentation only; no app, data, backend or
+deployment action was performed.
