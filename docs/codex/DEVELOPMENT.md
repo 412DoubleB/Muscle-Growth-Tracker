@@ -1645,3 +1645,47 @@ named manifest link. The owner chose palm-up/supinated grip for the correction.
 The corrected START is a separate review candidate outside repository/preview;
 FINISH and any image replacement must wait for START approval under PHOTOS.md.
 No existing image or binding is altered by this feedback batch.
+
+
+Private preview 27 deployed successfully 2026-10-21 at 23:31:06.171292 UTC
+(7:31 PM America/New_York), deployment appgdep_6ad94b2f83a88191bef4efc71cc9bad8,
+saved version appgprj_6ad593d6f15481918ded32373b877b03~appgver_76dce4f8d33081919fb70c0da6d366f4,
+at https://menei-private-beta.crispcrown515.chatgpt.site.
+Feedback app commit bfd9a064c03f6ba8097eab89643905df0772c4a8 built into exact
+pushed Sites source b19ea940e230f801e3f6ace9ff0b82a1dc80dd5d. All 173 package
+members match the reviewed source (157 client). Fourteen expected client files
+change: app/core/nutrition/workouts/recipe-packs/styles/update-client/update plus
+six build metadata files. All 121 protected media/font assets and manifest bindings
+remain byte-identical, as do server/provider/migration files. Private inputs,
+exports, backups, generated photo candidates and runtime keys are excluded.
+The previous preview archive is retained for rollback.
+
+Local gzip: 153109004 bytes, SHA-256
+50f7e801011df49a39b1f1bdbcc8072b0a2429dcc34671661f2eeffc117295d6.
+Native uncompressed tar: 155279360 bytes, SHA-256
+f761971fb7f0c921175bef593cb341f2dae594dd1bd14b6dd372982142a6cb6a.
+Native provenance confirms exact source and 173 members; fresh access verification
+confirms unchanged owner-only audience and no other users, editors, groups,
+external visitors or automations. Runtime revision stays 5. No GitHub pushes,
+main merges, live app/backend changes, schema migration, runtime key/AI-budget
+change or scheduled-push activation occurred. Image generation for the explicit
+pose correction is separate from app AI gym-search usage and remains a candidate.
+
+The corrected palm-up cross-body START candidate was generated outside the public
+repository and preview. Its exact file identity/hash and unapproved status are
+recorded privately; no FINISH was generated. Owner START approval is pending.
+The existing START and FINISH remain unchanged in the app. No general image
+approval or full private conversation-history transfer is implied.
+
+Phone review pending: refresh /update.html, confirm Home opens and Settings build
+bfd9a064c03f. Review the first-use notice, backdrop visibility and Home session
+estimate. On a synthetic workspace, save a measurement-system change and compare
+cooking/shopping displays; saved food quantities, workouts, unknown fields and raw
+snapshots must remain. Review gym lb/kg steps and use the explicit draft preset
+only if desired, then Save. Recipe upload/paste is reachable from meals. Legal
+wording still needs professional review before public release. Remaining feedback
+features are explicitly tracked in FEEDBACK_REBUILD.md, including the selected
+completed-pair blocking rest behavior. Earlier maintenance candidate remains
+separate and unchanged on its development branch. Actual restore, concurrent sync
+recovery, phone edge cases, installed push and private evidence reconciliation
+remain distinct acceptance tasks.
