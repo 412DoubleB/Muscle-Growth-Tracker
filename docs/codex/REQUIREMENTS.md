@@ -60,6 +60,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Any later internet-sourced recipes need a documented permitted source/license or original adaptation and provenance. Do not copy a site's expressive directions/photos wholesale. Current recipe collection is original AI-authored, not represented as retrieved site recipes or kitchen-tested.
 - Allergen exclusions override preference scoring, including hidden ingredient allergens. Unknown custom ingredients require reviewed macros/allergens.
 - Daily/3-day/weekly shopping lists; compatible-unit conversions, package estimates, pantry stock/expiry, purchase-to-pantry actions, 3/5-day sufficiency.
+- Generated meal previews are read-only; explicit save keeps active meals and removed-meal records, takes a recovery snapshot, and rejects stale planning inputs. Closing a preview cancels that pending draft.
 - Ingredient reuse and prepared-leftover expiry/reservation; do not allocate stock twice or add groceries for reserved prepared meals. Already-deducted cooking ingredients stay off shopping lists. Marking leftovers eaten must validate available stock and other reservations, deduct once and preserve the consumption record when unmarked.
 
 ## History, sync and notifications

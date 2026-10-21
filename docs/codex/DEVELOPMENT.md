@@ -1395,3 +1395,29 @@ show a review message. Preserve real history and backups. Basic phone-to-Mac
 meal-edit sync and phone-calendar import stay passed; concurrent conflict
 recovery, saved-recipe/leftover phone checks, installed push and exact private
 conversation/photo evidence reconciliation remain pending.
+
+
+### Stage 21: generated meal-plan preservation and preview freshness
+
+Owner reports purchasing the day's ingredients on the phone, seeing reduced
+pantry quantities on the Mac after cooking, and an empty Mac shopping list for
+the covered day. The phone-to-Mac purchase/pantry/shopping check passes at that
+reported scope. It does not establish exact quantity auditing, double-deduction
+phone acceptance, concurrent conflict recovery or every record type.
+
+The next review found that saving a generated plan into a day containing only
+removed meals replaced the day and discarded its removed records and unknown
+fields. Meal previews also remained applicable after cancellation or changed
+planning inputs. Controlled synthetic UI checks reproduce those preservation
+and cancellation failures before the fix. This stage retains removed records
+when adding a new plan, snapshots explicit saves, validates planning context
+before applying a preview, and cancels pending meal drafts on close/Escape.
+Existing active/eaten meals, recipes, batches, pantry and workout history stay
+intact. No data migration, media, backend, key, AI or workout-rule changes.
+
+Final checks: npm test passed all 50 test files; npm run check and git diff
+--check passed. Four pure planning cases and three DOM contract cases cover
+removed records, preserved active meals, canceled/stale previews, changed
+targets/account/preferences/stock, recovery snapshots and unchanged batches.
+Tests use controlled synthetic dates/records, without provider/backend requests.
+Phone rendering and generation acceptance remain pending.
