@@ -1154,3 +1154,42 @@ history/backup copies, entered zeroes, reps/RIR, checked sets and manual assiste
 accessory rows. No real account, original backup or paid AI request was used.
 Browser/device review of this changed guidance remains pending; no new mobile
 layout, data migration, live backend or scheduling acceptance is implied.
+
+The sanitized preview package was built from app commit
+c99d549c92e1fcb85e5931f5a7377808f9882855 and pushed only to the existing Sites
+repository as 3d5015e27a876fb566ec3748668d577c5c4d1ad5. The 173-member
+archive (157 client files) exactly matches reviewed source. Compared with
+preview 19, only app.mjs, core.mjs and six preview build/version metadata files
+changed. All 121 packaged image/font assets and media-manifest.json match the
+prior preview and source. All backend/provider/migration bytes are identical;
+private inputs, account exports, backups and runtime keys are excluded.
+The 153,104,811-byte local gzip archive has SHA-256
+eaf6f82730078406e9d132385e6216b12c741722d24d02333db7e1e0d308a02e.
+Preview 19's rollback archive remains intact. The native deployment receipt
+and post-deployment access verification follow below.
+
+Private preview 20 deployed successfully on 2026-10-21 at
+13:15:53.899351 UTC. Deployment appgdep_6ad8bafdd9c881919f0691d7d8a89358
+targets saved version
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_1d3b5b67c7748191bf78b764788d5bbc
+at https://menei-private-beta.crispcrown515.chatgpt.site. Native saved-version
+provenance confirms the exact source commit and 173 files. Sites stores the
+155,258,880-byte uncompressed tar with SHA-256
+25688272da05c1a1795c4c0fc10036516662c3e9416c8e28ac7d396ef3a93bbe,
+which differs from the compressed local archive representation above.
+
+Fresh post-deployment checks confirm unchanged owner-only custom access: exactly
+one owner, no editors, groups, external visitors or automations. Runtime revision
+remains 5. No AI attempts were spent or reset, runtime settings changed, GitHub
+pushes, main merges, live-app deployments or Supabase mutations were performed.
+Scheduled push remains disabled.
+
+Owner-device review: refresh through /update.html and confirm Settings build
+c99d549c92e1. Inspect Next guidance on a workout with prior checked working
+sets: build reps within the saved range, hold without earned effort/completion,
+then use one load increment (or less assistance) when progression is earned.
+Assisted auxiliary-set weights stay manual. Applying to synthetic entries must
+retain existing loads, reps/RIR and checked sets. This phone review, prior
+session-edit acceptance, two-device sync and installed-device push remain
+pending. The previously accepted phone-calendar check stays passed. Private
+conversation/photo-evidence reconciliation remains separate and unresolved.
