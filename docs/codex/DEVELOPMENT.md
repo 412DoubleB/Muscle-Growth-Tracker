@@ -1233,3 +1233,43 @@ pure next-set cases and all nine recommendation DOM cases pass, along with
 the existing 20 historical-progression checks and account/calendar/recovery
 regressions. These checks use controlled synthetic data and a DOM contract
 harness, not a real phone or a paid/provider/backend request.
+
+The sanitized package was built from app commit
+427b795ccbd408b70ab388e18f1ee250e0666059 and pushed only to the existing Sites
+repository as 99ae129aa7914ee2c22ac27e28546a50933de4a3. Its 173 members
+(157 client files) match the reviewed source byte-for-byte. Only app.mjs,
+core.mjs and six preview build/version metadata files differ from preview 20.
+All 121 packaged image/font assets and media-manifest.json match prior source
+and preview; all backend, provider and migration files remain identical. Private
+inputs, account exports, backups and runtime keys are excluded. The previous
+preview archive remains intact for rollback. The 153,105,438-byte local gzip
+archive has SHA-256
+c62e505388ae9cebe469201d33ab6c0157006924d1df3a60449068b7b02d5787.
+The native deployment receipt and fresh access verification follow below.
+
+Private preview 21 deployed successfully on 2026-10-21 at
+13:44:28.882989 UTC. Deployment appgdep_6ad8c1b098288191a51969163444d6e7
+targets saved version
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_2c56264786c08191a7bbf8150dae07e7
+at https://menei-private-beta.crispcrown515.chatgpt.site. Saved-version
+provenance confirms the exact pushed commit and 173 archive members. Sites
+stores the uncompressed 155,269,120-byte tar with SHA-256
+9881065838a4972c2f1e6da0b194b8741b16eab2aaa27b794b63979514572dfd;
+the local gzip representation has the different hash recorded above.
+
+Fresh access verification confirms the same custom owner-only allowlist: one
+owner, no other users, editors, groups, external visitors or automations.
+Runtime revision stays 5. There were no runtime-setting, key, AI-budget,
+backend or migration changes, GitHub pushes, main merges or live-app deployments.
+Scheduled push stays disabled; all original images and record bindings remain.
+
+Phone acceptance is pending: refresh through /update.html, confirm Settings
+build 427b795ccbd4 and inspect Next set guidance after checking an actual working
+set. For a 6–10 rep range, valid 11+ reps with 3+ RIR suggest one increment
+harder, fewer than 6 reps suggest one easier increment, and other valid results
+hold. Use suggestion for set N fills only a blank next load and blank reps.
+Previously entered values must remain untouched; a checked-set reps/RIR edit
+should refresh advice without moving focus or filling another set. Real phone
+layout, prior session-edit acceptance, two-device sync, installed-device push
+and private evidence reconciliation remain outstanding; accepted calendar
+testing stays passed. No full conversation-history transfer is implied.
