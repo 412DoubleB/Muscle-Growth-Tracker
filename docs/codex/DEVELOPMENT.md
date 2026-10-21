@@ -1306,3 +1306,31 @@ Final checks: npm test passed all 46 test files; npm run check and git diff
 snapshots, deliberate switches, reservations, invalid/consumed records, legacy
 meals and the meal-edit DOM flow. Actual phone rendering remains an acceptance
 check; no real account/provider/backend calls were used for these tests.
+
+
+Private preview 22 deployed successfully on 2026-10-21 at 14:17:32.753379 UTC
+(10:17 AM America/New_York), deployment appgdep_6ad8c92301948191989d0fe4f3acda03,
+saved version appgprj_6ad593d6f15481918ded32373b877b03~appgver_ed892cabe4b4819194cf6c33b9f35f22.
+App commit eb3f45a4d437091b05c23738ab5fc3e59eef92a0 was built into Sites source
+8537973449467e7226a492d404f02f234e1b45d9. The 173-file package (157 client)
+changes only app.mjs, nutrition.mjs and six preview metadata files. All 121
+protected media/font assets, media bindings, backend/provider/migration files
+and workout recommendation code match preview 21. Private evidence, exports,
+backups and runtime keys are excluded. Previous preview archive retained.
+
+Local gzip: 153106072 bytes, SHA-256
+a868e781c36090961fe4a34f0abe81df4fcdd774b592d0ca77dbeed2b3bb0cdd.
+Native uncompressed tar: 155269120 bytes, SHA-256
+c4d52f4622203e31368efe68ab9d7f75cf0718b0e96110d7869ad43fdc077b64.
+Fresh native verification confirmed exact source, 173 files, successful deployment,
+runtime revision 5, and custom owner-only access (one owner, zero other users,
+editors, groups, external visitors or automations). No GitHub pushes, main merges,
+live deployment, backend mutation, key, budget or scheduled-push changes.
+
+Phone acceptance pending: refresh /update.html, confirm build eb3f45a4d437,
+and use a synthetic meal. Edit its time after changing or archiving its library
+recipe; the saved meal should retain its original recipe and cooking checks.
+For a prepared batch, try an edit above available servings; it should reject
+without changing the meal. Keep real history and backups intact. Prior phone
+calendar acceptance stays passed; two-device sync, installed push, broader
+session edits and exact private photo/conversation evidence remain outstanding.
