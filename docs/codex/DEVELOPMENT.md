@@ -1193,3 +1193,43 @@ retain existing loads, reps/RIR and checked sets. This phone review, prior
 session-edit acceptance, two-device sync and installed-device push remain
 pending. The previously accepted phone-calendar check stays passed. Private
 conversation/photo-evidence reconciliation remains separate and unresolved.
+
+### Stage 18: current-workout next-set guidance
+
+The owner explicitly requested recommendations that react to checked sets in
+the current workout, rather than waiting for a later workout date. Historical
+next-workout double progression remains separate and unchanged. For the latest
+checked working/top set and its immediately following unfinished working/top
+set, valid reps above the saved range with more than 2 RIR suggest one increment
+harder; reps below the range suggest one increment easier; other valid results
+hold the load. Targets stay inside the saved rep range. Missing/invalid effort
+or performance values do not drive this guidance. Assistance reverses the load
+direction; zero floors and available dumbbell limits still apply. Time/distance
+counts and auxiliary-set prescriptions are not interpreted as rep-based load
+adjustments.
+
+The gold recommendation panel names the next set and the checked set used.
+Checking a set redraws the panel; editing reps/RIR/load updates the guidance,
+button and placeholders without redrawing inputs or changing their values.
+Use suggestion for set N explicitly fills only that next blank load and any
+blank reps. An entered load is kept for manual editing, and existing reps/RIR,
+checked sets and all other future sets remain intact. Completed/skipped workouts
+do not offer current-workout adjustments. No set is checked or load applied
+automatically. No schema, exercise/media, backend, runtime-key or AI-limit
+changes are needed. The previously proposed nutrition stage stays queued.
+
+The pure feature tests were first red against the absent capability, then passed
+after implementation. Focused DOM checks passed for all nine recommendation UI
+cases, including immediate checked-set updates, reactive edits, one-set-only
+application, entered-load protection and completed-workout locks. The existing
+entered-zero preservation test now expects the next-set guidance from the latest
+checked set instead of the earlier workout's anchor; its protected-value
+assertions remain unchanged. Final full-suite results and publication receipt
+follow below. Phone acceptance of this new flow remains pending.
+
+Final validation on Node 24.19.0: npm test passed all 44 test files with no
+failures or skipped files; npm run check and git diff --check passed. All nine
+pure next-set cases and all nine recommendation DOM cases pass, along with
+the existing 20 historical-progression checks and account/calendar/recovery
+regressions. These checks use controlled synthetic data and a DOM contract
+harness, not a real phone or a paid/provider/backend request.

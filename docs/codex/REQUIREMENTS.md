@@ -36,6 +36,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Swap dates or the next matching workout; recalculate the unlogged schedule when needed. Entered/completed sessions stay protected, with complete prior revisions in History.
 - Add/swap/remove exercises; save/reuse routines and custom rotations. Retain original v6 workout exercise lists.
 - Progressive overload uses usable completed working sets, reps and RIR; increments respect equipment, per-hand loads and decreasing assistance.
+- Later clarification: checked sets in the current workout also update the next working-set suggestion. Reps above the range with more than 2 RIR suggest one increment harder; reps below the range suggest one increment easier; other valid results hold the load. Show guidance immediately, keep entered/checked sets intact, and apply only to the next blank working set on request. Earlier-workout progression remains separate.
 - Advanced sets include warm-up, ramp, top, back-off and percentage drop sets; distinct load rules and roles.
 - Optional progressive-overload supersets: auto/manual pairing, A1/A2, independent exercise histories, straight-vs-superset progression separation, rounds and appropriate rest. Pairing must not reduce the number of exercises.
 - Session tools include explicit 2-minute and 3-minute timers plus training-focus rest. Timers retain elapsed time through navigation.

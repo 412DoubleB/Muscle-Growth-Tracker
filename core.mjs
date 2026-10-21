@@ -35,6 +35,7 @@ export function makeExercise(e,{type='straight',count=e.sets||3,range=e.range||'
 export function rangeOf(s){let [lo,hi]=String(s).split('-').map(Number);if(!Number.isFinite(lo)||lo<1)return[8,12];return[lo,Number.isFinite(hi)?hi:lo]}
 const usableNumber=value=>(typeof value==='number'||typeof value==='string'&&value.trim()!=='')&&Number.isFinite(+value);
 const usableRir=set=>usableNumber(set.rir)&&+set.rir>=0&&+set.rir<=10;
+function loadIncrement(state,exercise,gym){const fallback=state.profile.units==='kg'?2.5:5,gymValue=state.profile.units==='kg'?gym?.incrementKg:gym?.increment;return +[exercise.increment,gymValue,fallback].find(value=>usableNumber(value)&&+value>0)}
 const portableEquipment=new Set(['Bodyweight','Dumbbells','Barbell','Olympic Plates','EZ Bar','Kettlebells','Trap Bar / Hex Bar','Safety Squat Bar','Bench','Flat Bench','Adjustable Bench','Decline Bench','Preacher Bench','Chest-Supported Row Bench','Squat Rack','Squat Rack / Power Rack','Half Rack','Bench-Press Rack','Step / Plyo Box','Hip Thrust Pad','Dip Station','Pull-up Bar','Dip Belt / Weighted Vest','Ab Wheel']);
 function recommendationMeta(state,exercise){return exerciseFor(exercise.exerciseId||exercise.name)||state.customExercises?.find(e=>e.id===exercise.exerciseId||!exercise.exerciseId&&norm(e.name)===norm(exercise.name))||exercise}
 function portableHistory(state,exercise){
@@ -58,8 +59,7 @@ export function lastHistory(state,exercise,date,gymId){
 }
 export function progression(state,exercise,date,gym){
  const [lo,hi]=rangeOf(exercise.range),h=lastHistory(state,exercise,date,gym?.id),meta=recommendationMeta(state,exercise),assistance=meta.loadMode==='assistance';
- const unitDefault=state.profile.units==='kg'?2.5:5,gymIncrement=state.profile.units==='kg'?gym?.incrementKg:gym?.increment;
- const step=+[exercise.increment,gymIncrement,unitDefault].find(value=>usableNumber(value)&&+value>0),snap=w=>Math.max(0,Math.round(w/step)*step);
+ const step=loadIncrement(state,exercise,gym),snap=w=>Math.max(0,Math.round(w/step)*step);
  let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
  if(h){
   const s=h.sets,weights=s.map(x=>+x.w);weight=assistance?Math.min(...weights):Math.max(...weights);
@@ -82,6 +82,29 @@ export function progression(state,exercise,date,gym){
   return {w,r:s.role==='drop'?Math.max(lo,target):target,role:s.role};
  });
  return {weight,reps:target,range:[lo,hi],reason,rows,previous:h?{date:h.log.date,sets:h.sets.map(s=>({w:+s.w,r:+s.r,rir:s.rir}))}:null};
+}
+
+// Current-workout guidance is separate from next-workout progression. It reads
+// checked working/top sets and never changes recorded or future set values.
+export function nextSetRecommendation(state,exercise,gym){
+ const primary=set=>['working','top'].includes(set.role),sets=exercise.sets||[];
+ let sourceIndex=-1;for(let i=0;i<sets.length;i++)if(sets[i].done&&primary(sets[i]))sourceIndex=i;
+ if(sourceIndex<0)return null;
+ const source=sets[sourceIndex],targetIndex=sourceIndex+1,target=sets[targetIndex];
+ if(!target||target.done||!primary(target)||!completedSets({sets:[source]}).length||!usableRir(source))return null;
+ const [lo,hi]=rangeOf(exercise.range);if(hi<lo)return null;
+ const meta=recommendationMeta(state,exercise);if(meta.repUnit&&meta.repUnit!=='reps')return null;
+ const assistance=meta.loadMode==='assistance',step=loadIncrement(state,exercise,gym),load=+source.w;
+ let weight=load,reason=assistance?'Keep the same assistance for the next set.':'Keep the same load for the next set.';
+ if(+source.r>hi&&+source.rir>2){weight=assistance?Math.max(0,load-step):load+step;reason=assistance?'Above the rep range with more than 2 RIR: reduce assistance by one increment.':'Above the rep range with more than 2 RIR: increase by one increment.'}
+ else if(+source.r<lo){weight=assistance?load+step:Math.max(0,load-step);reason=assistance?'Below the rep range: use one more increment of assistance for the next set.':'Below the rep range: back off by one increment for the next set.'}
+ const limit=usableNumber(gym?.dbMax)&&+gym.dbMax>0?+gym.dbMax*(state.profile.units==='kg'?.45359237:1):null;
+ if(meta.loadMode==='perHand'&&limit!==null&&weight>limit){weight=Math.round(limit*100)/100;reason='At this gym’s dumbbell limit. Use the available load and keep reps controlled.'}
+ if(!Number.isFinite(weight))return null;
+ const change=weight===load?'hold':(assistance?weight<load:weight>load)?'increase':'decrease';
+ if(assistance&&load===0&&weight===0&&+source.r>hi&&+source.rir>2)reason='At zero assistance. Keep the load and finish controlled reps.';
+ if(!assistance&&load===0&&weight===0&&+source.r<lo)reason='At zero added load. Adjust reps or the movement manually before the next set.';
+ return {sourceIndex,targetIndex,weight,reps:change==='hold'?Math.min(hi,Math.max(lo,+source.r)):lo,assistance,change,reason,sourceReps:+source.r,sourceRir:+source.rir};
 }
 
 function historyDates(state){const last=new Map();for(const l of Object.values(state.logs)){if(l.deleted)continue;for(const e of l.exercises||[]){const id=e.exerciseId||exerciseFor(e.name)?.id;if(id&&completedSets(e).length&&(!last.has(id)||last.get(id)<l.date))last.set(id,l.date)}}for(const p of Object.values(state.plan)){if(p.deleted)continue;for(const e of p.exercises||[]){const id=e.exerciseId;if(id&&(!last.has(id)||last.get(id)<p.date))last.set(id,p.date)}}return last}
