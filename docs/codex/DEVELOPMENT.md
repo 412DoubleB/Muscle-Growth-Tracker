@@ -1483,3 +1483,35 @@ identity. The earlier short-session restoration UI check now explicitly clicks
 Merge after review, retaining all its history-preservation assertions. Existing
 account-switch-during-file-read checks also pass. Synthetic data only; no real
 backup import, paid API or backend request. Phone review remains pending.
+
+
+Private preview 25 deployed successfully 2026-10-21 at 22:47:10.843693 UTC
+(6:47 PM America/New_York), deployment appgdep_6ad940e3f5188191b41e562136d0bcc7,
+saved version appgprj_6ad593d6f15481918ded32373b877b03~appgver_decbd9f73bf48191b7c119792085458f,
+at https://menei-private-beta.crispcrown515.chatgpt.site.
+App commit 5738deee8b9690495606c06b305568d6d722d485 built into exact pushed
+Sites source 7566f76a8179282a5f4e6ff6a46645a2f7d579f4. All 173 members match
+reviewed source byte-for-byte (157 client files). Only app.mjs, core.mjs and six
+preview metadata files differ from preview 24. All 121 protected assets, media
+bindings, nutrition module and server/provider/migration files remain identical.
+Private inputs, user backup exports, conversations and runtime keys are excluded.
+The previous preview archive is retained for rollback.
+
+Local gzip: 153107217 bytes, SHA-256
+5469195351ce527f2524a1e26f95c6167fae3b0aca34ac69b640f7f3a7fc22ce.
+Native uncompressed tar: 155269120 bytes, SHA-256
+00ff53da094383de77051c4f66f37788c67d986e263ecdb8ff76a857fc21f816.
+Native provenance confirms exact pushed source and 173 members; fresh access
+verification confirms unchanged owner-only custom audience (one owner, no other
+users, groups, editors, external visitors or automations). Runtime revision 5.
+No GitHub pushes, main merges, live app/backend changes, schema changes, keys,
+AI calls/limits or scheduled-push changes occurred.
+
+Phone review pending: refresh /update.html and confirm build 5738deee8b96.
+In Settings / Your data choose Import backup, select a backup, inspect the
+read-only summary, then Cancel. Data should remain unchanged. Explicit merge
+and recovery on the actual device remain separate acceptance checks; do not
+represent the synthetic merge as an owner phone-history restore. Basic calendar,
+phone-to-Mac meal/purchase/pantry/shopping and new meal-plan checks stay passed.
+Concurrent conflict recovery, full recipe/leftover edge cases, installed push
+and private conversation/photo evidence reconciliation remain pending.
