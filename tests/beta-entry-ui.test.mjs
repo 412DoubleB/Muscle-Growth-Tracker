@@ -84,6 +84,8 @@ test('gym search never sends an old token when account changes during token refr
 });
 
 test('verified beta member reloads and edits workouts offline even with an expired cached token',async t=>{
+ // The default current-day screen needs an original strength day with editable sets.
+ t.mock.timers.enable({apis:['Date'],now:new Date('2026-10-19T12:00:00').getTime()});
  let env=environment({owner:'account-a',ready:true});
  try{
   const saved=JSON.parse(env.rows.get('MGT_BETA_V8:account-a')),date=C.iso();
@@ -179,6 +181,8 @@ test('AI cannot run offline or after a connection drops during token refresh',as
 });
 
 test('offline beta renders preserved exercise photo bindings from CacheStorage without a network request',async t=>{
+ // Keep the current-day photo fixture on an original strength day, not a rest day.
+ t.mock.timers.enable({apis:['Date'],now:new Date('2026-10-19T12:00:00').getTime()});
  const saved=C.defaultState(),date=C.iso();saved.ownerId='account-a';saved.nutrition.setupPromptSeen=true;saved.plan[date]=C.originalDay(saved,date);
  const name=saved.plan[date].exercises[0].name,manifest={exercises:[{id:'retained-photo',name,aliases:[],startPath:'media/preserved-start.webp'}],assets:[],lookup:{[C.norm(name)]:'retained-photo'}},before=JSON.stringify(manifest);
  const env=environment({owner:'account-a',online:false,cachedManifest:manifest});try{

@@ -985,3 +985,56 @@ and inspect the preview while changing gym, date and calendar adjustment.
 Automatic shortfalls must block Save; changing fields alone must not save.
 Review manual short-workout handling and valid saves using synthetic entries.
 Two-device sync, installed-device push and private evidence gaps remain pending.
+
+### Stage 16: training-calendar display and export consistency
+
+The owner's Next instruction authorizes another bounded private-beta stage;
+phone acceptance of the prior session-edit flow has not yet been supplied.
+Controlled calendar review established that paging Program from 2027-01-04
+forward 28 days displayed February 1–28, while its download still exported
+January 4–31. The export action ignored programOffset. The monthly station dot
+was a scheduled-shift overlay, while session lists and export already used the
+saved workout gym. Preserve that distinction instead of silently changing gym
+recurrence or history.
+
+Direct synthetic calendar-file checks also established inaccurate Zone 2 text
+for interval runs, missing LOCATION metadata, alarms on completed/skipped
+workouts, bare carriage returns in imported text and long unfolded Unicode
+lines. The planned correction aligns the Program export with its visible range,
+keeps other-screen exports anchored to the selected date, displays the workout
+gym separately from the scheduled marker and serializes truthful gym/run/status
+metadata safely. Completed/skipped events retain their date and identifier
+without an alarm. No saved sessions or preferences are rewritten.
+
+Existing floating calendar-local start times, stable valid event identifiers,
+one-hour calendar blocks and 15-minute alerts for unfinished sessions remain the
+export contract. Timezone conversion and scheduled push activation are outside
+this stage; actual phone-calendar import remains a device acceptance check.
+There are no backend, provider, key, quota, image or private-evidence changes.
+
+Implemented the bounded correction above. Monthly cells and 28-day rows look up
+the saved workout gym directly; an unresolved saved gym is shown as Unassigned
+instead of borrowing the scheduled location. The station dot remains a schedule
+overlay. Program shows its exact date range and exports that range; exports from
+other screens retain the selected-date anchor. The calendar explains its local
+clock semantics. Eight synthetic exporter tests and three DOM-contract tests
+cover dates, paging, saved locations, alarms, Unicode/text safety and unchanged
+workspace, legacy and backup values. These are not browser or phone-import tests.
+
+The first full run on 2026-10-21 passed 39/41 test files. An untouched archive of
+pre-stage HEAD d4bc86d0e54d044bebe4b825b44ccf043ea4f2bb reproduced both failing
+files. In core.test.mjs the requested 2026-10-19 block used today's default
+training rotation anchor, changing whether the protected first workout occupied
+a lifting slot. The fixture now explicitly anchors training to 2026-10-19;
+the existing expectation of 15 newly generated lifting days is unchanged.
+Two beta-entry offline tests assumed today's original workout had exercises,
+which was false on 2026-10-21. Those tests now mock local noon on the known
+strength day 2026-10-19. Their edit, photo and preservation assertions remain
+unchanged. Focused reruns passed 24/24 core and 30/30 beta-entry tests. No
+generator, workout schedule or offline behavior changed to accommodate tests.
+
+Final validation on Node 24.19.0: npm test passed all 41 test files (0 failures,
+0 skipped); npm run check passed. An independent read-only runtime review found
+no remaining material issue. The UI checks use a synthetic DOM, so phone layout
+and calendar import still require owner-device acceptance. Viewing, paging and
+exporting did not write workspace/legacy/backup values or make backend requests.
