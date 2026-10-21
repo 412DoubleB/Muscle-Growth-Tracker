@@ -1545,3 +1545,36 @@ restricting unit labels to the known seconds/metres/reps values. No unchecked
 unit text is interpolated into an input label. Checks use synthetic workouts
 and controlled dates; no real account/backend/provider requests. Actual phone
 decimal-keyboard/graph acceptance remains pending.
+
+
+Private preview 26 deployed successfully 2026-10-21 at 22:58:53.387669 UTC
+(6:58 PM America/New_York), deployment appgdep_6ad943a25830819194d8444d7b348bf6,
+saved version appgprj_6ad593d6f15481918ded32373b877b03~appgver_d72889f83b208191b604b792c4919b9d,
+at https://menei-private-beta.crispcrown515.chatgpt.site.
+App commit 9e249e2fc692e16e72f640e3bdb04bf0e9e256a2 built into exact pushed
+Sites source 85b3548826baa408319bb46c996982a53e50536a. All 173 members match
+reviewed source byte-for-byte (157 client files). Only app.mjs, progress.mjs and
+six preview metadata files differ from preview 25. All 121 protected media/font
+assets, bindings, recommendation core, nutrition and server/provider/migrations
+remain identical. Private inputs, exports, backups and runtime keys are excluded.
+The previous preview archive is retained for rollback.
+
+Local gzip: 153107241 bytes, SHA-256
+943ab22096c62433731748c5ed8cede611c9d6f6f560f64465735375a4de2516.
+Native uncompressed tar: 155269120 bytes, SHA-256
+44d1cccc57e16250ea39cc2e909e6b6d17f3276bedd2680be50a1be9c531b838.
+Native provenance confirms exact pushed source and 173 members; fresh access
+verification confirms unchanged owner-only audience (one owner, no other users,
+groups, editors, external visitors or automations). Runtime revision remains 5.
+No GitHub pushes, main merges, live app/backend or schema changes, AI calls,
+key/budget changes or scheduled-push changes occurred.
+
+Phone acceptance pending: refresh /update.html and confirm build 9e249e2fc692.
+In a synthetic test workout log a Plank with 0 added load and 30.5 seconds,
+check Done, then select Plank in Explore progress. Decimal input should be
+available and the graph details should retain 30.5 seconds. A measured carry
+can similarly retain fractional metres. Do not rewrite original history to test.
+Basic calendar, meal/purchase/pantry/shopping sync, meal-plan and backup-review
+cancel checks stay passed at their reported scopes. Actual restore, concurrent
+conflict recovery, recipe/leftover edge cases, installed push and exact private
+conversation/photo evidence reconciliation remain pending.
