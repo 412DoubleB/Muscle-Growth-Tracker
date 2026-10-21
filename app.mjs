@@ -479,7 +479,7 @@ async function action(b){if(b.dataset.action?.startsWith('beta-'))return betaEnt
  case'add-meal':mealDialog();break;
  case'edit-meal':mealDialog(id);break;
  case'cook':{const m=state.meals[selectedDate]?.items.find(m=>m.id===id);showRecipe(m?.recipeSnapshot||state.recipes.find(r=>r.id===m?.recipeId),m);break}
- case'eaten':{const m=state.meals[selectedDate].items.find(m=>m.id===id);m.eaten=!m.eaten;if(m.eaten&&m.leftoverId&&!m.leftoverConsumed){const l=state.leftovers.find(l=>l.id===m.leftoverId);if(l){l.qty=Math.max(0,+l.qty-(+m.householdServings||+m.servings));l.updatedAt=C.now();m.leftoverConsumed=true}}state.meals[selectedDate].updatedAt=C.now();save({render:true});break}
+ case'eaten':{const result=N.toggleMealEaten(state,selectedDate,id),before=C.clone(state);store.snapshot();try{const day=state.meals[selectedDate];day.items[day.items.findIndex(m=>m.id===id)]=result.meal;if(result.leftover)state.leftovers[state.leftovers.findIndex(l=>l.id===result.leftover.id)]=result.leftover;day.updatedAt=C.now();save({render:true})}catch(error){state=before;throw error}break}
  case'remove-meal':if(confirm('Remove this meal?')){state.meals[selectedDate].items.find(m=>m.id===id).deleted=true;state.meals[selectedDate].updatedAt=C.now();save({render:true})}break;
  case'consume-pantry':if(confirm('Deduct cooking ingredients from available pantry stock? This can be done once per meal.')){N.consumePantry(state,selectedDate,id);save();notify('Pantry quantities updated.');b.disabled=true;b.textContent='Pantry adjusted'}break;
  case'recipe-upload':recipeUploadDialog();break;

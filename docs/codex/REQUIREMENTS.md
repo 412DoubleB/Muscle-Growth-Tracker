@@ -11,7 +11,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Preserve the current black/gold design: #000000 background, #101214 icon background, #FFB81C gold, #F5F5F2 main text. Gold buttons have black labels. Cinzel 800 wordmark/OFL is bundled; system font for controls/data.
 - Home contains Strength / Nutrition / Progress plus established logging/navigation. Decorative artwork cannot intercept input and is hidden from screen readers.
 - Keep existing GitHub Pages URL, PWA identity/scope, schema 8 and local/cloud storage identities. Features remain free and unlocked during development. Monetization is deferred.
-- Latest instruction: preservation-only handoff. Earlier permission to publish 8.0/8.1 does not authorize publishing this handoff or a new rebuild.
+- The preservation-only handoff boundary was superseded by explicit isolated-development and private Sites preview approval. Live GitHub publication, main merges and live backend changes still require separate owner approval.
 
 ## Exercise catalog, equipment and media
 - Audit every original exercise/alias, anatomical group and concrete equipment requirement. Preserve distinct machine, cable, barbell, dumbbell, seated/lying and slash-label variants.
@@ -60,7 +60,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Any later internet-sourced recipes need a documented permitted source/license or original adaptation and provenance. Do not copy a site's expressive directions/photos wholesale. Current recipe collection is original AI-authored, not represented as retrieved site recipes or kitchen-tested.
 - Allergen exclusions override preference scoring, including hidden ingredient allergens. Unknown custom ingredients require reviewed macros/allergens.
 - Daily/3-day/weekly shopping lists; compatible-unit conversions, package estimates, pantry stock/expiry, purchase-to-pantry actions, 3/5-day sufficiency.
-- Ingredient reuse and prepared-leftover expiry/reservation; do not allocate stock twice or add groceries for reserved prepared meals.
+- Ingredient reuse and prepared-leftover expiry/reservation; do not allocate stock twice or add groceries for reserved prepared meals. Already-deducted cooking ingredients stay off shopping lists. Marking leftovers eaten must validate available stock and other reservations, deduct once and preserve the consumption record when unmarked.
 
 ## History, sync and notifications
 - Copy legacy MGT28v6, or MGT28v5 only when v6 is absent; keep original bytes/keys and raw snapshot. Repeated migration/import must be idempotent.

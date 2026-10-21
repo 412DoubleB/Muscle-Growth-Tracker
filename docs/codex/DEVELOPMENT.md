@@ -1334,3 +1334,30 @@ For a prepared batch, try an edit above available servings; it should reject
 without changing the meal. Keep real history and backups intact. Prior phone
 calendar acceptance stays passed; two-device sync, installed push, broader
 session edits and exact private photo/conversation evidence remain outstanding.
+
+
+### Stage 20: pantry and prepared-meal accounting
+
+Owner acceptance: a meal edited on the phone appeared after refreshing the Mac.
+That basic phone-to-Mac meal-edit sync passes. This does not establish concurrent
+conflict recovery, every record type, saved-recipe or leftover-limit phone acceptance.
+
+The next requirements review reproduced two stock-accounting gaps with synthetic
+records: already-deducted cooking ingredients still reserved pantry stock in the
+shopping list, and marking a leftover meal eaten silently clamped insufficient
+inventory to zero. Shopping now excludes pantry-consumed meals. Raw pantry
+consumption ignores deleted meals and prepared-leftover meals. The eaten toggle
+builds a draft, validates batch availability/expiry and other reservations before
+charging stock once, and rejects impossible consumption without marking eaten.
+Unmarking eaten retains the existing consumption marker and does not invent stock.
+The UI snapshots successful changes for recovery and rolls back in-memory values
+on save failure. No migration, backend, photo, workout or AI-setting changes.
+
+Focused unit checks were red before the fix and green afterward. UI contract
+coverage checks once-only consumption and that insufficient stock produces an
+error without any persisted changes. Full checks and deployment receipt follow.
+
+Final validation: npm test passed all 48 test files; npm run check and git diff
+--check passed. Five new stock unit tests and two DOM contract cases use
+controlled synthetic meals/dates. No real provider, account or backend calls
+were made by these tests. Actual phone pantry/leftover acceptance remains pending.
