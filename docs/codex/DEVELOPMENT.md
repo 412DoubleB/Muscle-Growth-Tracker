@@ -1273,3 +1273,36 @@ should refresh advice without moving focus or filling another set. Real phone
 layout, prior session-edit acceptance, two-device sync, installed-device push
 and private evidence reconciliation remain outstanding; accepted calendar
 testing stays passed. No full conversation-history transfer is implied.
+
+
+### Stage 19: saved meal and leftover edit protection
+
+The owner accepted the strict above-range / more-than-2-RIR next-set rule;
+that behavior remains unchanged. The next queued requirements stage protects
+saved nutrition records. A controlled synthetic reproduction confirmed that a
+time-only edit replaced a saved recipe with its current library copy, and generic
+leftover edits could overbook reservations or retain a batch after changing recipe.
+
+Meal editing now builds a validated draft without mutating the workspace. Keeping
+the recipe retains the saved snapshot, even if its library entry was archived or
+removed. The form labels that saved option explicitly. A deliberate recipe change
+captures the selected current recipe and resets recipe-specific cooking checks.
+Existing unknown fields, eaten state and same-recipe cooking checks remain.
+Legacy meals without snapshots acquire one only on explicit save.
+
+Leftover edits count other reservations while excluding the meal's own reservation,
+reject excess servings, missing/expired batches and recipe switches, and preserve
+already-consumed records. Portion bounds are validated before persistence. Successful
+meal edits snapshot the workspace for recovery and roll back in-memory state on
+save failure. No schema, images, workout, backend, AI budget or key changes.
+
+Synthetic unit checks were red before the fix and pass afterward. The DOM contract
+check verifies an archived saved recipe remains selectable and a time edit preserves
+its ingredients/instructions, checks, recipes, workout history and legacy snapshots.
+Final full-suite results, package provenance and phone acceptance follow below.
+
+Final checks: npm test passed all 46 test files; npm run check and git diff
+--check passed on Node 24.19.0. The six added controlled tests cover preserved
+snapshots, deliberate switches, reservations, invalid/consumed records, legacy
+meals and the meal-edit DOM flow. Actual phone rendering remains an acceptance
+check; no real account/provider/backend calls were used for these tests.

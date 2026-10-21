@@ -5,6 +5,26 @@ import {EXTRA_FOOD_ROWS} from './foods-extra.mjs?v=8.1.1';
 export function targetsForDate(state,date){const n=state.nutrition,day=dayFor(state,date),next=dayFor(state,addDays(date,1)),training=day.kind==='strength'||day.kind==='run',nextTraining=next.kind==='strength'||next.kind==='run';const value=(a,b)=>a!==''&&a!=null&&Number.isFinite(+a)?+a:+b;return {...n,calories:value(training?n.trainingCalories:n.restCalories,n.calories),carbs:value(!training&&nextTraining&&n.preTrainingCarbs!==''&&n.preTrainingCarbs!=null?n.preTrainingCarbs:training?n.trainingCarbs:n.restCarbs,n.carbs),dayType:training?'Training day':'Recovery day',nextDayType:nextTraining?'Training tomorrow':'Recovery tomorrow'}}
 export function leftoversAvailable(state,leftover){const reserved=Object.values(state.meals).flatMap(d=>d.items||[]).filter(m=>!m.deleted&&m.leftoverId===leftover.id&&!m.leftoverConsumed).reduce((n,m)=>n+(+m.householdServings||+m.servings||1),0);return Math.max(0,+leftover.qty-reserved)}
 
+// Build an explicit meal edit without mutating the workspace or its saved recipe.
+export function editMeal(state,date,id,values){
+ const old=id?state.meals[date]?.items.find(m=>m.id===id&&!m.deleted):null;
+ if(id&&!old)throw Error('Saved meal not found. Reopen the meal before editing.');
+ if(old?.pantryConsumed||old?.leftoverConsumed)throw Error('Ingredients or leftovers were already deducted. Keep this meal record and add another meal for a different recipe or portion.');
+ const servings=+values.servings,householdServings=+values.householdServings;
+ if(!Number.isFinite(servings)||servings<0.25||servings>20||!Number.isFinite(householdServings)||householdServings<servings||householdServings>100)throw Error('Cooking servings must include a valid personal portion.');
+ const same=!!old&&values.recipeId===old.recipeId;
+ const recipe=same&&old.recipeSnapshot?old.recipeSnapshot:state.recipes.find(r=>r.id===values.recipeId&&!r.deleted);
+ if(old?.leftoverId){
+  if(!same)throw Error('A leftover meal must keep its saved recipe. Add another meal to choose a different recipe.');
+  const batch=state.leftovers.find(l=>l.id===old.leftoverId&&!l.deleted);
+  if(!batch||batch.expiry<date)throw Error('Prepared leftovers are missing or expired. Review the batch before editing.');
+  const others={...state,meals:Object.fromEntries(Object.entries(state.meals).map(([key,day])=>[key,key===date?{...day,items:day.items.filter(m=>m!==old)}:day]))};
+  if(householdServings>leftoversAvailable(others,batch))throw Error('Not enough leftover servings available for this meal.');
+ }
+ if(!recipe)throw Error('Choose an available recipe.');
+ return {...old,id:id||uid(),recipeId:values.recipeId,recipeSnapshot:clone(recipe),slot:values.slot,time:values.time||'',servings,householdServings,eaten:old?.eaten||false,doneSteps:same?clone(old.doneSteps||[]):[],...(!same?{doneIngredients:[]}: {})};
+}
+
 // Approximate label-style values per 100 g (or 100 ml for liquids).
 // Ingredient quantities in the built-in recipes are raw/dry unless explicitly cooked.
 export const FOODS=[
