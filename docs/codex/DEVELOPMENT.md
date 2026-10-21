@@ -1361,3 +1361,37 @@ Final validation: npm test passed all 48 test files; npm run check and git diff
 --check passed. Five new stock unit tests and two DOM contract cases use
 controlled synthetic meals/dates. No real provider, account or backend calls
 were made by these tests. Actual phone pantry/leftover acceptance remains pending.
+
+
+Private preview 23 deployed successfully 2026-10-21 at 22:22:24.157291 UTC
+(6:22 PM America/New_York). Deployment appgdep_6ad93b1424088191a77722fdaccb39df
+uses saved version
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_6a017b7d5874819183137da415b8b6b4
+at https://menei-private-beta.crispcrown515.chatgpt.site.
+App source fed250c17defa006c6360b744b04fec31f29483b built into pushed Sites
+commit 676e2eb99d9630793e1096d442c79c640c136e3c. All 173 packaged members match
+that reviewed source; 157 are client files. Only app.mjs, nutrition.mjs and six
+preview metadata files differ from preview 22. All 121 protected media/font
+assets, media bindings, workout recommendations and server/provider/migration
+files remain identical. Private inputs, exports, backups and keys are excluded.
+The previous preview archive is retained for rollback.
+
+Local gzip: 153106548 bytes, SHA-256
+b11965ae33b2ccfe949b0bb96a77f22bb80c3dcd4e748cd066a596e397e849e2.
+Native uncompressed tar: 155269120 bytes, SHA-256
+cd1df93421198ee632d3290cfa520e98ef6d70ff5ed49355eea3ecb148b581de.
+Native provenance confirms exact pushed source and 173 members. Fresh access
+verification confirms unchanged owner-only custom access, no other users,
+editors, groups, external visitors or automations. Runtime revision remains 5.
+No GitHub pushes, main merges, live app/backend deployments, schema changes,
+key changes, AI requests/limit changes or scheduled-push changes occurred.
+
+Phone review pending: refresh /update.html and confirm build fed250c17def.
+Using synthetic meals, deduct cooking ingredients once and check that Shopping
+does not add that cooked meal's ingredients again. With a prepared batch, mark
+its assigned meal eaten and verify one deduction; unmark/re-mark should not
+deduct twice. Insufficient or expired stock must leave the meal unchanged and
+show a review message. Preserve real history and backups. Basic phone-to-Mac
+meal-edit sync and phone-calendar import stay passed; concurrent conflict
+recovery, saved-recipe/leftover phone checks, installed push and exact private
+conversation/photo evidence reconciliation remain pending.
