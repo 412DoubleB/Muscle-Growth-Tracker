@@ -1,6 +1,6 @@
 // Standalone recovery entry: no imports, storage deletion, sign-out or unregister.
 const button=document.getElementById('loadLatest'),status=document.getElementById('status');
-const next=new URL('./',location.href);next.searchParams.set('release','8.1.1');next.hash='recipes';
+const next=new URL('./',location.href);next.searchParams.set('release','8.1.1');next.hash='';
 button.addEventListener('click',async()=>{
  button.disabled=true;status.textContent='Checking the latest app files…';
  if('serviceWorker'in navigator)try{

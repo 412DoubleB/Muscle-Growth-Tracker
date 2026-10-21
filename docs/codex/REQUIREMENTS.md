@@ -82,3 +82,11 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 ## Status discipline
 Current source is 8.1.1, not the older r7 mockup. Historical missing-feature claims must be checked against source and tests before being called regressions. Current handoff checks: 123/124 tests passed; one generator UI assertion remains unresolved; static checks passed. See VALIDATION.md. No new live backend or owner-device acceptance is implied.
 
+
+## New feedback rebuild
+
+See FEEDBACK_REBUILD.md for the staged owner requests, duplicate/existing-feature
+status and selected completed-pair timer behavior. First batch adds Home startup,
+workout duration estimates, stronger decorative visibility, measurement/food-unit
+preferences and a first-use health notice. Live publication/backend approval,
+protected image process and private continuity evidence boundaries still apply.

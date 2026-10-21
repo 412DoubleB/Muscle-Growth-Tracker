@@ -47,7 +47,7 @@ dialog .progressPanel>.row:first-child{padding-right:42px;align-items:flex-start
 
 /* Exact M/wreath above a gold Greek athlete, on a true black backdrop. */
 .shell{position:relative;z-index:1}
-.appBackdrop{position:fixed;top:85px;right:max(22px,calc((100vw - 1840px)/2));width:min(400px,42vw);height:calc(100dvh - 110px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;opacity:.12;pointer-events:none;user-select:none;z-index:0}
+.appBackdrop{position:fixed;top:85px;right:max(22px,calc((100vw - 1840px)/2));width:min(400px,42vw);height:calc(100dvh - 110px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;opacity:.20;pointer-events:none;user-select:none;z-index:0}
 .backdropEmblem{display:block;width:76%;height:auto;flex-shrink:0}
 .backdropAthlete{display:block;width:100%;height:min(68dvh,600px);object-fit:contain;min-height:0}
 .meneiHero{display:grid;grid-template-columns:minmax(0,1fr) 230px;grid-template-rows:1fr auto;gap:12px 30px;min-height:360px;padding:26px 32px;background:#000;border-color:#40351D}
@@ -63,5 +63,5 @@ dialog .progressPanel>.row:first-child{padding-right:42px;align-items:flex-start
 .heroCrest,.backdropEmblem{filter:brightness(.93) contrast(1.18)}
 @media(max-width:1100px){.meneiHero{grid-template-columns:minmax(0,1fr) 190px;gap:14px 20px;padding:24px}.heroCrest{width:150px}.heroAthlete{width:150px;height:225px}}
 @media(max-width:850px){.appBackdrop{top:75px;right:15px;width:min(360px,65vw);height:calc(100dvh - 160px)}.meneiHero{grid-template-columns:minmax(0,1fr) 180px}.heroCrest{width:150px}.heroAthlete{width:150px;height:225px}}
-@media(max-width:560px){.meneiHero{grid-template-columns:minmax(0,1fr) 124px;grid-template-rows:1fr auto;min-height:330px;gap:18px 10px;padding:22px 18px}.meneiHero h1{font-size:26px;letter-spacing:-.04em}.heroCopy .eyebrow{font-size:9px;letter-spacing:.1em}.heroCopy p{font-size:12px}.heroCopy:after{margin-top:15px;width:42px}.heroArtwork{grid-row:1;align-self:center}.heroCrest{width:124px}.heroAthlete{width:124px;height:186px}.heroDate{grid-column:1/-1}.appBackdrop{right:6px;opacity:.1}}
+@media(max-width:560px){.meneiHero{grid-template-columns:minmax(0,1fr) 124px;grid-template-rows:1fr auto;min-height:330px;gap:18px 10px;padding:22px 18px}.meneiHero h1{font-size:26px;letter-spacing:-.04em}.heroCopy .eyebrow{font-size:9px;letter-spacing:.1em}.heroCopy p{font-size:12px}.heroCopy:after{margin-top:15px;width:42px}.heroArtwork{grid-row:1;align-self:center}.heroCrest{width:124px}.heroAthlete{width:124px;height:186px}.heroDate{grid-column:1/-1}.appBackdrop{right:6px;opacity:.17}}
 @media(max-width:380px){.meneiHero{grid-template-columns:minmax(0,1fr) 108px;padding:20px 15px;gap:16px 8px}.meneiHero h1{font-size:24px}.heroCrest{width:108px}.heroAthlete{width:108px;height:162px}.heroCopy .eyebrow{font-size:8px}.heroCopy p{font-size:11px}}

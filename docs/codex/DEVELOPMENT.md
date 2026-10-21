@@ -1578,3 +1578,70 @@ Basic calendar, meal/purchase/pantry/shopping sync, meal-plan and backup-review
 cancel checks stay passed at their reported scopes. Actual restore, concurrent
 conflict recovery, recipe/leftover edge cases, installed push and exact private
 conversation/photo evidence reconciliation remain pending.
+
+
+### Stage 24: feedback foundation — Home, units, visibility and first-use notice
+
+New owner feedback is tracked as derived technical requirements in
+FEEDBACK_REBUILD.md, with repeated/already-implemented requests identified.
+The owner selected the blocking 3-minute superset rest only after all rounds
+of the exercise pair finish. That timer/audio/streak work is a later batch;
+closed-app push and health-service connections remain separate integrations.
+The completed maintenance candidate is retained on
+`dev/generator-preservation-private-beta` at 7a7b77a; this new feedback work uses
+`dev/feedback-rebuild-2026-10-21`, without modifying the live app.
+
+The first batch fixes the refresh entry that deliberately sent startup to
+#recipes. Refresh now opens Home; intentional recipe/program/library links
+still work. The automatic first-run nutrition popup is removed. A read-only
+session estimate near Home's top accounts for lifting sets/rest/transitions,
+paired rest once, running and sauna. It is labeled as an estimate with a range,
+not measured workout time. Future timing/order logging remains queued.
+
+Backdrop opacity increases from .12 to .20 on desktop and .10 to .17 on mobile,
+approximately matching the requested 3-to-5 visibility change. No image bytes,
+geometry, bindings or original exercise photos change.
+
+Settings now offers Metric / US customary. Explicit load-unit changes retain
+recovery confirmation/snapshot and preserve raw imported snapshots, blanks,
+zeroes and unknown set fields. Exercise increment choices are remembered per
+unit instead of repeatedly converting the physical size of a weight step.
+Food displays convert compatible mass/volume for cooking ingredients, pantry,
+shopping and list export, while keeping stored recipe/meal quantities intact.
+US fluid ounces are volume, ounces are mass; there is no mass/volume conversion
+without density. Nutrition macro grams remain standard. The raw recipe editor
+labels stored units to avoid silent precision changes on save.
+
+Gym steps have separate lb/kg text fields with suggested sizes, plus an explicit
+5 lb / 2.5 kg draft preset. Saved custom steps remain unchanged until edited.
+The code accepts arbitrary positive values and contains no rule deliberately
+choosing 5.1; the owner's exact saved-value origin is not established. The new
+controls avoid ambiguous number spinners. Dumbbell limits display selected load
+units while retaining the existing canonical-pound gym contract.
+
+A first-use notice covers medical limits, injury symptoms, allergens, food safety,
+AI estimates and backups. Explicit acknowledgment is saved to the profile;
+Health & safety remains accessible afterward. This is informational wording,
+not a promise of immunity or a reviewed legal waiver. Legal review remains a
+public-release task. Existing JSON recipe upload/paste is easier to discover
+from today's meals. Website/photo recipe ingestion remains separate work.
+
+Focused pure and DOM checks pass for food dimensions, preserved load/blank/zero
+conversion, per-unit increments, duration estimates, startup, notice acknowledgment
+and selected-unit cooking/gym controls. Existing refresh and UI regressions pass.
+Full validation, package audit and publication receipt follow below.
+
+Final validation: npm test passed all 56 test files; npm run check and git diff
+--check passed. New pure cases cover quantity dimensions, preserved unit changes,
+per-unit increments and session estimates; new DOM cases cover Home/notice/time
+estimate, unchanged meal quantities across systems and explicit gym controls.
+Existing gym research, preservation, account, recommendation and recovery tests
+remain passing. Real phone layout and system-change recovery remain acceptance
+checks; tests use only controlled synthetic records.
+
+Visual review of the existing cross-body START and FINISH confirms the owner's
+report: the named pair depicts a conventional preacher finish, despite the correct
+named manifest link. The owner chose palm-up/supinated grip for the correction.
+The corrected START is a separate review candidate outside repository/preview;
+FINISH and any image replacement must wait for START approval under PHOTOS.md.
+No existing image or binding is altered by this feedback batch.

@@ -1,3 +1,4 @@
+import {supersetGroups} from './supersets.mjs?v=8.1.1';
 import * as C from './core.mjs?v=8.1.1';
 import {LEGACY_PLAN} from './legacy.mjs?v=8.1.1';
 
@@ -66,4 +67,15 @@ export function editSession(state,from,{choice='keep',date=from,gymId,adjust='ke
     notices.push(...result.warnings);
   }
   return {state:next,date,notices};
+}
+
+// Planning estimate, not elapsed exercise time or a claim about an individual's pace.
+export function estimateWorkoutDuration(day,catalog=C.CATALOG){
+ const exercises=day.exercises||[],groups=supersetGroups(day),paired=new Set(groups.flatMap(g=>g.members.map(m=>m.index)));
+ const active=e=>{const meta=catalog.find(c=>c.id===e.exerciseId)||e,[lo,hi]=C.rangeOf(e.range||meta.range||'8-10'),count=(lo+hi)/2;return (e.sets||[]).reduce((n,s)=>n+(meta.repUnit==='seconds'?count:meta.repUnit==='metres'?count/.8:Math.max(15,count*3)),0)};
+ let seconds=exercises.length?300+Math.max(0,exercises.length-1)*60:0;
+ exercises.forEach((e,i)=>{seconds+=active(e);if(!paired.has(i))seconds+=(e.sets||[]).slice(0,-1).reduce((n,s)=>n+(Number.isFinite(+s.rest)&&+s.rest>0?+s.rest:120),0)});
+ for(const g of groups){const counts=g.members.map(m=>m.exercise.sets?.length||0);seconds+=Math.max(0,Math.max(...counts)-1)*g.restSeconds;}
+ const liftingMinutes=Math.ceil(seconds/60),minutes=item=>Number.isFinite(+item?.minutes)&&+item.minutes>0?+item.minutes:0,runMinutes=minutes(day.run),saunaMinutes=minutes(day.sauna),totalMinutes=liftingMinutes+runMinutes+saunaMinutes;
+ return {liftingMinutes,runMinutes,saunaMinutes,totalMinutes,lowMinutes:Math.floor(totalMinutes*.8),highMinutes:Math.ceil(totalMinutes*1.2)};
 }
