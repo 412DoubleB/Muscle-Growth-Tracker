@@ -33,10 +33,56 @@ export function scheduledGym(state,date){let rules=state.gymSchedules.filter(r=>
 export function setsFor(e,type='straight',count=e.sets||3){return Array.from({length:count},(_,i)=>({id:uid(),role:type==='top'?(i===0?'top':'backoff'):type==='drop'?(i===0?'working':'drop'):type==='ramp'?(i===count-1?'working':'ramp'):'working',w:'',r:'',rir:'',done:false,rest:type==='drop'&&i>0?15:120}))}
 export function makeExercise(e,{type='straight',count=e.sets||3,range=e.range||'8-12'}={}){return {id:uid(),exerciseId:e.id,name:e.name,range,setType:type,loadMode:e.loadMode||'total',sets:setsFor(e,type,count),notes:''}}
 export function rangeOf(s){let [lo,hi]=String(s).split('-').map(Number);if(!Number.isFinite(lo)||lo<1)return[8,12];return[lo,Number.isFinite(hi)?hi:lo]}
-export function completedSets(e){return (e.sets||[]).filter(s=>s.done&&s.r!==''&&+s.r>0&&s.w!==''&&Number.isFinite(+s.w)&&+s.w>=0&&!['warmup','drop','backoff','ramp'].includes(s.role))}
-export function lastHistory(state,exercise,date,gymId){const id=exercise.exerciseId||exerciseFor(exercise.name)?.id;return Object.values(state.logs).filter(l=>!l.deleted&&l.date<date&&l.status!=='skipped').sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt).localeCompare(String(a.updatedAt))).flatMap(l=>(l.exercises||[]).filter(e=>(e.exerciseId===id||(!id&&norm(e.name)===norm(exercise.name)))&&progressionContext(e)===progressionContext(exercise)&&(!/machine|cable|pressdown|pulldown|leg press|hack squat/i.test(e.name)||l.gymId===gymId)).map(e=>({log:l,exercise:e,sets:completedSets(e)}))).find(x=>x.sets.length)}
-export function progression(state,exercise,date,gym){const [lo,hi]=rangeOf(exercise.range),h=lastHistory(state,exercise,date,gym?.id),meta=exerciseFor(exercise.exerciseId||exercise.name)||exercise;let step=+(exercise.increment||gym?.increment||5);if(state.profile.units==='kg')step=+(exercise.increment||gym?.incrementKg||2.5);const snap=w=>Math.max(0,Math.round(w/step)*step);let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';if(h){const s=h.sets,weights=s.map(x=>+x.w);weight=Math.max(...weights);const atSame=s.filter(x=>+x.w===weight);const top=exercise.setType==='top'||exercise.setType==='ramp';const expected=top?1:exercise.sets.filter(x=>!['warmup','drop','backoff','ramp'].includes(x.role)).length;const allTop=atSame.length>=expected&&atSame.every(x=>+x.r>=hi&&x.rir!==''&&+x.rir>=1);const below=atSame.some(x=>+x.r<lo),failed=atSame.some(x=>x.rir!==''&&+x.rir===0);target=Math.min(hi,Math.min(...atSame.map(x=>+x.r))+1);if(below){weight=snap(weight*.95);target=lo;reason='A working set fell below the range. Rebuild reps with a slightly lighter load.'}else if(failed){target=Math.min(hi,Math.min(...atSame.map(x=>+x.r)));reason='Hold the load; finish clean reps with 1–2 RIR before adding weight.'}else if(allTop){weight=meta.loadMode==='assistance'?Math.max(0,weight-step):weight+step;target=lo;reason=meta.loadMode==='assistance'?'Top of range earned: reduce assistance by one increment.':'Top of range earned across the required working sets: add one increment.'}else reason='Hold the load and build reps. Incomplete sets or missing RIR do not earn a load increase.';const dbLimit=+(gym?.dbMax||0)*(state.profile.units==='kg'?.45359237:1);if(meta.loadMode==='perHand'&&dbLimit&&weight>dbLimit){weight=Math.round(dbLimit*100)/100;target=hi;reason='At this gym’s dumbbell limit. Build reps or swap the movement.'}}
- const anchor=exercise.sets.find(s=>['working','top'].includes(s.role)&&s.w!==''&&Number.isFinite(+s.w)&&+s.w>=0);const setWeight=anchor?+anchor.w:weight;const rows=exercise.sets.map((s,i)=>{let w=setWeight;if(w!==null){if(s.role==='warmup')w=snap(w*.5);else if(s.role==='ramp')w=snap(w*(.6+.4*i/Math.max(1,exercise.sets.length-1)));else if(s.role==='backoff')w=snap(w*(1-(exercise.backoffPercent||10)/100));else if(s.role==='drop')w=snap(w*Math.pow(1-(exercise.dropPercent||20)/100,i))}return {w,r:s.role==='drop'?Math.max(lo,target):target,role:s.role}});return {weight,reps:target,range:[lo,hi],reason,rows,previous:h?{date:h.log.date,sets:h.sets.map(s=>({w:+s.w,r:+s.r,rir:s.rir}))}:null}}
+const usableNumber=value=>(typeof value==='number'||typeof value==='string'&&value.trim()!=='')&&Number.isFinite(+value);
+const usableRir=set=>usableNumber(set.rir)&&+set.rir>=0&&+set.rir<=10;
+const portableEquipment=new Set(['Bodyweight','Dumbbells','Barbell','Olympic Plates','EZ Bar','Kettlebells','Trap Bar / Hex Bar','Safety Squat Bar','Bench','Flat Bench','Adjustable Bench','Decline Bench','Preacher Bench','Chest-Supported Row Bench','Squat Rack','Squat Rack / Power Rack','Half Rack','Bench-Press Rack','Step / Plyo Box','Hip Thrust Pad','Dip Station','Pull-up Bar','Dip Belt / Weighted Vest','Ab Wheel']);
+function recommendationMeta(state,exercise){return exerciseFor(exercise.exerciseId||exercise.name)||state.customExercises?.find(e=>e.id===exercise.exerciseId||!exercise.exerciseId&&norm(e.name)===norm(exercise.name))||exercise}
+function portableHistory(state,exercise){
+ const meta=recommendationMeta(state,exercise);
+ if(meta.loadMode==='assistance'||exercise.loadMode==='assistance')return false;
+ const equipment=meta.equipmentRequirements||meta.equipment;
+ // Every possible audited setup must be comparable. Unknown apparatus, mixed
+ // machine/freeweight alternatives and all resistance machines stay gym-local.
+ if(Array.isArray(equipment))return equipment.every(clause=>(Array.isArray(clause)?clause:[clause]).every(item=>portableEquipment.has(item)));
+ if(equipment!==undefined)return portableEquipment.has(equipment);
+ // Old/custom entries can lack audited requirements; retain their name fallback.
+ return !/machine|cable|pressdown|pulldown|leg press|hack squat/i.test(exercise.name);
+}
+export function completedSets(e){return (e.sets||[]).filter(s=>s.done&&usableNumber(s.r)&&+s.r>0&&usableNumber(s.w)&&+s.w>=0&&!['warmup','drop','backoff','ramp'].includes(s.role))}
+export function lastHistory(state,exercise,date,gymId){
+ const id=exercise.exerciseId||exerciseFor(exercise.name)?.id;
+ // As in Progress, preserved edit/import/conflict copies stay recoverable but
+ // only the active date-keyed workout can inform a recommendation.
+ const active=Object.entries(state.logs).filter(([key,l])=>l&&key===l.date&&/^\d{4}-\d{2}-\d{2}$/.test(l.date)&&Number.isFinite(Date.parse(l.date+'T12:00:00Z'))&&!l.deleted&&l.date<date&&l.status!=='skipped').map(([,l])=>l);
+ return active.sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt).localeCompare(String(a.updatedAt))).flatMap(l=>(l.exercises||[]).filter(e=>(e.exerciseId===id||(!id&&norm(e.name)===norm(exercise.name)))&&progressionContext(e)===progressionContext(exercise)&&(l.gymId===gymId||portableHistory(state,exercise)&&portableHistory(state,e))).map(e=>({log:l,exercise:e,sets:completedSets(e)}))).find(x=>x.sets.length)
+}
+export function progression(state,exercise,date,gym){
+ const [lo,hi]=rangeOf(exercise.range),h=lastHistory(state,exercise,date,gym?.id),meta=recommendationMeta(state,exercise),assistance=meta.loadMode==='assistance';
+ const unitDefault=state.profile.units==='kg'?2.5:5,gymIncrement=state.profile.units==='kg'?gym?.incrementKg:gym?.increment;
+ const step=+[exercise.increment,gymIncrement,unitDefault].find(value=>usableNumber(value)&&+value>0),snap=w=>Math.max(0,Math.round(w/step)*step);
+ let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
+ if(h){
+  const s=h.sets,weights=s.map(x=>+x.w);weight=assistance?Math.min(...weights):Math.max(...weights);
+  const atSame=s.filter(x=>+x.w===weight),top=exercise.setType==='top'||exercise.setType==='ramp';
+  const expected=top?1:exercise.sets.filter(x=>!['warmup','drop','backoff','ramp'].includes(x.role)).length;
+  const allTop=atSame.length>=expected&&atSame.every(x=>+x.r>=hi&&usableRir(x)&&+x.rir>=1),below=atSame.some(x=>+x.r<lo),failed=atSame.some(x=>usableRir(x)&&+x.rir===0);
+  target=Math.min(hi,Math.min(...atSame.map(x=>+x.r))+1);
+  if(below){weight=assistance?weight+step:snap(weight*.95);target=lo;reason=assistance?'A working set fell below the range. Use one more increment of assistance to rebuild reps.':'A working set fell below the range. Rebuild reps with a slightly lighter load.'}
+  else if(failed){target=Math.min(hi,Math.min(...atSame.map(x=>+x.r)));reason=assistance?'Keep the same assistance; finish clean reps with 1–2 RIR before reducing assistance.':'Hold the load; finish clean reps with 1–2 RIR before adding weight.'}
+  else if(allTop){weight=assistance?Math.max(0,weight-step):weight+step;target=lo;reason=assistance?'Top of range earned: reduce assistance by one increment.':'Top of range earned across the required working sets: add one increment.'}
+  else reason=assistance?'Keep the same assistance and build reps. Incomplete sets or missing RIR do not earn less assistance.':'Hold the load and build reps. Incomplete sets or missing RIR do not earn a load increase.';
+  const dbLimit=+(gym?.dbMax||0)*(state.profile.units==='kg'?.45359237:1);if(meta.loadMode==='perHand'&&dbLimit&&weight>dbLimit){weight=Math.round(dbLimit*100)/100;target=hi;reason='At this gym’s dumbbell limit. Build reps or swap the movement.'}
+ }
+ const manualRoles=['warmup','ramp','backoff','drop'];
+ if(assistance&&exercise.sets.some(s=>manualRoles.includes(s.role)))reason+=' Enter assistance manually for warm-up, ramp, back-off and drop sets; more assistance is easier.';
+ const anchor=exercise.sets.find(s=>['working','top'].includes(s.role)&&usableNumber(s.w)&&+s.w>=0),setWeight=anchor?+anchor.w:weight;
+ const rows=exercise.sets.map((s,i)=>{
+  let w=assistance&&manualRoles.includes(s.role)?null:setWeight;
+  if(w!==null){if(s.role==='warmup')w=snap(w*.5);else if(s.role==='ramp')w=snap(w*(.6+.4*i/Math.max(1,exercise.sets.length-1)));else if(s.role==='backoff')w=snap(w*(1-(exercise.backoffPercent||10)/100));else if(s.role==='drop')w=snap(w*Math.pow(1-(exercise.dropPercent||20)/100,i))}
+  return {w,r:s.role==='drop'?Math.max(lo,target):target,role:s.role};
+ });
+ return {weight,reps:target,range:[lo,hi],reason,rows,previous:h?{date:h.log.date,sets:h.sets.map(s=>({w:+s.w,r:+s.r,rir:s.rir}))}:null};
+}
 
 function historyDates(state){const last=new Map();for(const l of Object.values(state.logs)){if(l.deleted)continue;for(const e of l.exercises||[]){const id=e.exerciseId||exerciseFor(e.name)?.id;if(id&&completedSets(e).length&&(!last.has(id)||last.get(id)<l.date))last.set(id,l.date)}}for(const p of Object.values(state.plan)){if(p.deleted)continue;for(const e of p.exercises||[]){const id=e.exerciseId;if(id&&(!last.has(id)||last.get(id)<p.date))last.set(id,p.date)}}return last}
 function subgroup(e){if(e.group==='Legs'&&['quads','hamstrings','calves'].includes(e.subgroup))return e.subgroup;const n=(e.name+' '+e.primary+' '+e.movement).toLowerCase();if(e.group!=='Legs')return e.group;if(/calf|tibialis/.test(n))return 'calves';if(/romanian|deadlift|leg curl|hamstring|hip thrust|glute drive|hinge|nordic|glute-ham/.test(n))return 'hamstrings';return 'quads'}

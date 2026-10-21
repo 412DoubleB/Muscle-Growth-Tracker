@@ -1085,3 +1085,72 @@ were not independently observed. Prior session-edit phone acceptance, two-device
 sync, installed-device push and private evidence reconciliation remain pending.
 This status update changes documentation only; no app, data, backend or
 deployment action was performed.
+
+### Stage 17: progressive-overload recommendation guardrails
+
+The owner authorized the next rebuild stage and explicitly requested a check
+that workout recommendations follow progressive overload. Existing double
+progression builds reps within the saved exercise range, then changes load by
+one increment only after the required checked working/top sets reach the upper
+bound with usable RIR. Strength, hypertrophy and endurance retain their own
+saved set/rep/rest prescriptions; straight and superset histories stay separate.
+
+Controlled synthetic review established these recommendation issues before
+changing behavior:
+
+- Assisted Dip at 60 lb counterweight for 6 reps in an 8–10 range recommended
+  55 lb, making missed-rep work harder. More counterweight is easier. Mixed
+  assisted weights also selected the largest counterweight as the hardest set.
+- Preserved edit/restore/import copies could outrank the active date-keyed
+  workout. A saved 100 lb copy overrode an active 40 lb workout and produced
+  a 105 lb recommendation, while Progress correctly used the active record.
+- Machine history separation depended on words in exercise names. Face Pull,
+  Leg Extension, Pec Deck and assisted movements could inherit another gym's
+  machine/cable loads despite their audited equipment requirements.
+- Negative or nonfinite increments could reverse progression or produce invalid
+  suggestions. Missing/null set loads could be interpreted as completed zeroes.
+- Assisted warmup/ramp/backoff/drop percentage rows reduced counterweight,
+  making nominal easier sets harder. There is no saved machine-force or
+  historical-bodyweight model supporting such automatic percentage suggestions.
+
+The bounded correction keeps all source history and entered set values intact.
+Recommendations use active date-keyed history, validated values and increments,
+equipment-aware gym boundaries and inverse assistance difficulty. Unsupported
+assisted accessory-set weights remain manual with explicit guidance; Apply
+suggested loads skips unavailable values. Normal loaded-exercise percentage
+rules and the existing lb/kg fallback increments remain unchanged. No schema,
+exercise catalog, image binding, backend, runtime key or AI-limit change is
+part of this stage. Device acceptance and final validation are recorded below.
+
+Independent review also reproduced an Apply issue: with blank weight but entered
+6 reps and 0 RIR, applying a load suggestion silently changed reps to 8. A
+failing UI regression established this before the fix. Apply now fills suggested
+reps only when that field is empty; entered reps (including zero), RIR, checked
+sets and unknown fields remain intact. Manual assistance rows are skipped rather
+than saved as null loads. Assistance hold/failure explanations now explicitly
+describe keeping or reducing assistance instead of ambiguously adding weight.
+
+Focused engine verification passed 20 synthetic cases after the expanded red
+baseline (13 passed / 7 failed). It checks reps-first progression across all
+three training styles, effort/completion gates, lb/kg/exercise increments,
+assistance direction and mixed loads, archived history, actual session editing,
+legacy imports, gym/format boundaries, invalid values and manual auxiliary
+assistance rows. Four initial UI integration tests passed; a fifth entered-reps
+regression was then added and fixed. Full-suite validation follows below.
+
+The following nutrition stage is supported by a separate synthetic review:
+editing a saved meal currently copies the current library recipe even for a
+time-only edit; archived recipes prevent keeping the saved meal; generic edits
+can overbook leftover servings or change their recipe while retaining a
+leftover reservation. The proposed next stage preserves saved meal snapshots
+and validates leftover edits. Those nutrition paths are unchanged in Stage 17.
+
+Final validation on Node 24.19.0: npm test passed all 43 test files (0 failures,
+0 skipped), including 20 new engine cases and all five new UI integration cases;
+npm run check and git diff --check passed. Existing training/superset, progress,
+calendar, import/recovery and account tests remain passing. The synthetic DOM
+checks verify read-only recommendation display, explicit application, retained
+history/backup copies, entered zeroes, reps/RIR, checked sets and manual assisted
+accessory rows. No real account, original backup or paid AI request was used.
+Browser/device review of this changed guidance remains pending; no new mobile
+layout, data migration, live backend or scheduling acceptance is implied.
