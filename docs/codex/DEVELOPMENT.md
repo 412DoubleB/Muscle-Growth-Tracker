@@ -1038,3 +1038,41 @@ Final validation on Node 24.19.0: npm test passed all 41 test files (0 failures,
 no remaining material issue. The UI checks use a synthetic DOM, so phone layout
 and calendar import still require owner-device acceptance. Viewing, paging and
 exporting did not write workspace/legacy/backup values or make backend requests.
+
+The sanitized private-preview package was built from app commit
+bee12d760762abc9f91e639291cd69b53eef2631 and pushed only to the existing Sites
+repository as 71a1505f95df4123a7da92095374b97a5f158250. Its 173 members
+(157 client files) exactly match the reviewed source archive. Only app.mjs,
+notifications.mjs and six preview build/version metadata files differ from
+preview 18. All 121 packaged media/font assets and media-manifest.json match
+the prior preview and source; all server, provider and migration bytes are
+identical. No private input, runtime key, backup or account export is included.
+The local 153,103,595-byte gzip archive has SHA-256
+26e8e1a59d693129512b9a4a87b12a87540c08d2d2297a2af61b8f58e3afc335.
+The prior preview 18 archive remains available for rollback. Source upload
+alone is not evidence of successful deployment; the native receipt follows.
+
+Private preview 19 deployment succeeded on 2026-10-21 at
+12:35:54.579489 UTC. Native deployment
+appgdep_6ad8b194473081919749286703c5d982 targets saved version
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_65c4cce3930c8191911f5311eb8cb3f9
+at https://menei-private-beta.crispcrown515.chatgpt.site. The saved version
+confirms the exact pushed source commit and 173 archive members. Sites stores
+the uncompressed tar (155,258,880 bytes), SHA-256
+385e95f5d52bdb244fea42fb82e25feaa5145cec6d10d693ca38395fe180c755;
+that is a different representation from the local gzip hash above.
+
+Fresh post-deployment access verification confirms the same custom owner-only
+allowlist: one owner, no other users, editors, groups or external visitors, and
+no automations. Runtime revision remains 5. No runtime settings, keys, AI quota,
+scheduled push or backend configuration were changed. There was no GitHub push,
+main merge, live-app deployment or Supabase mutation.
+
+Owner acceptance: refresh through /update.html, confirm Settings build
+bee12d760762, then page the Program schedule and export its displayed range.
+Inspect dates, saved gym locations and run labels in the phone's calendar import
+preview before adding events. Completed/skipped sessions should have no new
+reminder alarm. Calendar applications may retain previously imported events;
+device-specific import/update behavior has not been verified here. Prior
+session-edit phone acceptance, two-device sync, installed-device push and the
+private conversation/photo-evidence gaps remain pending.
