@@ -1421,3 +1421,36 @@ removed records, preserved active meals, canceled/stale previews, changed
 targets/account/preferences/stock, recovery snapshots and unchanged batches.
 Tests use controlled synthetic dates/records, without provider/backend requests.
 Phone rendering and generation acceptance remain pending.
+
+
+Private preview 24 deployed successfully 2026-10-21 at 22:34:39.771331 UTC
+(6:34 PM America/New_York), deployment appgdep_6ad93df510508191af1b4897497354cb,
+saved version appgprj_6ad593d6f15481918ded32373b877b03~appgver_f1334d376640819185726f12542ee624,
+at https://menei-private-beta.crispcrown515.chatgpt.site.
+App commit 238c13b6f37951ded45871cf1abcc4f92adb6a05 built into exact pushed
+Sites source 1a3955728c59aee1b380a8447a40341a9e736652. All 173 members match
+reviewed source byte-for-byte (157 client files). Only app.mjs, nutrition.mjs
+and six preview metadata files differ from preview 23; all 121 protected assets,
+media bindings, workout recommendations and server/provider/migrations match.
+Private inputs, account exports, backups and runtime keys are excluded. The
+previous preview archive is retained for rollback.
+
+Local gzip: 153106793 bytes, SHA-256
+bfdefe6bfacfb39527c3b4d03a5d44905a673247fe1ba4f931d1e0e036d0d702.
+Native uncompressed tar: 155269120 bytes, SHA-256
+3cb8abdbc07ef4d4a9763c4e9e0669d1b8097f8123965b0c89df2427efd0fb58.
+Native provenance confirms exact pushed source and 173 members; fresh access
+verification confirms unchanged owner-only custom audience (one owner, no other
+users, groups, editors, external visitors or automations). Runtime revision 5.
+No GitHub pushes, main merges, live app/backend changes, AI requests or budget,
+key, schema or scheduled-push changes occurred.
+
+Phone review pending: refresh /update.html and confirm build 238c13b6f379.
+Choose an empty future date in Nutrition, generate a seven-day preview, close it
+and confirm no meals were saved. Generate again and save; existing active meals
+must remain intact. Removed meal records are retained in the saved workspace and
+backup; the DOM/pure checks verify this preservation. A changed planning input
+must require a new preview before saving. Basic phone-to-Mac meal edit and
+purchase/pantry/shopping sync plus calendar import remain passed. Concurrent
+conflict recovery, complete phone recipe/leftover edge cases, installed push and
+exact private conversation/photo evidence reconciliation remain pending.
