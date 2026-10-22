@@ -2,7 +2,7 @@
 
 This is the current release checklist, not authorization to publish. Historical
 setup and handoff reports remain evidence for their original stages. The latest
-private implementation is preview 45, build `b78287ac19bf`, with isolated push
+private implementation is preview 46, build `3eda3bfa219c`, with isolated push
 sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 ## Verified and accepted at the reported scope
@@ -14,11 +14,11 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
   current mascot animation provisionally. Deferred illustration work stays open.
 - Owner confirmed immediate notification display and the two-minute closed-app
   push test. Exact one-hour workout reminder delivery is still a separate check.
-- Preview 45's 70-file regression run passed 69 files; the remaining file exposed
-  an outdated storage assertion for the new audio receipt. That entire file
-  passed after explicitly checking the receipt while preserving all other
-  storage comparisons. No runtime changed between those runs. This was not a
-  single green full-suite run. See DEVELOPMENT.md for the exact receipt.
+- Preview 46 passed all 70 test files in one full regression run
+  (282007.092984 ms), after the four focused files passed. Speech is explicitly
+  disabled; rest sounds/timers, progression, account isolation and preserved
+  storage checks pass. Older preview 45 results remain in DEVELOPMENT.md as
+  historical evidence, not the current regression result.
 - Static validation passed again during this readiness review: 33 JavaScript
   modules, 53 offline entries, 162 original image identities, 113 WebP assets and
   35 retained movement pairs. No browser or physical-device result is inferred.
@@ -39,10 +39,10 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 - Prepare the exact reviewed release package, version/release notes and rollback
   reference. Compare it with the current live origin/path and PWA identities.
-- Exclude deferred spoken workout cues from the launch feature scope. Preview
-  45 contains the unaccepted implementation; gate or omit it during concrete
-  release preparation without affecting accepted rest timers/chimes. No speech
-  runtime change has been made as part of this documentation-only deferral.
+- Keep deferred spoken workout cues disabled in the launch artifact. Preview
+  46 uses a fixed false source gate; no speech instance is constructed, no voice
+  receipt is written and no speech is requested. Accepted rest timers/chimes are
+  unchanged. Retaining the helper for later work does not make speech accepted.
 - Explicitly reconcile deployment scope: Sites hosts the beta's Worker/D1 AI
   services and isolated Auth; GitHub Pages alone cannot run that backend. Current
   push is an isolated owner pilot. Copying static files must not be represented
@@ -71,5 +71,7 @@ credentials now. Exercise-photo review, including the unresolved supinated
 cross-body preacher curl, remains deferred. Further mascot refinement is also
 deferred after provisional acceptance. No quote playback is requested.
 
-This review changed documentation only. No deployment, notification, provider
-request, account data, backend setting, media asset or sharing policy changed.
+See DEVELOPMENT.md for the private preview 46 publication receipt. This step
+changed only the speech gate/copy and private build metadata. No notification,
+provider request, account data, backend setting, media asset, sharing policy or
+live deployment changed. The concrete live cutover plan is in LIVE_RELEASE_PLAN.md.

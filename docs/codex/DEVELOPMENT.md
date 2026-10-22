@@ -3116,3 +3116,39 @@ activate those backend services for live users. Do not weaken origin/identity
 checks or replace original accounts to bypass that requirement. Live scope,
 version/artifact/rollback and explicit cutover authorization remain separate.
 No backend, audience, key, AI budget or live-app change is part of this step.
+
+
+Launch-scope validation and private preview 46 receipt:
+Full npm test passed all 70 files in one run, zero failed/skipped/cancelled
+(282007.092984 ms). This supersedes the prior preview's split-run result as the
+current candidate validation. Focused four-file checks and static checks passed
+as recorded above. No runtime changes followed validation. Browser/CUA was
+unavailable; no new physical-device result is claimed.
+
+Runtime source 3eda3bfa219c3e5c54b1bc374605d348720c1e06, exact pushed Sites source
+7cc32256c7032990d9008790b62c422481bba5c4. Archive 186 files / 170 client,
+158395907 bytes, SHA-256
+23109e883c2798ff72da0478b99c824a9005b7fab09f4dfb0124f400066abe61.
+All members match the clean pushed source. Only app.mjs, workout-voice.mjs and
+six expected private build/cache metadata members changed. All 124 protected
+media/font assets, media bindings, server and migration members and every other
+existing member are byte-identical to preview 45. No files were added/removed.
+No private inputs, exports, account records or runtime keys were packaged.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_0e45db5cf01081918ab57855edb83bb3.
+Deployment appgdep_6ada9c474bac8191a29607982813d47b succeeded at
+2026-10-22 23:29:24.475185 UTC; runtime revision 6 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience remains one owner, zero additional users/editors/groups/external
+visitors/automations. Source credential cleared from session storage after use.
+No live app/backend change, public GitHub push/merge, sharing change, provider
+request, AI limit/key reset, data reset or protected-media change occurred.
+The isolated push sender remains v3 and was not invoked by this publication.
+
+Owner can load /update.html to receive build 3eda3bfa219c. Daily quotes stay
+text-only; speech is disabled and is no longer an acceptance gate. Existing
+rest timers/chimes remain unchanged. Next device checks are the future scheduled
+one-hour workout reminder and installed/offline reopening; never reset data or
+invent workout completion to force a test. LIVE_RELEASE_PLAN.md records remaining
+production backend/cutover prerequisites. Live publication remains separate.
