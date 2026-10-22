@@ -20,7 +20,7 @@ in the owner-only preview; live backend/publication approval is still separate.
 | Manual superset pairing | Existing pairing is restricted to unstarted exercises; improve selection/advice while preserving recorded structure |
 | Live next-set loads | Already implemented: above upper rep bound + more than 2 RIR increases; below lower bound decreases; explicit application protects entered values |
 | Exercise order / fatigue context | Record future set/session timing and order without inventing historical timestamps; advice is contextual, not a diagnosis |
-| Cross-body preacher illustration | Named mapping resolves to cross-body assets, but visual inspection confirms a conventional preacher finish; owner selected palm-up/supinated grip; corrected START needs review before FINISH and any replacement |
+| Cross-body preacher illustration | UNRESOLVED / DEFERRED by owner: revisit with all photos later. Palm-up/supinated grip remains selected. Corrected START candidate is unapproved; no FINISH generation or app replacement until review resumes |
 | Watches / Samsung Health / Fitbit / MapMyRun | Separate capability/OAuth/native-health integration review and per-user consent; no connection or data sharing yet |
 | Automatic set/round rest | Start ordinary rest from qualifying Done transitions; superset round cues respect paired completion |
 | Completed-pair rest overlay | Owner selected 3-minute blocking rest only AFTER ALL rounds of the pair finish; Stop must always be available; never lose/alter entered sets |
@@ -31,3 +31,10 @@ in the owner-only preview; live backend/publication approval is still separate.
 Repeated items consolidated: backdrop brightness; streaks; reminders/motivation;
 audio/rest cues; superset rest behavior. These are one feature per row, not duplicate
 implementations. Existing partial features are identified above.
+
+Photo work is deferred at the owner's request. Chat image/file delivery failed,
+so the corrected cross-body START has not received visual acceptance. Keep the
+candidate privately without treating deferral as rejection or approval. Revisit
+this correction and the broader photo review later, preserving existing approvals,
+assets and bindings. Stop the proposed preview review-page work; no review page
+has been published. Continue other rebuild work independently.

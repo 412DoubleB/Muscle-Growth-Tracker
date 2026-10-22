@@ -1689,3 +1689,13 @@ completed-pair blocking rest behavior. Earlier maintenance candidate remains
 separate and unchanged on its development branch. Actual restore, concurrent sync
 recovery, phone edge cases, installed push and private evidence reconciliation
 remain distinct acceptance tasks.
+
+### Photo review deferred — 2026-10-21 (America/New_York)
+
+Owner deferred the unresolved cross-body preacher correction and requested a later
+review of all photos after repeated image/file display failures in chat. The
+palm-up START candidate remains privately retained and unapproved. No FINISH was
+generated; existing app images, bindings and prior approvals are unchanged. The
+proposed owner-only photo review page was stopped before source edits or
+publication. Preview 27 remains deployed. This deferral does not block other
+feedback rebuild work.
