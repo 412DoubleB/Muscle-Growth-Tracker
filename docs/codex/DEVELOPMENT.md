@@ -2534,3 +2534,43 @@ single-muscle days, demanding leg exclusions, odd/large lists, idempotence,
 recorded partners, compact plans, saved/continuing routines and visible labels.
 The integrated program check includes an 84-day Supersets preview in a large
 workspace under a synthetic 5 MiB storage limit, preserving the quota fix.
+
+Validation: all 65 test files passed (259341 ms); npm run check passed (30 root
+JS modules, 50 offline entries, 162 original identities, 113 WebP assets and
+35 protected pairs). git diff --check passed. The integrated UI suite includes
+the 84-day Supersets save in a large workspace, explicit labels in preview/Home/
+calendar, protected history and the custom-block path. Existing independent
+progression, rest-timer and recovery-storage checks pass. A representative 84-day
+matching/generation measurement completed in 813 ms on this executor; that is not
+a phone performance or browser visual acceptance claim. No paid API requests.
+
+Private preview 39: app source d11af39839a50e9b5d5cde4d74290c60d2b1b073;
+exact pushed Sites source 48f8d86823d6fa5408ce51d8e5ff003864875ab5.
+Ten expected client/build member changes, no additions/removals; 183 files,
+167 client. All 124 retained media/font assets, media-manifest bindings, recovery
+codec/license and server/provider/migration members remain identical to preview 38.
+No private records, exports, backups or runtime keys included. Archives retained.
+Uploaded gzip: 158388318 bytes, SHA-256
+68b1f683a6617fe7a4bcd7fc5a6581b5bd1b20db5c3a6e5a15616ade6e84a6a9.
+Local Git tar: 160675840 bytes, SHA-256
+98148f15ae897e4229fadf3d9e0c67de7cb8d2bd8fcf550dd484d9e9bb6eba5d.
+Saved-version archive: 183 files, 160675840 bytes, SHA-256
+b1c9134d0ac47ecd46c77029426aa47f60f5c2a7e9f84b07f071f98775948850.
+Local and native archive hashes are separate; fresh source provenance matches
+the exact pushed commit above.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_627d98b53e548191af0177df0a6ab7ea.
+Deployment appgdep_6ad9ff03a20881918233db373507df29 succeeded at
+2026-10-22 08:18:24 America/New_York; runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience read: one owner, zero other users/editors/groups/external visitors
+or automations. Credentials cleared from orchestration storage. No public GitHub
+push/main merge, live app/backend, sharing, schema, AI key/budget or scheduled-push
+change. User-device acceptance of the new pairing display is pending.
+
+Owner check: /update.html (build d11af39839a5), lifting/running options → Supersets
+→ Preview → Save again. The preview must show the actual A1/A2, B1/B2 pair names;
+Home and calendar must agree. Demanding free-weight legs may remain straight,
+limited single-muscle splits show fatigue cautions, and each lift keeps its own
+progression. Already recorded sessions remain unchanged.
