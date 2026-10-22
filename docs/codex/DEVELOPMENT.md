@@ -2457,3 +2457,42 @@ the prior workspace, including large retained originals and unknown fields.
 Additional failures cover snapshot and primary writes, unchanged durable state,
 no false completion, and retrying the same open draft. No user-data export was
 accessed and no user storage was cleared for testing.
+
+Validation: all 65 test files passed (202921 ms); npm run check passed with 30
+root JS modules, 50 offline shell entries, 162 originals, 113 WebP assets and
+35 protected pairs. Vendored ESM syntax and git diff --check passed. The direct
+program UI suite also passed all five checks, including the large-workspace
+84-day preview, compressed recovery JSON export and both write-failure retries.
+Registry tarball SHA-512 matches npm's pinned package integrity. These are
+synthetic storage/DOM checks; the owner's browser retry remains the device check.
+
+Private preview 38: app source a49d16f9cc4878879bb77f65bfb8cac73ae31074;
+exact pushed Sites source 86925957cf0bb8a5b26a7305dbbe92d5c872da71.
+Four additions (recovery module, codec, license, provenance README), eight
+expected client/build changes, no removals. 183 files, 167 client. All 124
+existing media/font assets, media-manifest bindings and all server/provider/
+migration members are byte-identical to preview 37. No personal records,
+exports, backups, keys or package cache included. Previous archives retained.
+Uploaded gzip: 158386863 bytes, SHA-256
+4206f9e4a1d706b663c365e635301dcab34b8cf0cea18a42e70bdf356ba21dce.
+Local Git tar: 160675840 bytes, SHA-256
+41243f10512ff79d199db37667540dfecd3225b39b47f3166cc67be4df4271f0.
+Saved-version archive: 183 files, 160665600 bytes, SHA-256
+3854974fcda64bcdd0b8ae3a3e610b21254afc3db5e528b4635079daf039d8e0.
+Local and native archive hashes are separate; fresh source provenance matches
+the exact pushed source commit above.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_9bfb82cf8a8c8191a6efcbcf84ff1508.
+Deployment appgdep_6ad9f7fe7e5c81918a817ac921acc9ba succeeded at
+2026-10-22 07:48:27 America/New_York; runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience read: one owner, zero other users/editors/groups/external visitors
+or automations. Credentials cleared from orchestration storage. No public GitHub
+push/main merge, live app/backend, sharing, schema, AI key/budget or scheduled-push
+change. No user storage was cleared, and no user data was read in testing.
+
+Owner check: /update.html (build a49d16f9cc48), reopen lifting/running options,
+preview the program and retry Save. Existing recovery copies should still browse
+and export through Settings. If the primary write still cannot fit, the preview
+must remain open with the prior saved program intact and an Export backup action.
