@@ -2302,3 +2302,20 @@ lift/release/catch. First-use image loading should show no partial rig. Quote,
 MENEI/wreath, Skip/Escape and reduced motion remain. This is still a 2D
 illustration; rendered poses and numeric checks do not establish final anatomy
 or phone-motion acceptance.
+
+
+## Preview 35 provisional acceptance and next feedback item
+
+The owner approved the opening animation and hand correction for now. Further
+visual refinement can be revisited later. This acceptance applies only to the
+opening; the cross-body preacher illustration and broader exercise-photo review
+remain unresolved/deferred. No image bytes or bindings changed for this step.
+
+Next: manual superset pairing guidance. Any two eligible unstarted exercises may
+be chosen, including non-neighboring exercises. Muscle-overlap and compound-lift
+cautions are advisory; lower-overlap alternatives come only from eligible,
+unpaired exercises already in the workout. Metadata is heuristic, not a claim
+that a pairing is optimal for a person. No extra AI/provider requests. The draft
+updates without saving; only Save changes the pair. Entered sets and the other
+member of a started pair remain protected. Timer policy stays 60 seconds between
+sets and 3 minutes only after every set of the pair.

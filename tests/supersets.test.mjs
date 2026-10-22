@@ -86,3 +86,24 @@ test('pairing survives compact plans, routine copies, backup merge and offline a
 test('removing a pair member clears invalid pairing but keeps entered progression context',()=>{
  const paired=S.pairExercises(pairDay(),0,1,120);paired.exercises[1].sets[0].r=8;paired.exercises.splice(0,1);const cleaned=S.cleanSupersets(paired);assert.equal(S.supersetGroups(cleaned).length,0);assert.equal(cleaned.exercises[0].supersetId,undefined);assert.equal(S.progressionContext(cleaned.exercises[0]),'superset');assert.equal(cleaned.exercises[0].sets[0].r,8);
 });
+
+test('pairing advice flags shared muscles, compounds and missing metadata without blocking custom choices',()=>{
+ const make=name=>C.makeExercise(C.exerciseFor(name),{range:'8-10'});
+ const day={status:'planned',exercises:['Barbell Bench Press','Dumbbell Bench Press','Hammer Curl','Romanian Deadlift'].map(make)},before=C.clone(day);
+ const advice=S.pairingAdvice(day,0,1,meta);assert.equal(advice.allowed,true);assert.match(advice.notes.join(' '),/share a main muscle/);assert.match(advice.notes.join(' '),/Both are compound/);assert.ok(advice.alternatives.some(e=>e.index===2));assert.ok(!advice.alternatives.some(e=>e.index===3));
+ assert.match(S.pairingAdvice(day,0,3,meta).notes.join(' '),/lower-body compound/);
+ assert.equal(S.pairingAdvice(day,0,0,meta).allowed,false);
+ const custom={...day,exercises:[day.exercises[0],{name:'Unknown custom',sets:[]}]};assert.match(S.pairingAdvice(custom,0,1,()=>undefined).notes.join(' '),/information is incomplete/);
+ assert.deepEqual(day,before);const paired=S.pairExercises(day,0,1,60);assert.equal(S.supersetGroups(paired).length,1,'overlap caution is advisory');assert.deepEqual(day,before);
+});
+test('pairing choices exclude entered exercises and unentered partners of a recorded pair',()=>{
+ let day={...pairDay(),exercises:[...pairDay().exercises,...pairDay().exercises,...pairDay().exercises]};day=S.pairExercises(day,2,3,60);day.exercises[3].sets[0].w=0;
+ const before=C.clone(day);assert.match(S.pairingUnavailableReason(day,2),/partner contains entered sets/);assert.equal(S.pairingAdvice(day,0,2,meta).allowed,false);assert.throws(()=>S.pairExercises(day,0,2,60),/entered sets/);assert.deepEqual(day,before);
+ day=S.pairExercises(day,4,5,60);const advice=S.pairingAdvice(day,0,1,()=>({group:'Chest',primary:'Pectoralis major',compound:true}));assert.ok(advice.alternatives.every(e=>![2,3,4,5].includes(e.index)));
+ day.status='completed';assert.match(S.pairingUnavailableReason(day,0),/Unlock/);assert.equal(S.pairingAdvice(day,0,1,meta).allowed,false);
+});
+test('re-pairing is explicit, keeps every set/order/unknown field and releases only unstarted former partners',()=>{
+ let day={...pairDay(),exercises:[...pairDay().exercises,...pairDay().exercises]},n=0;for(const e of day.exercises){e.ownerNote='retain-'+n++;for(const s of e.sets)s.unknown={retain:true}}
+ day=S.pairExercises(S.pairExercises(day,0,1,60),2,3,60);const before=C.clone(day);assert.match(S.pairingAdvice(day,1,3,meta).notes.join(' '),/replaces their existing unstarted pairs/);assert.deepEqual(day,before);
+ const after=S.pairExercises(day,1,3,60);assert.deepEqual(after.exercises.map(e=>e.sets),before.exercises.map(e=>e.sets));assert.deepEqual(after.exercises.map(e=>e.ownerNote),before.exercises.map(e=>e.ownerNote));assert.deepEqual(after.exercises.map(e=>e.exerciseId),before.exercises.map(e=>e.exerciseId));assert.equal(after.exercises[0].supersetId,undefined);assert.equal(after.exercises[2].supersetId,undefined);assert.deepEqual(S.supersetGroups(after)[0].members.map(m=>m.index),[1,3]);assert.deepEqual(day,before);
+});
