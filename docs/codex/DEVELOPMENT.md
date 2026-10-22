@@ -1699,3 +1699,39 @@ generated; existing app images, bindings and prior approvals are unchanged. The
 proposed owner-only photo review page was stopped before source edits or
 publication. Preview 27 remains deployed. This deferral does not block other
 feedback rebuild work.
+
+## Stage 25 — automatic rest and completed-superset recovery
+
+Added a pure completion transition and device-session timer controller. A newly
+checked valid set in today's workout starts its prescribed rest only after the
+workout save succeeds. Paired working sets wait until both exercises finish the
+same round. Finishing all working sets of both exercises, including unmatched
+extras, starts the owner's selected 180-second blocking rest screen. Warm-up,
+ramp, back-off and drop rows keep their separate prescribed rest. Duplicate
+checks, redraw, sync, unchecks, failed saves and edits to past dates do not start
+timers. No recorded loads, reps, RIR or exercise structure are rewritten.
+
+The rest tray stays visible across app tabs. Elapsed-time countdowns catch up
+after sleep and same-account reload. Pair rest stays on screen at zero until Stop;
+Stop is always available and Escape also stops it. The overlay blocks background
+entry and ordinary app actions. Account changes pause the UI; each account's
+transient timer resumes only in that account. Timer/session keys and device-local
+Auto rest and Sound preferences are separate from workout data and cloud records.
+The existing numeric timer-end key remains compatible with manual controls;
+only scoped metadata resumes signed-in timers. Legacy history keys and raw
+imported snapshots remain intact.
+
+Sound is initially off. An explicit sound toggle enables a quiet two-tone
+completion cue; AudioContext is created/resumed only from user interaction. Mute
+or Stop silences active tones. Visible completion remains available without audio.
+This is in-app timer audio, not closed-app push; phone/background audio delivery
+still depends on browser/OS behavior. No provider call, new permission prompt,
+downloaded media or backend activation is involved. The session planning estimate
+now includes the final 3-minute recovery for each nonempty pair.
+
+Synthetic controller and UI checks cover ordinary and unequal paired sets,
+round/final distinction, failed saves, past-date edits, account isolation,
+reload/sleep, duplicate completion suppression, blocked edits, manual Stop,
+explicit audio opt-in and history preservation. Real phone audio/focus/layout and
+installed/offline acceptance remain device checks. All existing artwork remains
+untouched; unresolved photo review stays deferred.

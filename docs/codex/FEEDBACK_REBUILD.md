@@ -16,14 +16,14 @@ in the owner-only preview; live backend/publication approval is still separate.
 | Day streak / popup | One combined streak feature, grounded in actual canonical completed sessions; healthy rest-day behavior needs a clear definition |
 | Today workout/nutrition secondary screens | Home entry points and secondary overlays, with daily motivation |
 | One-hour upcoming-workout push | Add workout time/timezone and review isolated test scheduler; closed-app push requires permission/backend/device validation; remains disabled until separately activated |
-| Muteable audio / motivation | User-controlled audio, timer cues and accessible silent alternatives; never auto-play before user interaction |
+| Muteable audio / motivation | Rest completion cue implemented with explicit Sound toggle, initially muted; no audio before a user gesture. Broader spoken/motivational audio remains queued |
 | Manual superset pairing | Existing pairing is restricted to unstarted exercises; improve selection/advice while preserving recorded structure |
 | Live next-set loads | Already implemented: above upper rep bound + more than 2 RIR increases; below lower bound decreases; explicit application protects entered values |
 | Exercise order / fatigue context | Record future set/session timing and order without inventing historical timestamps; advice is contextual, not a diagnosis |
 | Cross-body preacher illustration | UNRESOLVED / DEFERRED by owner: revisit with all photos later. Palm-up/supinated grip remains selected. Corrected START candidate is unapproved; no FINISH generation or app replacement until review resumes |
 | Watches / Samsung Health / Fitbit / MapMyRun | Separate capability/OAuth/native-health integration review and per-user consent; no connection or data sharing yet |
-| Automatic set/round rest | Start ordinary rest from qualifying Done transitions; superset round cues respect paired completion |
-| Completed-pair rest overlay | Owner selected 3-minute blocking rest only AFTER ALL rounds of the pair finish; Stop must always be available; never lose/alter entered sets |
+| Automatic set/round rest | Implemented for newly checked valid sets in today's workout after successful save; paired working sets wait for both rows of a round. Auto rest can be disabled. Historical edits, redraw, duplicate checks and sync do not start rest |
+| Completed-pair rest overlay | Implemented: 3-minute blocking rest only AFTER ALL working sets of the pair finish, including unmatched extras. Stop (or Escape) always dismisses; at zero it remains until manually stopped. Entered sets stay saved |
 | Launch animation / quote | Animate existing decorative assets with reduced-motion support; dismissible, no input interception after intro |
 | Estimated workout duration | Show near Home top, label as estimate, account for sets/rest/supersets/run/sauna without writing history |
 | Home on startup | Fix refresh destination from recipes to Home; retain intentional recipe links |
