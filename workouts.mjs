@@ -1,3 +1,4 @@
+import {withoutCompletionTiming} from './session-order.mjs?v=8.1.1';
 import {supersetGroups,autoSupersets} from './supersets.mjs?v=8.1.1';
 import * as C from './core.mjs?v=8.1.1';
 import {LEGACY_PLAN} from './legacy.mjs?v=8.1.1';
@@ -24,7 +25,7 @@ export function workoutChoices(state){
   for(const [date,d] of Object.entries(state.plan||{}))if(!d.deleted&&!seen.has(d.title)){seen.add(d.title);out.push({id:'plan:'+date,title:d.title,group:'Generated workouts'})}
   return out;
 }
-function fresh(day,date,gymId){const d=C.clone(day);delete d.deleted;delete d.status;delete d.completedAt;return C.touch({...d,id:date,date,gymId,exercises:(d.exercises||[]).map(e=>({...e,id:C.uid(),sets:e.sets.map(s=>({...s,id:C.uid(),w:'',r:'',rir:'',done:false}))})),run:d.run?{...d.run,done:false}:null,sauna:d.sauna?{...d.sauna,done:false}:null})}
+function fresh(day,date,gymId){const d=C.clone(day);delete d.deleted;delete d.status;delete d.completedAt;return C.touch({...d,id:date,date,gymId,exercises:(d.exercises||[]).map(e=>({...e,id:C.uid(),sets:e.sets.map(s=>({...withoutCompletionTiming(s),id:C.uid(),w:'',r:'',rir:'',done:false}))})),run:d.run?{...d.run,done:false}:null,sauna:d.sauna?{...d.sauna,done:false}:null})}
 export function workoutFromChoice(state,choice,date,gymId){
   if(choice==='keep')return C.clone(C.dayFor(state,date));
   if(choice==='auto'){

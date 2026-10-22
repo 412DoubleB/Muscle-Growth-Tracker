@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../core.mjs';
+import * as T from '../session-order.mjs';
 const date='2027-01-04';
 function environment(){
  const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','clearTimeout','fetch','AudioContext'];
@@ -38,7 +39,7 @@ test('Done starts ordinary rest without changing loads/history; duplicate Done, 
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
   await import('../app.mjs?rest-ui=ordinary');assert.equal(env.timer,null);assert.equal(env.audio.contexts,0);const before=env.state;
   await env.check(2,0);assert.equal(env.timer.kind,'set');assert.equal(env.timer.end-Date.now(),60000);assert.equal(env.element('restTray').hidden,false);assert.equal(env.element('restDialog').open,false);
-  assert.deepEqual(env.state.logs['2026-12-01'],before.logs['2026-12-01']);assert.deepEqual(env.state.legacySnapshots,before.legacySnapshots);assert.deepEqual({...env.state.logs[date].exercises[2].sets[0],done:false},before.logs[date].exercises[2].sets[0]);
+  assert.deepEqual(env.state.logs['2026-12-01'],before.logs['2026-12-01']);assert.deepEqual(env.state.legacySnapshots,before.legacySnapshots);assert.deepEqual({...T.withoutCompletionTiming(env.state.logs[date].exercises[2].sets[0]),done:false},before.logs[date].exercises[2].sets[0]);assert.match(env.state.logs[date].exercises[2].sets[0].checkedAt,/^2027-01-04T/);
   assert.equal(env.audio.contexts,1);await env.click('timer-sound');assert.equal(JSON.parse(env.rows.get('MGT_BETA_REST_SETTINGS:guest')).sound,false);
   const end=env.timer.end;t.mock.timers.tick(10000);await env.check(2,0);assert.equal(env.timer.end,end);await env.change(2,0,'done',false);assert.equal(env.timer.end,end);
   await env.click('view',{view:'nutrition'});t.mock.timers.tick(90000);env.poll();assert.equal(env.timer,null);assert.equal(env.element('restTray').hidden,true);assert.match(env.element('toast').textContent,/Rest complete/);assert.equal(env.audio.starts,0);assert.equal(env.rows.get('MGT28v6'),'{"untouched":true}');
@@ -72,5 +73,19 @@ test('finishing a non-superset exercise opens recovery, blocks edits and dismiss
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
   await import('../app.mjs?rest-ui=exercise');await env.check(2,0);assert.equal(env.timer.end-Date.now(),60000);await env.check(2,1);assert.equal(env.timer.kind,'exercise');assert.equal(env.timer.end-Date.now(),180000);assert.equal(env.element('restDialog').open,true);assert.equal(env.element('restDialogEyebrow').textContent,'Exercise complete');
   const saved=env.state;await env.change(2,0,'w',999);assert.deepEqual(env.state,saved);t.mock.timers.tick(179500);env.poll();assert.equal(env.element('restDialog').open,true);t.mock.timers.tick(500);env.poll();assert.equal(env.element('restDialog').open,false);assert.equal(env.timer,null);assert.equal(env.audio.starts,8);assert.deepEqual(env.state,saved);assert.equal(env.session.get('MGT_BETA_TIMER'),undefined);
+ }finally{env.restore()}
+});
+
+test('working-set order follows real Done checks and is read-only; duplicate checks, backdated rows and failed saves do not invent timing',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
+  await import('../app.mjs?rest-ui=recorded-order');const before=env.state;
+  await env.check(2,0);const first=env.state.logs[date].exercises[2].sets[0].checkedAt;
+  t.mock.timers.tick(90000);await env.check(0,0);assert.ok(Date.parse(env.state.logs[date].exercises[0].sets[0].checkedAt)>Date.parse(first));
+  t.mock.timers.tick(90000);await env.check(2,0);assert.equal(env.state.logs[date].exercises[2].sets[0].checkedAt,first);
+  assert.match(env.element('app').innerHTML,/Recorded working-set order: 2/);assert.match(env.element('app').innerHTML,/1 timed working set/);
+  const saved=env.state;await env.click('workout-order');const body=env.element('modalBody').innerHTML;assert.match(body,/Recorded workout order/);assert.ok(body.indexOf('1 · Romanian Deadlift')<body.indexOf('2 · Dumbbell Bench Press'));assert.match(body,/All timed set checks/);assert.deepEqual(env.state,saved);await env.click('close-modal');
+  await env.click('open-date',{date:'2026-12-01'});await env.check(2,0);assert.equal(env.state.logs['2026-12-01'].exercises[2].sets[0].checkedAt,undefined);await env.click('workout-order');assert.match(env.element('modalBody').innerHTML,/unknown timing/);await env.click('close-modal');
+  await env.click('open-date',{date});const prior=env.state;env.failSave();await env.check(1,0);assert.deepEqual(env.state,prior);assert.equal(env.state.logs[date].exercises[1].sets[0].checkedAt,undefined);
+  assert.deepEqual(env.state.legacySnapshots,before.legacySnapshots);assert.equal(env.rows.get('MGT28v6'),'{"untouched":true}');
  }finally{env.restore()}
 });

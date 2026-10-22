@@ -16,7 +16,7 @@ export function pairingUnavailableReason(day,index){
   if(e.supersetId&&(day.exercises||[]).some(other=>other.supersetId===e.supersetId&&entered(other)))return 'Its superset partner contains entered sets; this pair stays protected.';
   return '';
 }
-const muscleFamilies=text=>new Set([
+export const muscleFamilies=text=>new Set([
   ['chest',/pector|\bchest\b/i],['back',/latissimus|rhomboid|trapezius|\bback\b/i],
   ['shoulder',/deltoid|supraspinatus|\bshoulder/i],['biceps',/biceps|brachialis|brachioradialis/i],
   ['triceps',/triceps/i],['quads',/quadriceps|\bquad/i],['hamstrings',/hamstring/i],

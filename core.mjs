@@ -1,3 +1,4 @@
+import {withoutCompletionTiming} from './session-order.mjs?v=8.1.1';
 import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.1.1';
 export {readRecoverySnapshots} from './recovery.mjs?v=8.1.1';
 import {splitSession,trainingStyle,runningSession} from './training.mjs?v=8.1.1';
@@ -209,7 +210,7 @@ export function rollingDay(state,date){
    const order=state.training.routineOrder||state.routines.filter(r=>!r.deleted).map(r=>r.id),routines=order.map(id=>state.routines.find(r=>r.id===id&&!r.deleted)).filter(Boolean);
    if(routines.length)for(const d of result.days)if(d.kind==='strength'){
     const r=routines[((d.sessionNumber-1)%routines.length+routines.length)%routines.length];d.title=r.name;
-    d.exercises=clone(r.exercises).map(e=>({...e,id:uid(),sets:e.sets.map(s=>({...s,id:uid(),w:'',r:'',rir:'',done:false}))}));d.notes=[];
+    d.exercises=clone(r.exercises).map(e=>({...e,id:uid(),sets:e.sets.map(s=>({...withoutCompletionTiming(s),id:uid(),w:'',r:'',rir:'',done:false}))}));d.notes=[];
     for(const e of d.exercises){const missing=missingEquipment(exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),state.gyms.find(g=>g.id===d.gymId));if(missing.length)d.notes.push('Equipment to check: '+e.name+' — '+missing.join(', '))}
     if(training.supersetMode==='supersets')Object.assign(d,autoSupersets(d,e=>exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),+training.restSeconds||60));
    }

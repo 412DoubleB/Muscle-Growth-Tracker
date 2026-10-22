@@ -2641,3 +2641,49 @@ and retry Save this program. Confirm the saved program appears with A1/A2 pairs
 and that prior workout history remains available. If it still cannot fit, the
 existing failure path retains the draft and prior saved workspace; do not clear
 site data, history or other accounts to force a save.
+
+Owner accepted the preview 40 save behavior. Continue the feedback rebuild;
+storage acceptance is no longer the active blocker.
+
+## Recorded workout order and fatigue context — isolated private preview
+
+Add optional checkedAt metadata on new valid Done transitions in today's
+workout, preserving the device's date/time and UTC offset. Duplicate Done,
+ordinary field edits, view/redraw and sync do not stamp new times. Backdated and
+future-date logging stays untimed. Unchecking retains the inactive check time;
+an explicit recheck today records the new check time. Failed saves restore the
+prior complete log, including metadata, before starting any timer.
+
+Home's strength overview has a Workout order button. Its read-only timeline
+shows all timed checks, including interleaved supersets. Working/top first-check
+times determine recorded exercise order; earlier timed working sets are counted
+separately from warm-up/ramp/back-off/drop work. Unknown times and partial order
+are labeled. Equal timestamps are ties, without inventing an order. Device check
+times do not measure actual exercise start/finish or session duration, and clock
+accuracy is not guaranteed.
+
+Exercise cards show recorded placement, preceding working sets and catalog-based
+primary/assisting muscle overlap. Prior comparison uses the existing canonical,
+gym/portable and straight/superset-compatible history selector. Different order
+is noted only with complete, untied timing on both sides. No automatic reorder,
+load reduction or fatigue diagnosis is introduced; reps/RIR progression remains
+unchanged. No old logs are backfilled or migrated.
+
+New routine saves, custom blocks, continuing calendars and fresh workout choices
+omit check times from new blank sets. Their original saved histories and source
+routines retain every field. Timing uses existing schema-8 optional-field and
+export/sync preservation; no backend changes or new keys. The new pure module
+is included in offline precaching. Photos remain deferred.
+
+Focused checks pass for local check transitions, duplicates, invalid/backdated
+rows, offsets, equal times, invalid calendars, partial history, interleaved order,
+muscle context, unchanged load recommendations and clean routine reuse. The app
+integration check covers Home/modal display, read-only viewing, prior/legacy
+preservation and failed-save rollback. Existing rest, workout recommendations,
+program-save and session-edit suites passed in the focused run.
+
+Validation: all 67 test files passed (391118 ms). npm run check passed with
+31 root JS modules, 51 offline entries, 162 original identities, 113 WebP assets
+and 35 protected pairs. git diff --check passed. Checks use synthetic data and a
+DOM contract harness; real phone/browser visual acceptance is still pending.
+No paid requests, backend mutations or scheduled-push activation were performed.
