@@ -25,20 +25,13 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 ## Next device checks
 
-1. Load the latest private build from
-   https://menei-private-beta.crispcrown515.chatgpt.site/update.html.
-   On a real current-day workout, with sound unmuted, check the first valid saved
-   set. Expect the brief first-set voice cue. Existing started workouts do not
-   replay it. Complete only an actually finished workout to check its completion
-   cue; never fabricate workout history for testing. Mute must stop speech and
-   rest sounds. Daily quotes remain text-only.
-2. On an upcoming uncompleted lifting/running day, save a usual workout start
+1. On an upcoming uncompleted lifting/running day, save a usual workout start
    time and time zone far enough ahead that the one-hour reminder is still in
    the future. Confirm sync and device push opt-in, then close the app. Check the
    notification around one hour before that start, allowing the minute scheduler
    and platform delivery delay. Do not change completed/skipped history to force
    a reminder or reset delivery slots. A start time is not an alert time.
-3. Check installed/offline reopening and a normal update on the phone without
+2. Check installed/offline reopening and a normal update on the phone without
    clearing storage. Full restore and concurrent-conflict recovery require a
    separate test account/origin; do not experiment on the owner's only history.
 
@@ -46,6 +39,10 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 - Prepare the exact reviewed release package, version/release notes and rollback
   reference. Compare it with the current live origin/path and PWA identities.
+- Exclude deferred spoken workout cues from the launch feature scope. Preview
+  45 contains the unaccepted implementation; gate or omit it during concrete
+  release preparation without affecting accepted rest timers/chimes. No speech
+  runtime change has been made as part of this documentation-only deferral.
 - Explicitly reconcile deployment scope: Sites hosts the beta's Worker/D1 AI
   services and isolated Auth; GitHub Pages alone cannot run that backend. Current
   push is an isolated owner pilot. Copying static files must not be represented
@@ -60,6 +57,13 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
   private-preview approval does not publish the live app.
 
 ## Explicitly deferred
+
+Spoken workout encouragement is unresolved and deferred to post-launch by the
+owner. The first checked set produced no speech on the phone; rest timing still
+worked. Do not treat the synthetic speech checks as physical acceptance. Stop
+voice debugging and the proposed Test workout voice button; no such button was
+implemented or deployed. Daily quotes remain text-only. Speech acceptance does
+not block this release; existing rest timers/chimes stay in scope.
 
 Wearable/fitness-service sync is a future post-launch upgrade and is not a
 current release dependency. Do not request health permissions or create provider

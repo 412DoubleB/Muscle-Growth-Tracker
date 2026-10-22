@@ -3062,3 +3062,27 @@ choice, actual device, import-vs-live scope and native packaging remain undecide
 No app, backend, runtime, audience, media, credential or health-data change was
 made. Private preview 45 and push sender version 3 remain current. This update
 only records the post-launch deferral; no deployment or runtime test is needed.
+
+## Spoken workout cues — unresolved, deferred to post-launch
+
+The owner reported no speech after the first checked set; only the rest timer
+ran. This was explicitly the first checked set, so an already-started workout
+cannot explain the report. The physical speech failure is unresolved; no device
+root cause has been established. Inspection found that speech-engine errors
+were not surfaced, but that alone does not establish why the phone was silent.
+
+Before any runtime edits, the owner deferred this work to post-launch. Stop the
+proposed Test workout voice button, error-display work and further debugging.
+No proposed control or speech fix was implemented, tested or deployed. Preview
+45 remains deployed with its existing unaccepted speech implementation; exclude
+that optional feature during concrete live-release preparation. Existing rest
+timers, four-chime audio and mute controls remain in scope and unchanged. Daily
+quotes remain text-only. Wearable integration is separately deferred.
+
+Updated FEEDBACK_REBUILD.md and RELEASE_READINESS.md to remove speech acceptance
+from the current launch checklist while retaining the unresolved result. Fresh
+Sites metadata confirmed preview 45 and the unchanged owner-only audience. A
+short-lived source credential was obtained for the investigation but was not
+used or persisted, and was cleared from session storage when work stopped.
+No app files, deployment, backend, sharing, media, workout data or settings were
+changed. Documentation-only deferral; no runtime rerun is needed.
