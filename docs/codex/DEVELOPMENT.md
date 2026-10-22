@@ -1888,3 +1888,46 @@ completion order, unequal pairs, auxiliary sets, automatic exercise/pair popup
 dismissal, manual early stop, reload/sleep expiry, one audible sequence, preserved
 entered fields/legacy snapshots and the matching duration estimate. Actual phone
 rendering, audio and focus still need device acceptance.
+
+### Stage 27 validation and private preview 30
+
+Final `npm test` passed all 58 files with zero failures/skips (216552 ms).
+`npm run check` passed (27 JS, 43 shell members, 162 original image identities,
+113 WebP assets, 35 protected pairs); `git diff --check` passed. The first broad
+run identified two UI contract updates: the old superset display assertion still
+expected its saved 180-second value instead of the new 60-second active policy,
+and measured single-set logging now opens recovery before another exercise.
+Tests now assert the new policy and dismiss that screen before continuing, while
+retaining raw metadata, decimal-value and read-only history assertions. Focused
+regressions and the final complete run passed. No physical-device/browser render
+or audio delivery is claimed by these checks.
+
+App implementation 8dc92b2a51615c00cde09653614f18cc8cec580e plus UI regression
+commit 74658ed2cbba0dc2d69e97d1e536c7b58f6b0121 was packaged in exact pushed
+Sites source 4b5edf5c32bfc8446859667d177068a4b4258d49. The package contains
+174 members (158 client), adding/removing none. Nine expected client/UI/build
+members changed. All other members remain byte-identical to preview 29, including
+121 protected media/font assets, image-manifest bindings, server/provider code
+and migrations. Private inputs, backups, exports, runtime keys and unapproved
+photo candidates remain excluded. Previous preview archives are retained.
+
+Native private deployment appgdep_6ad96d3b612081918f7b601b9338f79b succeeded at
+2026-10-21 21:56:21 America/New_York. Saved version 30:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_c0e0b8a534588191a762d8674cf38d79.
+URL: https://menei-private-beta.crispcrown515.chatgpt.site.
+Local gzip: 153113717 bytes, SHA-256
+19db90ea9777bc9bb1c596d0dc8c82bb2f351f48de8eb754a26dfedc8d86bb36.
+Native tar: 155289600 bytes, SHA-256
+4a53f1ce88eb10fc3e2e538cff059cda204aa4badc2a73e15abf1749498684f1.
+Native provenance confirms exact source and 174 members. Fresh access verification
+confirms owner-only audience: one owner and zero other users, editors, groups,
+external visitors or automations. Runtime revision stays 5. No GitHub push, main
+merge, live app/backend change, schema migration, key/AI-budget change or scheduled
+push activation occurred. Deferred photo work remains untouched.
+
+Phone acceptance: load /update.html and confirm Settings preview build
+74658ed2cbba. In a synthetic workout, checking an unfinished individual set should
+start 60 seconds. Checking the last unfinished set of an exercise or whole pair
+should instead open 180-second recovery. The screen should block edits while
+active, close automatically at zero, and allow Stop/Escape to end early. Verify
+the four-chime cue and Mute on the phone, then confirm entered values remain.
