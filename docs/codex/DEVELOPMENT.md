@@ -2744,3 +2744,41 @@ passed with 32 root JS modules, 52 offline entries, 162 original identities,
 also passed. Actual database rollback tests
 and scheduled HTTP readiness checks passed. Existing password-protection warning
 is recorded with its remediation link in PUSH_REMINDERS.md.
+
+Private preview 42: app source d9b53e4d442578d211a4aa04f0dfba0d37296125;
+exact pushed Sites source 8bdb76122404fc7baf633bdc5a451d6c585faa71.
+Ten expected changed members plus workout-schedule.mjs; no removals. 185 files,
+169 client. The server change is only its public push-capability config response.
+All 124 retained media/font assets, media-manifest bindings, other provider/budget
+and Sites migration members remain identical to preview 41. Supabase migrations
+were applied separately as documented above. No private records, exports,
+backups, credentials or runtime secret values are in the archive.
+Every uploaded local member matched the clean pushed checkout byte for byte.
+Uploaded gzip: 158394434 bytes, SHA-256
+bdfa7541646973438cd3b811864c16ce6faf79e114ccdc09cc03905fe85d3517.
+Local Git tar: 160696320 bytes, SHA-256
+a3afc63aefbeedfbd360af42cd17e6588cf6c978e43260daf2a58cec4b37917b.
+Saved-version archive: 185 files, 160696320 bytes, SHA-256
+57fe7c1832da4effaaca8b777bf3c0c68e5377b7fa98d1ae3f580ad2db90fbd4.
+Local/native hashes describe separate archive representations; fresh source
+provenance matches the exact pushed commit. Archive retained.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_666a4d784cc881919d9830ee2e9ae6b9.
+Deployment appgdep_6ada599dcf608191b48a3a67fccd0f46 succeeded at
+2026-10-22 14:44:57 America/New_York; applied runtime revision 6.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience read: one owner, zero other users/editors/groups/external visitors
+or Sites automations. The separately configured Supabase minute job remains
+active, with HTTP 200 ready=true/sent=0/failed=0 checks. Workspace/revision counts
+remain 1/5, with one allowed owner pilot and zero real device subscriptions.
+Runtime public key was verified to match the sender's public key. No real phone
+delivery is claimed. Source credentials and bearer-bearing site results cleared
+from orchestration storage. No public GitHub push/main merge, live app/backend,
+sharing, AI key/budget or protected-media change.
+
+Owner check: /update.html (build d9b53e4d4425), then Settings. Save the usual
+workout time and time zone. Choose Enable push on this device → Allow. Choose
+Test with app closed · 2 min, close MENEI, and allow roughly 2–3 minutes for the
+server test. Actual notification permission and delivery are owner-device checks.
+Calendar alerts are optional; they are not required for this direct push path.
