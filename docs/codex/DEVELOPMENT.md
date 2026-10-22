@@ -2273,3 +2273,32 @@ During artwork loading the rig stays hidden until all images are ready, avoiding
 a brief partial figure with unloaded hands. Quote, wordmark and Skip remain
 available. This adds only a CSS readiness guard; checked loading/class-state
 behavior is unchanged.
+
+Private preview 35: app source b5f5d72ddefb9ecaf7dcf9dbafae6eafed4c28b8
+(including hand geometry/art commit 2fbb9620ccb0bdfd5b95185e0a002308f0ff6fc8),
+exact pushed Sites source 6e776b8a3591507046da3a312b76b03a52047256.
+One new hand PNG, nine expected client/build member changes, no removals:
+179 total files, 163 client. All other members are byte-identical to preview 34,
+including 123 retained media/font assets, the media manifest and all
+server/provider/migration members. No keys, personal inputs, exports or backups
+included; previous archives retained. Gzip: 158378304 bytes, SHA-256
+a4faff792ea68f90686578c59ebe1dcf2a91bfe6a62f768e1e10ebde4b9516a7.
+Native tar: 160634880 bytes, 179 files, SHA-256
+2239b7283b8ca915ad8b197b3e33e9fde6a956ca12e1af91a75d681020491a56.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_be6089264a8c8191824528b94cf247db.
+Deployment appgdep_6ad986937cac8191b728f1d8f9d856cf succeeded at
+2026-10-21 23:44:33 America/New_York; runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh provenance confirms source/count; fresh audience read confirms one owner,
+zero other users/editors/groups/external visitors/automations. Credentials were
+cleared from orchestration storage. No GitHub push/main merge, sharing/live
+app/backend/schema, AI key/budget or scheduled-push change.
+
+Owner check: /update.html then Home (build b5f5d72ddefb); Replay opening. Inspect
+near dorsal hand, far hand behind the sphere, wrist connection and grip during
+lift/release/catch. First-use image loading should show no partial rig. Quote,
+MENEI/wreath, Skip/Escape and reduced motion remain. This is still a 2D
+illustration; rendered poses and numeric checks do not establish final anatomy
+or phone-motion acceptance.
