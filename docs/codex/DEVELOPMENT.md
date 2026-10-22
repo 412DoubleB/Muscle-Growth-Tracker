@@ -2976,3 +2976,55 @@ change cancellation. The new first-load UI fixture uses a valid retained legacy
 snapshot rather than the older opaque preservation marker. Existing rest,
 opening, streak and account tests remain in the regression run. Full validation
 and private publication receipt follow; physical voice acceptance is pending.
+
+
+Workout-audio validation and private preview 45 receipt:
+Runtime feature source b78287ac19bf60cb4e58ec2a525df80088a3afa7; exact pushed
+Sites source 593dc7f1e2c37ce30fe6a2f0dd4e98c224d6ea14. Helper/transition,
+first-set/Complete/Stop/mute/failed-save and account-cancellation checks passed.
+Static checks passed: 33 root modules, 53 offline entries, 162 original identities,
+113 WebP assets and 35 retained pairs. Browser/CUA QA was unavailable; actual phone
+voice playback is pending. Daily/launch quotes remain text-only as requested.
+
+The full 70-file regression run passed 69 files and identified one outdated
+all-other-storage-keys assertion in workout-recommendations-ui: a first Done now
+also writes the documented account-scoped audio receipt. The test now explicitly
+checks that receipt's version/date/start/completion flags and compares every
+remaining legacy/backup/storage entry byte for byte. Its entire file then passed
+on rerun (29878.360231 ms). The other 69 results remain valid because no runtime
+code changed after that run. The first run took 286963.540136 ms; this is not
+represented as a single green full-suite run. No test was removed or disabled,
+and progression, primary state and preserved-history comparisons stay strict.
+The receipt expectation adjustment is committed with this publication record.
+
+Archive: 186 files, 170 client. Added workout-voice.mjs; seven expected existing
+client changes (app, index, service-worker cache/shell, release/preview-build and
+setup/preview-guide build references). No removals. All 124 protected media/font
+assets, media-manifest bindings, server/migrations/provider/budget members and
+all other existing bytes remain identical to preview 44. Every uploaded member
+matched the clean pushed checkout. No quote-playback action or spoken daily quote
+remains in the app or voice module. Uploaded gzip: 158395897 bytes, SHA-256
+21fb22c2a1642513890205f0c2a112807ef02058be3857d295424d08edf9e911.
+Native saved tar representation: 186 files, 160696320 bytes, SHA-256
+ddd11a4e77944c095138b4b86129bf56cc5ac14de0c03c4f8759a7f295602169.
+These are separate archive representations; saved provenance matches the exact
+pushed source. Runtime secrets, exports, private records and backups are excluded.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_2a6bf95b742c81918a840cd4f7e791f1.
+Deployment appgdep_6ada8c71e17481918d245281cc48e6d2 succeeded at
+2026-10-22 18:21:50 America/New_York, preserving runtime revision 6.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience remains one owner, zero other users/editors/groups/external
+visitors/Sites automations. Source credentials and bearer-bearing Site results
+cleared after use. The isolated push sender remains version 3; it was not changed
+or invoked by this feature. No live-app/backend change, public GitHub push/main
+merge, sharing change, AI/key/budget change, photo change or data reset occurred.
+Both source checkouts are clean after this receipt commit.
+
+Owner check: /update.html → Load latest version (build b78287ac19bf).
+For a fresh current-day workout, the first valid saved Done can speak the brief
+first-set message. Existing started workouts do not gain a retroactive start cue.
+Completing today's valid workout can speak the completion message. Mute near the
+text quote or in timer controls cancels speech and rest sound. No Hear today's
+quote button is present; device/browser voice support determines real playback.
