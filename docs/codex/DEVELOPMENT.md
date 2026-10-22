@@ -2845,3 +2845,41 @@ local and push notifications, retaining tags and server duplicate suppression.
 No claim is made that this establishes the cause of the first missed alert or
 guarantees physical device delivery. No background sender, admission, account or
 runtime setting change is needed. The live app stays unchanged.
+
+Private preview 44 publication: app source
+fe81ccd72059b0b0ed3a37a85560705a2cd5e515; exact pushed Sites source
+ba521ca4d3ef58bfac7583fe3a4a00c99adb60fe. Both focused notification/UI test files
+passed. Full regression passed all 68 test files (256009.559783 ms); static checks
+passed (32 root modules, 52 offline entries, 162 original image identities,
+113 WebP assets and 35 protected pairs). Physical sound/popup and closed-app
+notification delivery remain unresolved until the owner checks the phone.
+
+The archive has 185 files (169 client). Eight expected changed client members:
+app/notifications, index/cache build identifiers, release/preview-build metadata,
+and setup/preview-guide build references. No additions/removals. All 124 retained
+media/font files, media-manifest bindings, server/migration/provider/budget code
+and every other member remain identical to preview 43. Each uploaded member
+matched the clean exact pushed checkout byte for byte. Uploaded gzip: 158394520
+bytes, SHA-256
+8ed71fb8389e45627c9424f2c021393d1ee2b401bdab2456abb0c87ea0a57650.
+Native saved archive: 185 files, 160696320 bytes, SHA-256
+350e50559c5e9a05f622cd0ae204d86e97f0f33620d842e8ad2e2b00605872a0.
+Separate archive representations; saved source provenance matches the pushed SHA.
+No credentials, private exports, backups or user records were packaged.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_f0f9042d985481919b1704e1a791ea87.
+Deployment appgdep_6ada822325c08191902d228c6e6c5e98 succeeded at
+2026-10-22 17:37:50 America/New_York with existing runtime revision 6.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience: one owner; no other users/editors/groups/external visitors or
+Sites automations. Credentials and bearer-bearing Site results cleared after use.
+No server push was triggered, backend mutated, runtime setting changed, public
+GitHub/main updated, live app published, sharing changed, AI usage incurred or
+user data reset during this correction.
+
+Owner check: /update.html → Load latest version → Settings → Test notification
+now. Leave MENEI open for this immediate test and check the notification panel as
+well as sound/popup. It tests local Chrome display only. A success toast is not
+proof of physical presentation. Next diagnosis depends on the real device result;
+do not mark closed-app delivery accepted merely because the provider accepted it.
