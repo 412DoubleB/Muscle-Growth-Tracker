@@ -3028,3 +3028,37 @@ first-set message. Existing started workouts do not gain a retroactive start cue
 Completing today's valid workout can speak the completion message. Mute near the
 text quote or in timer controls cancels speech and rest sound. No Hear today's
 quote button is present; device/browser voice support determines real playback.
+
+
+## Wearable capability review — deferred after launch
+
+The next-item review checked current primary Samsung, Android and Google Health
+provider documentation and inspected the existing web app's run storage. This
+checkout has no Android project or implemented wearable/OAuth connection.
+The owner then chose to hold this work for a later upgrade; recommendation is to
+keep it outside the current web release. No watch model or account details are
+required now. Do not build or activate a connector, request health permissions,
+create provider credentials or treat wearable sync as a launch dependency.
+
+Findings to reverify when resumed: Samsung Health's Health Connect route requires
+an Android component and per-user data permissions. Installed web/PWA status does
+not itself provide the Android SDK bridge. Recorded activity/heart-rate sync is a
+different capability from live watch sensor monitoring. Google currently lists
+legacy Fitbit Web API turn-off for October 30, 2026 and directs integrations to
+Google Health API with Google OAuth and restricted-scope review; older September
+announcements are superseded by the current official overview. Public MapMyFitness
+OAuth documentation does not establish that a new client has been approved.
+
+Primary sources reviewed 2026-10-22:
+- https://developer.samsung.com/health/health-connect-faq.html
+- https://developer.android.com/health-and-fitness/health-connect/get-started
+- https://developer.android.com/health-and-fitness/health-services
+- https://developers.google.com/health/about
+- https://developer.mapmyfitness.com/docs/v71_OAuth_2_Intro/
+
+Future work must preserve existing manually logged runs/lifting, retain source
+identity and avoid duplicate activities or invented heart-rate samples. Provider
+choice, actual device, import-vs-live scope and native packaging remain undecided.
+No app, backend, runtime, audience, media, credential or health-data change was
+made. Private preview 45 and push sender version 3 remain current. This update
+only records the post-launch deferral; no deployment or runtime test is needed.
