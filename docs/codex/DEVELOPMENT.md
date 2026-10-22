@@ -2054,3 +2054,31 @@ motion, image failure/load timeout, elapsed background scenes and unchanged
 records. git diff --check passed. No browser automation is available in this
 managed environment. Phone visual acceptance of the stylized motion remains
 pending; DOM tests are not browser animation QA. Publication receipt follows.
+
+Private preview 32 publication: app source
+4e8d2325753205eb851edd2748e6c5643b7c7866, exact pushed Sites source
+66f97e3fda9bcf1ad0b816692ea19122f7906abb. Eight expected client/build members
+changed versus preview 31, no members added/removed (175 total, 159 client).
+All other members are byte-identical, including 121 protected media/font assets,
+media bindings, all server/provider/migration files and runtime configuration.
+Package audit excludes private inputs, credentials, exports and backups.
+Previous preview archives retained. Gzip 153118905 bytes, SHA-256
+938bd5ef6d751ec7381555be2d8b6f23982db85f1766750cec25c3dc70ece68e.
+Native tar 155310080 bytes, 175 files, SHA-256
+1d4aed78f896279855b56c6b3cc05b628ac8684ab0358bf262c69d4982dd5916.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_e363ff6ed6fc8191a49cc06d6545e790.
+Deployment appgdep_6ad976e7c3ac8191991707f2a1c3e3b7 succeeded at
+2026-10-21 22:37:37 America/New_York; runtime revision remains 5.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh provenance confirms source/count; fresh access read confirms one owner,
+zero other users/editors/groups/external visitors/automations. No sharing,
+GitHub push/main merge, live app/backend, AI key/budget, scheduled push or schema
+change. Source credentials were cleared from orchestration storage.
+
+Owner device check: open /update.html, confirm build 4e8d23257532, then Home.
+Observe the 4.5-second globe squat and MENEI-to-M transition, or use Replay
+opening on Home; quote should remain in Daily motivation above the hero.
+Skip/Escape should close early, and reduced-motion should bypass animation.
+Visual acceptance of the CSS motion is pending on the owner's device.
