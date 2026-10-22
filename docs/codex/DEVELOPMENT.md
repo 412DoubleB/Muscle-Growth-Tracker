@@ -2319,3 +2319,43 @@ that a pairing is optimal for a person. No extra AI/provider requests. The draft
 updates without saving; only Save changes the pair. Entered sets and the other
 member of a started pair remain protected. Timer policy stays 60 seconds between
 sets and 3 minutes only after every set of the pair.
+
+Validation: all 62 test files passed (172026 ms); npm run check passed (29 JS
+modules, 48 offline shell entries, 162 original media identities, 113 WebP
+assets, 35 protected pairs), and git diff --check passed. The new UI contract
+checks cover live draft guidance, disabled duplicate selections, alternative
+selection without writes, intentional shared-muscle pairing, protected recorded
+partners, preserved zero loads/unknown set fields and retained conflict/legacy
+copies. Existing rest-timer and progression checks pass. No browser/phone visual
+QA is claimed for this pairing screen; that remains the next owner check.
+
+Private preview 36: app source 5644bad995cec654c10ebc8d2a6b2605881fe685;
+exact pushed Sites source 94148da678defdc26bb4f50e72770285df25fe4d.
+Eight expected client/build changes, no additions or removals; 179 packaged files,
+163 client. All 124 retained media/font assets, media-manifest bindings and all
+server/provider/migration members are byte-identical to preview 35. No keys,
+personal records, exports or backups included. Previous archives retained.
+Uploaded gzip: 158380672 bytes, SHA-256
+20b44880ef67656fd3c01a17d4f66bf7611f164f1c0b75a19a93f478fed280db.
+Local Git tar: 160645120 bytes, SHA-256
+b7027de31584c267fc80c43031abf048cbccd6c84e3ca5fa8ad2bd4a2237feae.
+Saved-version archive reports 179 files, 160634880 bytes, SHA-256
+8e498904e63128ad9ce3eaa6eba2ad43095c68aa022e98dfa4dd1496515314e8;
+its source provenance matches the exact pushed Sites commit above. Local Git tar
+and native stored archive hashes are recorded separately.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_ca94a62a9e908191b8b69791ac99307b.
+Deployment appgdep_6ad9ec1e8fd0819183dc9d4a947a274d succeeded at
+2026-10-22 06:57:44 America/New_York; runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience read: owner-only custom access, one owner, zero other users,
+editors, groups, external visitors or automations. Source credentials cleared
+from orchestration storage. No public GitHub push/main merge, live app/backend,
+sharing, schema, AI key/budget or scheduled-push change.
+
+Owner check: /update.html, Home → Supersets (build 5644bad995ce). Choose a pair
+with overlapping main muscles, preview an alternative, or keep the intentional
+pair and Save. Viewing/changing draft choices should not change the workout;
+recorded exercises and their paired partners should be unavailable. Exercise
+order, entered values and the accepted rest policy remain intact.
