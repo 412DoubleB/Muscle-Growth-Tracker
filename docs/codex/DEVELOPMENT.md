@@ -2795,3 +2795,39 @@ An integrated beta-entry test failed before the fix and passes afterward for
 owner controls/registration; member, offline and server-disabled paths remain
 blocked. Synthetic tests do not establish physical phone delivery. No backend,
 credential, runtime environment, user-data, live-app or media change is needed.
+
+Private preview 43 publication: source fix
+0171e738991ab2865cb19a6393505fa467152b6d, exact pushed Sites source
+00ff6cb8d81bedbc31fcd45bd56125791a0c6577. All 68 regression test files passed
+(261430.620376 ms); npm run check passed with 32 root modules, 52 offline entries,
+162 original image identities, 113 WebP assets and 35 protected pairs. New owner
+controls/registration test failed before the fix and passed afterward. Browser
+permission/subscription responses were synthetic; physical delivery is pending.
+
+The archive contains 185 files (169 client). Only app.mjs, index build identifier,
+service-worker cache identifier and four build/help metadata members changed.
+All 124 protected media/font assets, media-manifest bindings, server code and
+all other archive members remain identical to preview 42. Every archive member
+matched the clean exact pushed checkout. Uploaded gzip: 158394420 bytes, SHA-256
+40bf1f5c3d6a20d4138838a63c1e4566d6b1d35f9e5047729b901f62b2fa3e7e.
+Native saved archive: 185 files, 160696320 bytes, SHA-256
+97bc30f62b94769dd67ec9c3ce28dad7005041bc805edc0fb9843db6373aece9.
+These are separate archive representations; provenance was checked against the
+exact pushed commit. No private export or runtime credential was packaged.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_7cd5ae2a14988191a62326c798b95c6d.
+Deployment appgdep_6ada76f395888191a2bd39c8305419e9 succeeded at
+2026-10-22 16:50:10 America/New_York, applying existing runtime revision 6.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience: one owner, no other users/editors/groups/external visitors or
+Sites automations. No Supabase mutation, public GitHub push/main merge, live-app
+update, sharing change, AI request/key/budget change or data reset occurred.
+An initial source push could not reach the sandbox proxy; the same authorized
+private source workflow succeeded with the tool's additional network access.
+Source credential and bearer-bearing Site results were cleared after use.
+
+Owner check: open /update.html, choose Load latest version, then Settings
+(build 0171e738991a). Save usual workout time/timezone, Enable push on this device
+and Allow. Use Test with app closed · 2 min and wait about 2–3 minutes after
+closing MENEI. Acceptance requires a real device result; no delivery claim yet.
