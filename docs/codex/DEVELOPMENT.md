@@ -1815,3 +1815,42 @@ total). All eight tone voices are tracked so Mute/Stop immediately cancels the
 remaining sequence. A controlled audio-clock regression verifies pitches,
 spacing, four repetitions and cancellation; the UI verifies only one sequence
 per timer completion.
+
+### Stage 26 validation and private preview 29
+
+Full `npm test` passed all 58 files with zero failures or skips (152540 ms) for
+the automatic-popup/default-on-audio correction. After the subsequent four-chime
+refinement, the controller/audio and UI regression files both passed (13725 ms),
+and `npm run check` passed again (27 JS, 43 shell members, protected media checks).
+`git diff --check` passed. No browser rendering or physical-phone playback is
+claimed from these synthetic checks.
+
+Final app source cca8bc186c879c2d51ef6f2d2e0da1f76256a7dd is in exact pushed
+Sites source 715d1868d1ebc9f8def16501d1a9f58c79397218. The archive retains 174
+members (158 client), adding/removing none. Eight expected client/UI/build
+metadata members changed. All remaining members are byte-identical to preview 28,
+including 121 protected media/font assets, image-manifest bindings and all server,
+provider and migration files. No photo candidate or review page was packaged.
+Private inputs, exports, backups and runtime keys remain excluded.
+
+Native private deployment appgdep_6ad95d0dbea08191b02160131ce8e2c1 succeeded at
+2026-10-21 20:47:20 America/New_York. Saved version 29:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_0cacd9d26428819186da2eb86c503432.
+URL: https://menei-private-beta.crispcrown515.chatgpt.site.
+Local gzip: 153113727 bytes, SHA-256
+0b4835f1dda4beffde571a745116ca2be51bfcc607dbfe434a99384e6939e69c.
+Native tar: 155289600 bytes, SHA-256
+e15975f1f5486444aa38ed24f91f14425d48feee095a8172331b1e07455c2266.
+Native provenance confirms exact pushed source and 174 members. A fresh access
+read confirms unchanged owner-only audience (one owner, zero other users,
+editors, groups, external visitors or automations). Runtime revision stays 5.
+No GitHub push, main merge, live app/backend change, schema migration, key/budget
+change or scheduled-push activation occurred. Preview 28 archive is retained.
+
+Phone acceptance: refresh /update.html and confirm Settings preview build
+cca8bc186c87. In a synthetic pair, check its final unfinished working set after
+all other working rounds/extras are checked. The 3-minute popup must open without
+a Start or confirmation action, stay until Stop, and leave recorded values intact.
+Sound is on by default; after expiry the original chime should sound four times,
+one second apart. Mute/Stop must silence pending repetitions; explicit Mute must
+remain muted after reload. Test phone volume/browser availability separately.
