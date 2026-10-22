@@ -54,7 +54,7 @@ export function createPreviewWorker({fetcher,authFetcher,now=()=>new Date(),rese
    if(!active)return json({error:'BETA_UNAVAILABLE'},503);
    const key=env.MENEI_TEST_PUBLISHABLE_KEY;if(!/^sb_publishable_[A-Za-z0-9_-]+$/.test(key||''))return json({error:'Test cloud configuration unavailable'},503);
    let status;try{status=await cohort(env)}catch{}
-   return json({preview:{localOnly:false,projectRef:TEST_PROJECT},supabase:{url:`https://${TEST_PROJECT}.supabase.co`,key},pushServiceReady:false,authRedirectConfigured:true,betaAdmissionRequired:true,betaPhase:phase,betaStorageReady:!!status,gymResearchReady:gymResearchConfigured(env)&&!!status});
+   return json({preview:{localOnly:false,projectRef:TEST_PROJECT},supabase:{url:`https://${TEST_PROJECT}.supabase.co`,key},pushServiceReady:privateSetup&&phase==='bootstrap'&&env.MENEI_PUSH_ENABLED==='true'&&/^B[A-Za-z0-9_-]{86}$/.test(env.MENEI_PUSH_PUBLIC_KEY||''),pushPilot:'private-test',vapidPublicKey:/^B[A-Za-z0-9_-]{86}$/.test(env.MENEI_PUSH_PUBLIC_KEY||'')?env.MENEI_PUSH_PUBLIC_KEY:null,authRedirectConfigured:true,betaAdmissionRequired:true,betaPhase:phase,betaStorageReady:!!status,gymResearchReady:gymResearchConfigured(env)&&!!status});
   }
   if(url.pathname==='/api/beta-readiness'){
    if(request.method!=='GET')return json({error:'METHOD_NOT_ALLOWED'},405,{Allow:'GET'});

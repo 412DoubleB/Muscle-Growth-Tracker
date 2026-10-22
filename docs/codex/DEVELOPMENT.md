@@ -2721,3 +2721,26 @@ verify chronological checks and recorded working-set order, including alternatin
 supersets. Old/backdated entries must keep unknown timing. Reviewing this modal
 must not change loads, recommendations or history. Existing automatic rest rules
 remain active; Stop or timer expiry dismisses final blocking recovery as before.
+
+## One-hour workout scheduling and direct push — private owner pilot
+
+The owner confirmed discovery of Workout order, then requested the next stage
+and clarified that direct MENEI push is required. Added a usual start time and
+separate time zone, timezone-aware one-hour calendar exports, and actual isolated
+Web Push service/device controls. See PUSH_REMINDERS.md for behavior, applied
+migrations, secret handling, access, verification and pause procedure.
+
+The new Supabase Edge function and minute scheduler are active only in the test
+project, with one confirmed owner allowlisted and zero devices enrolled at setup.
+No real notification has been sent; phone permission and closed-app acceptance
+remain pending. No live app/backend, sharing, AI key/budget or deferred photo
+change. Runtime revision 6 adds the public push key and opt-in readiness flag;
+other entries and secret values remain intact.
+
+The first full regression run passed all 68 test files (251257 ms), followed by
+focused capability and close-before-sync checks. The final full run passed all 68 test files (272250 ms); final static checks
+passed with 32 root JS modules, 52 offline entries, 162 original identities,
+113 WebP assets and 35 protected pairs. Follow-up copy/device-preference checks
+also passed. Actual database rollback tests
+and scheduled HTTP readiness checks passed. Existing password-protection warning
+is recorded with its remediation link in PUSH_REMINDERS.md.

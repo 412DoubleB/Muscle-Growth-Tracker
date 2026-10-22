@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../core.mjs';
-import {calendarFile} from '../notifications.mjs';
+import {calendarFile,workoutSchedule,workoutStartUtc} from '../notifications.mjs';
 
 const fixedNow=new Date('2026-10-20T15:04:05.000Z');
 const unfold=ics=>ics.replace(/\r\n[ \t]/g,'');
@@ -80,4 +80,29 @@ test('malformed imported dates cannot become event headers and invalid reminder 
   const draft={...state,reminders:{...state.reminders,time}},ics=calendarFile(draft,[day()]);
   assert.equal(property(ics,'DTSTART'),'20261101T120000');assert.equal(unfold(ics).split('\r\n').filter(line=>line==='BEGIN:VEVENT').length,1);assert.equal(draft.reminders.time,time);
  }
+});
+
+test('explicit workout time uses its saved zone and one-hour calendar alerts, with stable identity and no preference/history writes',()=>{
+ const state=fixture();Object.assign(state.reminders,workoutSchedule('18:15','America/New_York'));const days=[day({date:'2026-10-31'}),day({date:'2026-11-01'}),day({date:'2026-11-02',kind:'run',exercises:[],run:{minutes:30,type:'Easy aerobic run'}})],before=C.clone({state,days});
+ const ics=calendarFile(state,days),starts=unfold(ics).split('\r\n').filter(l=>l.startsWith('DTSTART:'));
+ assert.deepEqual(starts,['DTSTART:20261031T221500Z','DTSTART:20261101T231500Z','DTSTART:20261102T231500Z']);assert.equal((ics.match(/TRIGGER:-PT60M/g)||[]).length,3);assert.doesNotMatch(ics,/-PT15M/);assert.match(unfold(ics),/starts in 1 hour/);assert.match(unfold(ics),/Planned workout start: 18:15 America\/New_York/);
+ const legacy=C.clone(state);delete legacy.reminders.workoutTime;delete legacy.reminders.workoutTimezone;assert.equal(property(calendarFile(state,[days[0]]),'UID'),property(calendarFile(legacy,[days[0]]),'UID'));assert.deepEqual({state,days},before);
+ for(const status of ['completed','skipped'])assert.doesNotMatch(calendarFile(state,[day({status})]),/BEGIN:VALARM|TRIGGER:/);
+});
+
+test('workout start resolves fractional offsets, midnight and DST ambiguity without using the executor time zone',()=>{
+ assert.deepEqual(workoutStartUtc('2027-01-04','06:00','Asia/Kathmandu'),{utc:'2027-01-04T00:15:00.000Z',ambiguous:false});
+ assert.equal(workoutStartUtc('2027-01-04','00:05','America/New_York').utc,'2027-01-04T05:05:00.000Z');
+ assert.deepEqual(workoutStartUtc('2026-11-01','01:30','America/New_York'),{utc:'2026-11-01T05:30:00.000Z',ambiguous:true});
+ const state=fixture();Object.assign(state.reminders,workoutSchedule('00:05','America/New_York'));const ics=calendarFile(state,[day({date:'2027-01-04'})]);assert.equal(property(ics,'DTSTART'),'20270104T050500Z');assert.match(ics,/TRIGGER:-PT60M/);assert.equal(new Date(Date.parse('2027-01-04T05:05:00Z')-3600000).toISOString(),'2027-01-04T04:05:00.000Z');
+ assert.throws(()=>workoutStartUtc('2027-03-14','02:30','America/New_York'),/does not occur/);
+ assert.throws(()=>workoutStartUtc('2026-10-04','02:15','Australia/Lord_Howe'),/does not occur/);
+ const repeated=fixture();Object.assign(repeated.reminders,workoutSchedule('01:30','America/New_York'));assert.match(unfold(calendarFile(repeated,[day()])),/earlier occurrence/);
+});
+
+test('bad new schedule settings fail explicitly while legacy floating-calendar behavior remains available until configured',()=>{
+ for(const [time,zone] of [['25:00','America/New_York'],['18:00','Invalid/Zone'],['18:00',''],['18:00\r\nBEGIN:VEVENT','UTC']])assert.throws(()=>workoutSchedule(time,zone),/time|zone/);
+ assert.deepEqual(workoutSchedule('18:00',' America/New_York '),{workoutTime:'18:00',workoutTimezone:'America/New_York'});
+ const state=fixture(),before=C.clone(state);assert.equal(property(calendarFile(state,[day()]),'DTSTART'),'20261101T120000');assert.deepEqual(state,before);
+ assert.throws(()=>calendarFile({...state,reminders:{...state.reminders,workoutTime:'broken'}},[day()]),/start time/);
 });

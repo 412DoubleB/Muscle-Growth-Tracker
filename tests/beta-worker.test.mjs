@@ -89,3 +89,13 @@ test('an earlier Sites owner cannot silently activate MENEI membership or AI eve
   assert.equal(t.outbound,0);assert.equal((await readBetaStatus(t.binding)).enrolled,1);assert.equal(t.db.prepare('SELECT owner_user_id FROM menei_beta_campaigns').get().owner_user_id,'old-sites-owner');assert.equal(t.db.prepare('SELECT count(*) AS n FROM menei_beta_attempts').get().n,0);
  }finally{t.close()}
 });
+
+test('push readiness needs explicit private pilot flag and a public key; it never changes beta or AI allowances',async()=>{
+ const t=await setup();try{
+  const read=async env=>(await t.worker.fetch(req('/api/preview-config',{id:null}),env)).json();
+  const pub='B'+'A'.repeat(86),enabled={...t.env,MENEI_PUSH_ENABLED:'true',MENEI_PUSH_PUBLIC_KEY:pub};
+  const ready=await read(enabled);assert.equal(ready.pushServiceReady,true);assert.equal(ready.pushPilot,'private-test');assert.equal(ready.vapidPublicKey,pub);
+  for(const env of [{...enabled,MENEI_PUSH_ENABLED:'false'},{...enabled,MENEI_PUSH_PUBLIC_KEY:'bad'},{...enabled,MENEI_BETA_PHASE:'open'}])assert.equal((await read(env)).pushServiceReady,false);
+  assert.equal((await readBetaStatus(t.binding)).enrolled,0);assert.equal(t.outbound,0);assert.doesNotMatch(JSON.stringify(ready),/OPENAI_API_KEY|sk-syntheticpreviewkey|privateKey/);
+ }finally{t.close()}
+});
