@@ -2147,3 +2147,50 @@ opening shows the sequence again. Check squat/throw/rebound/catch, exact origina
 pose for the last 0.9 seconds, MENEI flanked by wreath branches that close around
 the final M, unchanged visible daily motivation, Skip/Escape and reduced motion.
 Motion/phone layout acceptance remains pending; no browser QA was claimed.
+
+
+## Stage 31 — continuous hands and contact during wall-ball motion
+
+The owner rejected preview 33: hands vanished/reappeared during opacity switches
+and the ball did not meet the catching hands. Replace its pose crossfades with a
+continuous 2D sculptural rig. One opaque forearm/palm sprite per arm and one
+single globe persist for the full sequence; no pose opacity switch is used.
+The new supplemental atlas was generated specifically for skeletal rendering,
+with central body, upper arms, forearms/hands and a free globe. Original assets,
+the preview-33 atlas and all exercise-photo bindings remain unchanged.
+
+wall-ball.mjs solves two-link elbow positions with constant bone lengths. Held
+ball/palm targets share one coordinate model. Ballistic flight has a wall rebound;
+Hermite carry/follow-through/receiving paths match positions and velocities at
+release and catch, then lower the ball into the initial chest-held stance.
+The same figure persists and holds for the last 0.9 seconds, without fading back
+to another bitmap. Home still shows the exact original mascot after the opening
+closes. The body dip keeps the feet planted; this remains illustrated 2D motion,
+not a 3D simulation or generated video. Elbow blend caps hide cut texture ends.
+
+requestAnimationFrame updates joint/ball transforms only; frame callbacks cancel
+on Skip, expiry, image failure, or reduced-motion change. Artwork readiness and
+stale-replay callback protections remain. The MENEI lettering/wreath animation,
+daily quote, legal acknowledgment, workouts, history, runtime/server/provider,
+AI budget and notification behavior are unchanged.
+
+Native Inkscape SVG exports were inspected for held, release, airborne and catch
+poses. This is static render QA of the actual SVG geometry, not browser QA or a
+claim of owner acceptance. Initial render inspection caught atlas-cell leakage;
+explicit cell/globe masks fixed it. A trial of clipped knee articulation had
+visible seam artifacts and was excluded; the continuous planted-foot body dip
+remains. No protected asset was edited. Browser automation remains unavailable.
+Atlas SHA-256: be266a21f1d0559206ab2d4defc2fc041bb27dc5fcada8c394593be803a39c23.
+Validation/publication receipt follows.
+
+Validation: all 61 npm test files passed (155785 ms). npm run check passed:
+29 JavaScript modules, 47 offline shell files, 162 originals, 113 WebP files and
+35 protected exercise pairs. New geometric tests sample the full motion every
+5 ms: upper/forearm bone lengths remain fixed; held palms share the ball's
+contact model; release/catch positions and velocities are continuous; the ball
+clears receiving hands during flight; final pose returns to the starting stance.
+A strict settled-endpoint check caught floating-point residual dip, corrected to
+an exact zero after settlement. UI checks advance an animation frame, confirm
+arm transforms change without history writes, and verify frame cancellation on
+close alongside existing loading/replay/Skip/reduced-motion checks. Diff check
+passed. Phone/browser motion acceptance remains pending.

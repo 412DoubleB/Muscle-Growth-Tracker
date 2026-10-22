@@ -5,6 +5,7 @@ import {CloudSync} from './cloud.mjs?v=8.1.1';
 import {testNotification,enablePush,disablePush,calendarFile} from './notifications.mjs?v=8.1.1';
 import * as W from './workouts.mjs?v=8.1.1';
 import {trainingStreak,dailyMotivation,streakMilestone} from './motivation.mjs?v=8.1.1';
+import {applyWallBallFrame,wallBallSvg,WALL_BALL_DURATION} from './wall-ball.mjs?v=8.1.1';
 import * as S from './supersets.mjs?v=8.1.1';
 import {restAfterCompletion,isCompletionRest,restPreferences,saveRestPreferences,RestTimer,RestAudio} from './rest-timers.mjs?v=8.1.1';
 import {SPLITS,TRAINING_STYLES,trainingStyle} from './training.mjs?v=8.1.1';
@@ -33,7 +34,7 @@ const betaAdmissionPage=document.documentElement?.dataset?.betaAdmission==='mene
 let betaAdmissionConfig=betaAdmissionPage;
 const store=new C.LocalStore(localStorage);
 let state,view='today',selectedDate=C.iso(),nutritionTab='meals',libraryFilter={q:'',group:'All',gym:'All',equipment:'All'},libraryLimit=36,programOffset=0;
-let openingPhase='pending',openingTimer=null,openingDeadline=0,openingRun=0;
+let openingPhase='pending',openingTimer=null,openingDeadline=0,openingRun=0,openingFrame=0,openingStarted=0;
 let restTimer=null;const restAudio=new RestAudio();let restReturnFocus=null;
 const navItems=[['today','◫','Home'],['program','▦','Program'],['library','◇','Library'],['nutrition','◉','Nutrition'],['history','↗','History'],['settings','⚙','Settings']];
 const progressFilters={history:{period:'90'},detail:{period:'all'}};
@@ -347,15 +348,16 @@ function celebrateStreak(before){
 function workoutTimingHtml(log){const t=W.estimateWorkoutDuration(log);return `<div class="callout workoutTiming" aria-label="Estimated workout duration"><b>${t.totalMinutes?'Estimated session · '+t.lowMinutes+'–'+t.highMinutes+' min':'Recovery day · no timed session planned'}</b>${t.totalMinutes?`<p class="tiny">Lifting ${t.liftingMinutes} min${t.runMinutes?' · Run '+t.runMinutes+' min':''}${t.saunaMinutes?' · Sauna '+t.saunaMinutes+' min':''}. Estimate includes a warm-up, set rests, recovery and transitions; your pace may differ.</p>`:''}</div>`}
 function dailyMotivationHtml(){return `<section class="dailyMotivation" aria-labelledby="dailyMotivationTitle"><div id="dailyMotivationTitle" class="eyebrow">Daily motivation</div><blockquote class="dailyQuote">${h(dailyMotivation())}</blockquote></section>`}
 function finishOpening(){
- if(openingPhase==='finished')return;openingPhase='finished';openingRun++;clearTimeout(openingTimer);openingDeadline=0;
+ if(openingPhase==='finished')return;openingPhase='finished';openingRun++;clearTimeout(openingTimer);window.cancelAnimationFrame?.(openingFrame);openingDeadline=0;
  const scene=$('openingScene'),returnFocus=document.activeElement?.id==='skipLaunch';if(scene?.open)scene.close();
  if(returnFocus)$('replayOpening')?.focus();
 }
 function playOpening(){
  if(openingPhase!=='loading')return;
- openingPhase='playing';clearTimeout(openingTimer);openingDeadline=Date.now()+4500;
- $('openingScene')?.classList.add('playing');openingTimer=setTimeout(finishOpening,4500);
+ openingPhase='playing';clearTimeout(openingTimer);openingStarted=Date.now();openingDeadline=openingStarted+WALL_BALL_DURATION;
+ $('openingScene')?.classList.add('playing');openingTimer=setTimeout(finishOpening,WALL_BALL_DURATION);renderOpeningFrame();
 }
+function renderOpeningFrame(){if(openingPhase!=='playing')return;applyWallBallFrame($,Date.now()-openingStarted);openingFrame=window.requestAnimationFrame?.(renderOpeningFrame)||0}
 function showOpening(){
  if(openingPhase!=='pending'||view!=='today'||state.profile.safetyNoticeVersion!==1)return;
  const scene=$('openingScene');if(!scene||$('restDialog')?.open||document.querySelector('dialog[open]'))return;
@@ -366,11 +368,9 @@ function showOpening(){
  <img class="openingWreath openingWreathLeft" src="./brand-emblem.svg" alt="" width="1536" height="852">
  <img class="openingWreath openingWreathRight" src="./brand-emblem.svg" alt="" width="1536" height="852">
  <img class="openingEmblem" src="./brand-emblem.svg" alt="" width="1536" height="852"></div>
- <div class="openingAthlete" aria-hidden="true"><div class="openingFigure">
- <div class="openingOriginal"><img id="openingUpper" class="openingUpper" src="./artwork/greek-athlete-gold.webp" alt="" width="1024" height="1536"><img class="openingLower" src="./artwork/greek-athlete-gold.webp" alt="" width="1024" height="1536"></div>
- <svg class="openingThrow" viewBox="0 0 768 1024" preserveAspectRatio="xMidYMax meet"><image href="./artwork/greek-wall-ball-atlas.png" width="1536" height="1024"/></svg></div>
- <span class="openingWall"></span><svg class="openingBall" viewBox="950 300 450 450"><image href="./artwork/greek-wall-ball-atlas.png" width="1536" height="1024"/></svg>
- <img id="openingAtlas" src="./artwork/greek-wall-ball-atlas.png" alt="" width="1536" height="1024" hidden></div>
+ <div class="openingAthlete" aria-hidden="true">${wallBallSvg()}
+ <img id="openingUpper" src="./artwork/greek-athlete-gold.webp" alt="" width="1024" height="1536" hidden>
+ <img id="openingAtlas" src="./artwork/greek-wall-ball-rig.png" alt="" width="1536" height="1024" hidden></div>
  <div class="openingMotivation"><div id="openingTitle" class="eyebrow">Daily motivation</div><p class="dailyQuote">${h(dailyMotivation())}</p></div>${button('Skip opening','skip-launch','id="skipLaunch"','small ghost')}</div>`;
  scene.showModal();$('skipLaunch')?.focus();
  // The separate scene survives Home redraws; both art files must be ready before the clock starts.
