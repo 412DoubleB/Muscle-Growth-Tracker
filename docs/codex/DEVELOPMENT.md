@@ -2930,3 +2930,49 @@ Sites preview 44 and runtime revision 6 remain unchanged; no phone refresh is
 required for this backend-only correction. No public GitHub push/main merge,
 live-app/backend mutation, sharing change, new credential, AI budget reset,
 protected-media change or data reset occurred. Both source checkouts remain clean.
+
+
+## Workout motivation audio — isolated private preview
+
+The next remaining feedback item is brief workout motivation audio. The owner
+subsequently declined Hear today’s quote. That proposed button/action was removed
+before publication; daily and opening quotes remain text only. The automatic
+start cue is “First set logged. One set at a time.” Completion says that the
+workout is complete, progress is saved and recovery matters. No quote is spoken.
+
+workout-voice.mjs uses the browser's SpeechSynthesis API, preferring an available
+local English voice. Otherwise the browser's available English/default voice is
+used; device/browser voice availability and playback vary. There is no OpenAI or
+other app API request, sound download, new account or credential. Only these
+short generic messages go to the browser's speech engine, never workout data.
+Unsupported/failing speech does not prevent logging, timers, quotes or navigation.
+
+Only a successful explicit current-day local Done save or Complete action calls
+the transition detector. A valid checked set requires entered nonnegative load
+(including zero) and positive reps/count. Completed runs with positive minutes
+can receive the completion cue. No auto-speech on launch, view, sync, import,
+backdated/future edits, deleted/rest days or empty completion. First-row speech
+means first logged set, not a measured workout-start time. Saved history and
+load/progression logic remain unchanged.
+
+Reuse the existing per-account/device rest sound preference: sound remains on
+by default and explicit mutes remain respected. Home's daily motivation section
+has the same Mute/Unmute sound control. Mute and Stop cancel voice immediately;
+account/workspace changes and hidden pages also cancel. No old cue is replayed
+when unmuting. Existing 60-second/180-second rest timing and four repeated chimes
+remain unchanged; spoken cues do not replace completion sounds or push alerts.
+
+A separate MGT_BETA_WORKOUT_VOICE:<scope> receipt stores only version, the current
+cue date and two consumed-event flags. In-memory fallback prevents replay within
+the session if receipt writes fail. No primary/legacy/user data is cleared or
+rewritten; these receipts stay outside cloud sync and workout history. Reload,
+uncheck/recheck and unlock/re-complete do not replay consumed cues. Audio state
+is not approval of deferred exercise images or a change to the launch animation.
+
+Pure/helper tests cover valid transitions, scope/reload deduplication, muted
+consumption, cancellation and unavailable voice/storage. Integrated UI tests
+exercise actual Done/Complete/Stop/mute paths, failed-save silence and account
+change cancellation. The new first-load UI fixture uses a valid retained legacy
+snapshot rather than the older opaque preservation marker. Existing rest,
+opening, streak and account tests remain in the regression run. Full validation
+and private publication receipt follow; physical voice acceptance is pending.

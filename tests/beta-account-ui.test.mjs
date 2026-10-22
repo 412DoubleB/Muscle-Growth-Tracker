@@ -10,7 +10,7 @@ const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function workspace(owner){const state=C.defaultState();state.ownerId=owner;state.nutrition.setupPromptSeen=true;state.profile.name=owner||'Synthetic guest';state.logs['2026-10-01']={id:'2026-10-01',date:'2026-10-01',title:'Synthetic '+(owner||'guest'),kind:'strength',status:'completed',gymId:'crunch',exercises:[C.makeExercise(C.CATALOG[0])]};Object.assign(state.logs['2026-10-01'].exercises[0].sets[0],{w:0,r:12,rir:0,done:true});return state}
 function environment({savedContext=null,runtimeContext=context,status=200}={}){
- const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','fetch','FormData','Image'];
+ const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','fetch','FormData','Image','speechSynthesis','SpeechSynthesisUtterance'];
  const previous=new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
  const rows=new Map(),writes=[],reads=[],elements=new Map(),listeners=new Map(),windowListeners=new Map(),prompts=[],requests=[];
  for(const owner of ['account-a','account-b',null])rows.set('MGT_BETA_V8:'+(owner||'guest'),JSON.stringify(workspace(owner)));
@@ -36,7 +36,7 @@ function environment({savedContext=null,runtimeContext=context,status=200}={}){
  globalThis.fetch=async path=>{requests.push(path);assert.ok(['./api/preview-config','./media-manifest.json'].includes(path),'No real HTTP allowed');return {ok:status===200,status,json:async()=>path==='./media-manifest.json'?{exercises:[],assets:[],lookup:{}}:{supabase:{url:'https://'+project+'.supabase.co',key:'sb_publishable_synthetic'},pushServiceReady:false,gymResearchReady:false,betaAccountContext:runtimeContext,betaMemberRole:'tester'}}};
  globalThis.FormData=class{constructor(form){this.pairs=Object.entries(form.values||{}).flatMap(([key,value])=>Array.isArray(value)?value.map(v=>[key,String(v)]):[[key,String(value)]])}getAll(key){return this.pairs.filter(([k])=>k===key).map(([,v])=>v)}has(key){return this.pairs.some(([k])=>k===key)}[Symbol.iterator](){return this.pairs[Symbol.iterator]()}};
  const emit=async(name,target)=>{for(const listener of listeners.get(name)||[])listener({target,preventDefault(){}});await tick()};
- return {rows,writes,reads,elements,prompts,requests,authKey,buttons,async click(action){return emit('click',{closest:()=>({dataset:{action},disabled:false})})},async rawClick(button){return emit('click',{closest:()=>button})},async submit(form,values={}){form.values=values;return emit('submit',form)},async storage(newValue){for(const listener of windowListeners.get('storage')||[])listener({key:authKey,newValue});await tick()},restore(){for(const [name,descriptor]of previous)if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name]}};
+ return {rows,writes,reads,elements,prompts,requests,authKey,buttons,async change(target){return emit('change',target)},async click(action){return emit('click',{closest:()=>({dataset:{action},disabled:false})})},async rawClick(button){return emit('click',{closest:()=>button})},async submit(form,values={}){form.values=values;return emit('submit',form)},async storage(newValue){for(const listener of windowListeners.get('storage')||[])listener({key:authKey,newValue});await tick()},restore(){for(const [name,descriptor]of previous)if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name]}};
 }
 async function open(t,env){let cloud;t.mock.method(CloudSync.prototype,'restoreSession',async function(){cloud=this});await import('../app.mjs?beta-account='+encodeURIComponent(t.name));return cloud}
 async function switchTo(cloud,id){cloud.accountVersion++;cloud.session=id?{user:{id},access_token:'synthetic',refresh_token:'synthetic',expires_at:Date.now()/1000+3600}:null;await cloud.onAccount(id?{id}:null)}
@@ -108,4 +108,14 @@ test('service worker never masks auth, admission or API navigation with the cach
  const self={location:{href:'https://synthetic.example.invalid/sw.js',origin:'https://synthetic.example.invalid'},addEventListener:(name,fn)=>listeners.set(name,fn)};
  vm.runInNewContext(source,{self,URL,Request,Response,fetch:async()=>{fetches++;throw Error('Offline')},caches:{open:async()=>({match:async()=>{cacheReads++;return new Response('cached-owner-shell')}})}});
  for(const route of ['/signin-with-chatgpt?return_to=%2Fbeta','/signout-with-chatgpt?return_to=%2Fbeta','/callback','/beta','/api/beta-join','/api/preview-config']){let intercepted=false;listeners.get('fetch')({request:{url:'https://synthetic.example.invalid'+route,method:'GET',cache:'default',mode:'navigate'},respondWith(){intercepted=true}});assert.equal(intercepted,false,route)}assert.equal(fetches,0);assert.equal(cacheReads,0);
+});
+
+
+test('changing accounts cancels an active workout voice cue and never replays it from the next workspace',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date('2027-01-04T12:00:00Z').getTime()});
+ const env=environment();let spoken=0,cancelled=0;try{
+  const saved=JSON.parse(env.rows.get('MGT_BETA_V8:account-a')),day=C.clone(saved.logs['2026-10-01']);Object.assign(day,{date:'2027-01-04',id:'2027-01-04',status:'in-progress'});day.exercises[0].sets[0].done=false;saved.logs[day.date]=day;env.rows.set('MGT_BETA_V8:account-a',JSON.stringify(saved));
+  globalThis.SpeechSynthesisUtterance=class{constructor(text){this.text=text}};globalThis.speechSynthesis={getVoices:()=>[],speak:()=>spoken++,cancel:()=>cancelled++};
+  const cloud=await open(t,env);await env.change({dataset:{set:'0:0:done'},type:'checkbox',checked:true});assert.equal(spoken,1);await switchTo(cloud,'account-b');assert.equal(cancelled,1);assert.equal(spoken,1);
+ }finally{env.restore()}
 });
