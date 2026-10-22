@@ -1,5 +1,13 @@
 # Private owner push pilot
 
+Current status: the owner confirmed immediate notification display and the
+two-minute closed-app test. Exact one-hour workout reminder delivery remains
+pending. The isolated sender is version 3 with high delivery urgency; preview 45
+and runtime revision 6 are current. The earlier setup/diagnosis sections below
+describe their original stage, not the latest acceptance status. See
+[RELEASE_READINESS.md](RELEASE_READINESS.md) and DEVELOPMENT.md for current checks
+and deployment receipts. Live-app push and broader pilot access are unchanged.
+
 The owner requested built-in one-hour workout reminders and clarified that a
 calendar-only path does not satisfy that request. This stage configures the
 isolated test backend and owner-private preview for real Web Push. The live

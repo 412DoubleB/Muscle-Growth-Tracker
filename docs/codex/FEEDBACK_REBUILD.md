@@ -3,6 +3,8 @@
 This is a technical requirements register, not a private conversation transcript.
 The maintenance release remains unpublished to the live GitHub app. New work stays
 in the owner-only preview; live backend/publication approval is still separate.
+Current release checks and deferred work are consolidated in
+[RELEASE_READINESS.md](RELEASE_READINESS.md).
 
 | Request | Existing behavior / next work |
 | --- | --- |

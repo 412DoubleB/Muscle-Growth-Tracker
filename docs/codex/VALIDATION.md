@@ -1,5 +1,9 @@
 # Handoff validation
 
+For current private-update validation and remaining device checks, read
+[RELEASE_READINESS.md](RELEASE_READINESS.md). The results below describe the
+original preservation intake, not the latest preview's regression status.
+
 ## Current baseline rerun — 2026-10-19 UTC
 Pinned commit: fa142c3fc7c96c498b73b5943eac12ca49152dfb (8.1.1).
 Environment: Linux, Node 24.19.0, UTC. package.json supports Node >=22.
