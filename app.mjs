@@ -370,12 +370,12 @@ function showOpening(){
  <img class="openingEmblem" src="./brand-emblem.svg" alt="" width="1536" height="852"></div>
  <div class="openingAthlete" aria-hidden="true">${wallBallSvg()}
  <img id="openingUpper" src="./artwork/greek-athlete-gold.webp" alt="" width="1024" height="1536" hidden>
- <img id="openingAtlas" src="./artwork/greek-wall-ball-rig.png" alt="" width="1536" height="1024" hidden></div>
+ <img id="openingAtlas" src="./artwork/greek-wall-ball-rig.png" alt="" width="1536" height="1024" hidden><img id="openingHands" src="./artwork/greek-wall-ball-hands.png" alt="" width="1774" height="887" hidden></div>
  <div class="openingMotivation"><div id="openingTitle" class="eyebrow">Daily motivation</div><p class="dailyQuote">${h(dailyMotivation())}</p></div>${button('Skip opening','skip-launch','id="skipLaunch"','small ghost')}</div>`;
  scene.showModal();$('skipLaunch')?.focus();
- // The separate scene survives Home redraws; both art files must be ready before the clock starts.
+ // The separate scene survives Home redraws; all art files must be ready before the clock starts.
  // Each replay owns its callbacks so a late image event from a skipped run cannot start a new run.
- const run=++openingRun,ready=new Set(),ids=['openingUpper','openingAtlas'];
+ const run=++openingRun,ready=new Set(),ids=['openingUpper','openingAtlas','openingHands'];
  openingTimer=setTimeout(finishOpening,5000);
  for(const id of ids){const image=$(id),loaded=()=>{if(run!==openingRun||openingPhase!=='loading')return;ready.add(id);if(ready.size===ids.length)playOpening()};
   image?.addEventListener('load',loaded,{once:true});image?.addEventListener('error',()=>{if(run===openingRun)finishOpening()},{once:true});

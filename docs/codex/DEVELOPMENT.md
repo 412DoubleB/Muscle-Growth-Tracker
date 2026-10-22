@@ -2225,3 +2225,46 @@ check continuous visible arms/palms, globe release/separation/rebound and receiv
 hands, lowering into chest-held stance, and existing quote/MENEI/wreath sequence.
 Skip/Escape and reduced motion should remain effective. This is a 2D illustrated
 rig; static render/geometric tests do not establish phone animation acceptance.
+
+
+## Stage 32 — hand proportions, views and wrist articulation
+
+The owner rejected preview 34's hand anatomy. Its front-facing cupped palms were
+built into the forearm sprites and rotated rigidly with the arm. New supplemental
+art provides a right near hand in dorsal/three-quarter view and an opposite left
+far hand in side/back view, referenced to the original mascot grip. Individual
+hands have four fingers and a thumb with natural tapered proportions; the image
+and assembled poses were visually inspected, not auto-certified as anatomically
+correct. No canonical image or previous atlas was rewritten.
+
+The old palm regions are excluded by forearm render masks. Separate upper arm,
+forearm, wrist and hand links keep the wrist neutral instead of rotating the
+entire old forearm/palm drawing. A smooth elbow-plane projection allows the near
+arm to rise without flipping the hand backward. Model segment lengths are 225
+upper arm, 195 forearm and 60 wrist-to-grip; projection preserves 3D link lengths
+without claiming to be a complete 3D character renderer. Hand textures use
+independent wrist-to-grip anchors. Near grip moves onto the globe face, and the
+far forearm/hand renders behind the globe, matching natural occlusion rather
+than showing an outward-facing palm through the ball.
+
+Native Inkscape exports of the actual SVG were inspected at hold, intermediate
+lift, release, flight and catch. Hand proportions and grip orientation were
+compared with the original mascot. This is static pose inspection, not browser
+playback or owner acceptance. The existing 4.5-second timing, ball trajectory,
+MENEI/wreath, daily quote and Skip/Escape/Replay/reduced-motion behavior remain.
+Launch now waits for the separate hand image too. Bone-length, neutral-wrist,
+contact, release/catch continuity and depth-order checks cover the new geometry.
+No workout/history/profile/schema, provider, AI-budget or notification changes.
+
+Hand asset: transparent RGBA, 1774x887. SHA-256:
+6affc31ca3943d75e2fd648505356b20c51db5af898f4b1adf9e11fadf891f22.
+Validation and publication receipt follows.
+
+Validation: all 61 test files passed (158586 ms), npm run check passed (29 JS
+modules, 48 offline shell files, 162 originals, 113 WebP assets, 35 protected
+pairs), and git diff --check passed. Updated geometry tests check upper arm,
+forearm and wrist-to-grip link lengths in model coordinates, neutral wrist/hand
+alignment, contact, release/catch continuity and far-hand/globe/near-hand depth
+order. The UI suite passed again after strengthening the guard that waits for
+the separate hand image before starting. These checks establish geometry and
+loading behavior; visual anatomy and motion acceptance remain owner checks.
