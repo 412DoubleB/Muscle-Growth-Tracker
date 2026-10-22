@@ -2120,3 +2120,30 @@ and the generated artwork were inspected; no browser automation is available, so
 actual movement/layout acceptance still requires the owner's phone.
 Atlas PNG SHA-256:
 b75a01146848b5d5ea5bd36aeeb4c134cc8ae8fbed1543e04ede361558949629.
+
+Private preview 33: app source c6198c8281d45d04e338ee3d1fda8a6a6d9b2908,
+exact pushed Sites source 5dd04d6050822bbe63e2ce1549fe622dbd2b5568.
+The atlas is the only added member; eight expected client/build members changed,
+none removed (176 total, 160 client). All other members remain byte-identical to
+preview 32, including 121 protected media/font assets, media bindings and every
+server/provider/migration member. No private inputs, keys, exports or backups
+included. Prior archives retained. Gzip: 155078261 bytes, SHA-256
+1aa94794cd93e3ec1cabfac458ff649a52f72f27ba4d39f16e63ab868fc589b7.
+Native tar: 157286400 bytes, 176 files, SHA-256
+408ef5664802558d549c36109517d8363bdcfb66d1bf1018ce2c33fb527100e6.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_ce9c28096dac8191b6c62498db66fe73.
+Deployment appgdep_6ad97aae8e808191814939eb1998da79 succeeded at
+2026-10-21 22:53:46 America/New_York, runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh native provenance confirms exact source/count. Fresh audience read confirms
+one owner, no other users/editors/groups/external visitors/automations. Source
+credentials cleared from orchestration storage. No GitHub push/main merge,
+sharing/live app/backend/schema, AI key/budget or scheduled-push changes.
+
+Owner device acceptance: /update.html then Home (build c6198c8281d4); Replay
+opening shows the sequence again. Check squat/throw/rebound/catch, exact original
+pose for the last 0.9 seconds, MENEI flanked by wreath branches that close around
+the final M, unchanged visible daily motivation, Skip/Escape and reduced motion.
+Motion/phone layout acceptance remains pending; no browser QA was claimed.
