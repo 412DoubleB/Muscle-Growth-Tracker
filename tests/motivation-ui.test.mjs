@@ -23,11 +23,19 @@ test('opening survives Home redraws, waits for art, runs 4.5 seconds, closes aut
   await import('../app.mjs?motivation-ui=home');const scene=env.element('openingScene'),before=[...env.rows];
   assert.match(env.html,/Training day streak/);assert.match(env.html,/>2<span> training days in a row/);assert.ok(env.html.indexOf('Daily motivation')<env.html.indexOf('meneiHero'));assert.match(env.html,/<blockquote class="dailyQuote">[^<]+/);
   assert.equal(scene.open,true);assert.equal(scene.classes.has('playing'),false);assert.match(scene.innerHTML,/openingWord">MENEI/);assert.match(scene.innerHTML,/openingEmblem/);assert.match(scene.innerHTML,/openingUpper/);assert.match(scene.innerHTML,/Daily motivation/);
-  const content=scene.innerHTML;env.element('openingUpper').events.get('load')();assert.equal(scene.classes.has('playing'),true);
+  const content=scene.innerHTML;assert.match(content,/openingWreathLeft/);assert.match(content,/openingWreathRight/);assert.match(content,/openingThrow/);assert.match(content,/openingBall/);assert.match(content,/greek-wall-ball-atlas.png/);
+  env.element('openingUpper').events.get('load')();assert.equal(scene.classes.has('playing'),false);env.element('openingAtlas').events.get('load')();assert.equal(scene.classes.has('playing'),true);
   await env.click('view',{view:'nutrition'});await env.click('view',{view:'today'});assert.equal(scene.innerHTML,content);assert.equal(scene.open,true);assert.deepEqual([...env.rows],before);
   env.fireTimer(4500);assert.equal(scene.open,false);await env.click('view',{view:'today'});assert.equal(scene.open,false);
   await env.click('replay-opening');assert.equal(scene.open,true);await env.click('skip-launch');assert.equal(scene.open,false);env.element('openingUpper').events.get('load')();assert.equal(scene.open,false);
   await env.click('streak-details');assert.match(env.element('modalBody').innerHTML,/rest days preserve/);assert.deepEqual([...env.rows],before);assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);
+ }finally{env.restore()}
+});
+test('late artwork from a skipped opening cannot start its replacement before both new images are ready',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({loaded:false});try{
+  await import('../app.mjs?motivation-ui=stale-atlas');const stale=env.element('openingAtlas').events.get('load');await env.click('skip-launch');await env.click('replay-opening');
+  stale();env.element('openingUpper').events.get('load')();assert.equal(env.element('openingScene').classes.has('playing'),false);
+  env.element('openingAtlas').events.get('load')();assert.equal(env.element('openingScene').classes.has('playing'),true);env.fireTimer(4500);assert.equal(env.element('openingScene').open,false);
  }finally{env.restore()}
 });
 test('reduced motion skips launch while keeping daily motivation and all records',async t=>{
@@ -39,7 +47,7 @@ test('failed artwork and expired background launch dismiss without trapping the 
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({loaded:false});try{
   await import('../app.mjs?motivation-ui=launch-fallback');env.fireTimer(5000);assert.equal(env.element('openingScene').open,false);
   await env.click('replay-opening');env.element('openingUpper').events.get('error')();assert.equal(env.element('openingScene').open,false);
-  await env.click('replay-opening');env.element('openingUpper').events.get('load')();t.mock.timers.tick(4501);await env.event('visibilitychange',{});assert.equal(env.element('openingScene').open,false);assert.match(env.html,/Daily motivation/);
+  await env.click('replay-opening');env.element('openingUpper').events.get('load')();env.element('openingAtlas').events.get('load')();t.mock.timers.tick(4501);await env.event('visibilitychange',{});assert.equal(env.element('openingScene').open,false);assert.match(env.html,/Daily motivation/);
  }finally{env.restore()}
 });
 test('completing a genuine workout celebrates a new milestone once per date and preserves other history and checked values',async t=>{

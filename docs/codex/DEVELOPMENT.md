@@ -2082,3 +2082,41 @@ Observe the 4.5-second globe squat and MENEI-to-M transition, or use Replay
 opening on Home; quote should remain in Daily motivation above the hero.
 Skip/Escape should close early, and reduced-motion should bypass animation.
 Visual acceptance of the CSS motion is pending on the owner's device.
+
+## Stage 30 — wall-ball toss/catch and closing wreath wordmark
+
+Owner refinement: replace the opening globe squat with a squat-to-wall-ball toss,
+catch in the exact original pose, then end. Preserve the MENEI lettering style;
+start with wreath branches flanking the word and close them inward as the word
+vanishes, leaving the original M/wreath. The 4.5-second launch, quote, automatic
+close, Skip/Escape, Replay and reduced-motion behavior remain.
+
+A supplemental transparent 1536x1024 PNG atlas contains a matching gold throwing
+pose in the left half and a free globe in the right half. It was generated from
+the existing mascot for this explicitly requested opening animation. This is
+not an exercise-photo replacement or an inferred approval of deferred photos.
+Existing mascot and logo bytes/bindings stay unchanged; the exact original
+mascot catches/settles and holds for the last 0.9 seconds. The atlas is loaded
+only by launch markup and included in the offline shell. Temporary SVG viewports
+show its throw pose and globe separately. A stylized flight/rebound and brief
+wall target cue accompany squat/drive/catch transitions. This is layered CSS
+animation, not continuous generated video or a fully articulated 3D character.
+
+The logo uses clipped render layers of the original emblem: branches start
+outside MENEI, move inward during the word fade, and align with the original
+central M. Both mascot art files must load before starting the animation clock;
+replays own their callbacks so late image events from a skipped run cannot
+prematurely start a replacement run. Failed/missing art still closes safely.
+New atlas PNG SHA-256 and publication/validation receipt follow below.
+
+Validation: all 60 npm test files passed (165920 ms), focused opening/streak tests
+passed, and npm run check passed (28 JavaScript modules, 45 offline shell files,
+162 original images, 113 WebP files, 35 protected exercise pairs). Focused UI
+checks now require both original and supplemental artwork before playing, check
+both wreath layers and throw/ball markup, and verify stale image callbacks cannot
+start a replay. Existing read-only history, skip/replay, automatic-close, reduced
+motion and fallback tests pass. git diff --check passed. Atlas dimensions/alpha
+and the generated artwork were inspected; no browser automation is available, so
+actual movement/layout acceptance still requires the owner's phone.
+Atlas PNG SHA-256:
+b75a01146848b5d5ea5bd36aeeb4c134cc8ae8fbed1543e04ede361558949629.
