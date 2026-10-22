@@ -2025,3 +2025,32 @@ valid workout today to check a new milestone when eligible, keeping backups and
 prior records intact. A repeated unlock/re-completion of that date should not
 replay the milestone. The IP review is a documented requirement/draft only and
 still needs ownership/jurisdiction, licensing and professional legal review.
+
+## Stage 29 — visible fitness opening and daily motivation
+
+The owner requested a noticeable 3.5–5-second fitness motion, with MENEI
+transitioning to M and a visible daily quote. The old 1.6-second reveal was tied
+to the first Home render and could disappear on immediate redraw. This change
+uses a separate 4.5-second opening dialog, with a stylized globe-holding squat
+made from two clipped render layers of the original image. The upper body moves
+down/up while the leg region compresses/extends; this is CSS artwork animation,
+not newly generated articulated character footage. MENEI contracts/crossfades
+into the exact original M/wreath. All source artwork bytes/bindings are retained.
+
+The dialog waits for its artwork, survives incidental Home redraws, automatically
+closes after 4.5 seconds, and has Skip/Escape and an explicit Replay control.
+A load-error/timeout fallback avoids blocking the app. Elapsed launch scenes
+close on resume; reduced-motion users bypass launch. First-use safety notice
+acknowledgment precedes launch, and an active recovery timer is not covered.
+Daily motivation is a separately labeled prominent card above Home's hero,
+remaining available after launch. No history/storage/schema, server/provider,
+AI budget, legal acknowledgment or notification behavior changes.
+
+Validation: npm test passed all 60 files (162638 ms); npm run check passed
+28 JavaScript modules, 44 shell members, 162 originals, 113 WebP images and
+35 protected pairs. Focused opening/streak tests cover image readiness, 4.5-second
+auto-close, redraw continuity, no automatic replay, explicit replay/skip, reduced
+motion, image failure/load timeout, elapsed background scenes and unchanged
+records. git diff --check passed. No browser automation is available in this
+managed environment. Phone visual acceptance of the stylized motion remains
+pending; DOM tests are not browser animation QA. Publication receipt follows.
