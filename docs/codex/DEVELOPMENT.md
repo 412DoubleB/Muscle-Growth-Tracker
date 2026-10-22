@@ -1854,3 +1854,37 @@ a Start or confirmation action, stay until Stop, and leave recorded values intac
 Sound is on by default; after expiry the original chime should sound four times,
 one second apart. Mute/Stop must silence pending repetitions; explicit Mute must
 remain muted after reload. Test phone volume/browser availability separately.
+
+## Stage 27 — universal 60-second set rest and automatic recovery dismissal
+
+Owner extended recovery rest to non-superset exercises, then specified 60 seconds
+between every set for all workouts and automatic dismissal at zero. This newer
+instruction supersedes the earlier paired-round-only rest and mandatory manual
+Stop policies. Every individual checked set now starts 60 seconds, including
+supersets, warm-up, ramp, working/top, back-off, drop and custom/measured sets.
+The final unfinished set instead starts 180 seconds after every set of a standalone
+exercise or every set of both superset exercises is done. Unequal counts and
+auxiliary rows must all finish before pair recovery. Completing one paired round
+does not start 3-minute recovery while other sets remain.
+
+Completion rest blocks background entry while active, then closes automatically
+and restores focus/sync scheduling at zero. Stop/Escape can end rest early. Sleep
+and reload use the elapsed deadline; expired legacy completion popups do not
+reopen or replay a stale chime. The four-chime sequence and remembered mute remain.
+All automatic transitions still require a valid newly checked row and successful
+save; readings, redraws, duplicate checks and synchronization do not start rest.
+Ordinary automatic rest respects the device's Auto/Manual choice on any selected
+workout date; completion recovery is automatic regardless of that preference.
+
+Exercise labels, manual set-rest controls, generator/pair setup and Home session
+estimates now follow the same 60/180 timing. Stored legacy rest values and entered
+history are not rewritten; new forms display the current 60-second policy. Schema,
+identities, all exercise photos/bindings, backend, budgets and scheduled push are
+unchanged. This policy applies to set-based workouts; it does not invent strength
+sets for standalone run or sauna completion controls.
+
+Synthetic checks cover every set format and rep/time/distance convention, arbitrary
+completion order, unequal pairs, auxiliary sets, automatic exercise/pair popup
+dismissal, manual early stop, reload/sleep expiry, one audible sequence, preserved
+entered fields/legacy snapshots and the matching duration estimate. Actual phone
+rendering, audio and focus still need device acceptance.

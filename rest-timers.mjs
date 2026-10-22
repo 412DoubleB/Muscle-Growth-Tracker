@@ -1,7 +1,7 @@
 import {supersetFor} from './supersets.mjs?v=8.1.1';
 
-const working=set=>!['warmup','ramp','backoff','drop'].includes(set.role);
 const seconds=value=>Number.isFinite(+value)&&+value>0?Math.min(1800,Math.round(+value)):120;
+export const isCompletionRest=rest=>['pair','exercise'].includes(rest?.kind);
 
 // Only a newly checked local set can start rest. Viewing, syncing and unchecking
 // history never create timers. This function does not modify either workout.
@@ -9,16 +9,13 @@ export function restAfterCompletion(before,after,exerciseIndex,setIndex){
  const exercise=after.exercises?.[exerciseIndex],set=exercise?.sets?.[setIndex];
  if(!set?.done||before.exercises?.[exerciseIndex]?.sets?.[setIndex]?.done||after.status==='completed')return null;
  const pair=supersetFor(after,exerciseIndex);
- const ordinary=()=>({kind:'set',seconds:seconds(set.rest),label:exercise.name||'Set rest'});
- if(!pair||!working(set))return ordinary();
- const rows=pair.members.map(m=>({index:m.index,sets:m.exercise.sets.map((s,i)=>({set:s,index:i})).filter(r=>working(r.set))}));
- const pairedRounds=Math.min(...rows.map(m=>m.sets.length));
- const position=rows.find(m=>m.index===exerciseIndex).sets.findIndex(r=>r.index===setIndex);
- const allFinished=rows.every(m=>m.sets.length&&m.sets.every(r=>r.set.done));
+ if(!pair){
+  const complete=exercise.sets.length>0&&exercise.sets.every(s=>s.done);
+  return {kind:complete?'exercise':'set',seconds:complete?180:60,label:exercise.name||'Exercise rest'};
+ }
+ const allFinished=pair.members.every(m=>m.exercise.sets.length>0&&m.exercise.sets.every(s=>s.done));
  if(allFinished)return {kind:'pair',seconds:180,label:pair.members.map(m=>m.exercise.name).join(' + ')};
- if(position>=pairedRounds)return ordinary(); // Unmatched extra working sets.
- if(!rows.every(m=>m.sets[position]?.set.done))return null; // Alternate without rest.
- return {kind:'round',seconds:seconds(pair.restSeconds),label:`Superset ${pair.label} · round ${position+1}`};
+ return {kind:'set',seconds:60,label:exercise.name||'Set rest'};
 }
 
 export function restPreferences(storage,scope){
@@ -38,23 +35,23 @@ export class RestTimer{
   this.storage=storage;this.scope=scope;this.now=now;this.key='MGT_BETA_REST_TIMER:'+scope;this.record=null;this.legacyCompatibility=legacyCompatibility;this.lastEnd=null;
   try{
    const saved=JSON.parse(storage.getItem(this.key)||'null');
-   if(saved?.scope===scope&&['set','round','pair','manual'].includes(saved.kind)&&Number.isFinite(saved.end)&&saved.end>0&&saved.end<=now()+1800000&&typeof saved.label==='string'&&saved.label.length<=300){
+   if(saved?.scope===scope&&['set','round','pair','exercise','manual'].includes(saved.kind)&&Number.isFinite(saved.end)&&saved.end>0&&saved.end<=now()+1800000&&typeof saved.label==='string'&&saved.label.length<=300){
     this.record={...saved,completed:saved.completed===true};this.lastEnd=saved.end;
-    // Do not play a stale sound on reload. A completed pair still needs Stop.
-    if(saved.end<=now()||saved.completed){if(saved.kind==='pair')this.record.completed=true;else this.record=null;this.persist()}
+    // Reload never revives an expired popup or plays a stale sound.
+    if(saved.end<=now()||saved.completed){this.record=null;this.persist()}
    }else if(!saved&&legacyCompatibility&&scope==='guest'){
     const end=+storage.getItem('MGT_BETA_TIMER');
     if(Number.isFinite(end)&&end>now()&&end<=now()+1800000){this.record={scope,kind:'manual',end,label:'Rest timer',date:'',completed:false};this.persist()}
    }
   }catch{} // Storage denial must never prevent logging a workout.
  }
- get blocking(){return this.record?.kind==='pair'}
+ get blocking(){return isCompletionRest(this.record)}
  get remaining(){return this.record?Math.max(0,Math.ceil((this.record.end-this.now())/1000)):0}
  persist(){try{
   if(this.record){this.storage.setItem(this.key,JSON.stringify(this.record));if(this.legacyCompatibility)this.storage.setItem('MGT_BETA_TIMER',String(this.record.end));this.lastEnd=this.record.end}
   else{this.storage.removeItem(this.key);if(this.legacyCompatibility&&this.lastEnd!==null&&+this.storage.getItem('MGT_BETA_TIMER')===this.lastEnd)this.storage.removeItem('MGT_BETA_TIMER');this.lastEnd=null}
  }catch{}}
- start({kind='manual',seconds:duration=120,label='Rest timer',date=''}){
+ start({kind='manual',seconds:duration=60,label='Rest timer',date=''}){
   if(this.blocking)return false;
   this.record={scope:this.scope,kind,seconds:seconds(duration),end:this.now()+seconds(duration)*1000,label:String(label).slice(0,300),date,completed:false};this.persist();return true;
  }
@@ -62,7 +59,7 @@ export class RestTimer{
  tick(){
   if(!this.record||this.record.completed||this.remaining>0)return null;
   const finished={...this.record,completed:true};
-  this.record=this.blocking?finished:null;this.persist();return finished;
+  this.record=null;this.persist();return finished;
  }
 }
 
