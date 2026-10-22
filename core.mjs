@@ -1,3 +1,5 @@
+import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.1.1';
+export {readRecoverySnapshots} from './recovery.mjs?v=8.1.1';
 import {splitSession,trainingStyle,runningSession} from './training.mjs?v=8.1.1';
 import {autoSupersets,progressionContext} from './supersets.mjs?v=8.1.1';
 import { LEGACY_PLAN, LEGACY_MASTERS, LEGACY_EQUIPMENT, detailedGuide } from './legacy.mjs?v=8.1.1';
@@ -340,4 +342,19 @@ export function restoreReviewedConflict(state,archiveId,choice){
  if(choice==='current'&&!current.exists)throw Error('There was no current record at review. Choose a saved version instead.');
  return applyConflictReview(state,[conflict],'restore-'+choice,{value:choice==='current'?current.value:conflict[choice]},archiveId);
 }
-export class LocalStore{constructor(storage){this.storage=storage;this.scope='guest';this.state=null}load(scope='guest'){this.scope=scope;const text=this.storage.getItem('MGT_BETA_V8:'+scope);this.state=text?JSON.parse(text):defaultState();validateState(this.state);return this.state}save(state){const data=JSON.stringify({...state,updatedAt:now()});this.storage.setItem('MGT_BETA_V8:'+this.scope,data);this.state=JSON.parse(data);return this.state}snapshot(){const key='MGT_BETA_SNAPSHOTS:'+this.scope;let list=[];try{list=JSON.parse(this.storage.getItem(key)||'[]')}catch{}list.unshift({at:now(),state:clone(this.state)});list=list.slice(0,3);while(list.length>1&&JSON.stringify(list).length>700000)list.pop();for(;;){try{this.storage.setItem(key,JSON.stringify(list));break}catch(e){if(list.length<=1)throw e;list.pop()}}}legacy(){for(const key of ['MGT28v6','MGT28v5']){const data=this.storage.getItem(key);if(data)return {key,data:JSON.parse(data)}}return null}}
+export class LocalStore{
+ constructor(storage){this.storage=storage;this.scope='guest';this.state=null}
+ load(scope='guest'){this.scope=scope;const text=this.storage.getItem('MGT_BETA_V8:'+scope);this.state=text?JSON.parse(text):defaultState();validateState(this.state);return this.state}
+ save(state){const data=JSON.stringify({...state,updatedAt:now()});this.storage.setItem('MGT_BETA_V8:'+this.scope,data);this.state=JSON.parse(data);return this.state}
+ recoverySnapshots(){return readRecoverySnapshots(this.storage.getItem('MGT_BETA_SNAPSHOTS:'+this.scope))}
+ snapshot(){
+  const key='MGT_BETA_SNAPSHOTS:'+this.scope,list=[{at:now(),state:clone(this.state)},...this.recoverySnapshots()].slice(0,3);
+  for(;;){
+   const data=encodeRecoverySnapshots(list);
+   if(list.length>1&&data.length>700000){list.pop();continue}
+   try{this.storage.setItem(key,data);return}
+   catch(error){if(!isStorageQuotaError(error))throw error;if(list.length>1){list.pop();continue}throw Error('Device storage is full. This change was not applied because a recovery copy could not be saved. Export a backup before retrying.');}
+  }
+ }
+ legacy(){for(const key of ['MGT28v6','MGT28v5']){const data=this.storage.getItem(key);if(data)return {key,data:JSON.parse(data)}}return null}
+}

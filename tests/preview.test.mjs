@@ -54,7 +54,7 @@ test('synthetic backup round trip retains zero loads, unknown set fields, meals 
  const guest=C.defaultState();guest.ownerId=null;
  const result=C.importSnapshot(guest,{...exported,ownerId:'different-synthetic-account'}).state;
  assert.equal(result.ownerId,null);assert.deepEqual(result.logs,exported.logs);assert.deepEqual(result.meals,exported.meals);
- assert.deepEqual(JSON.parse(storage.getItem('MGT_BETA_SNAPSHOTS:guest'))[0].state.logs,exported.logs);
+ assert.deepEqual(C.readRecoverySnapshots(storage.getItem('MGT_BETA_SNAPSHOTS:guest'))[0].state.logs,exported.logs);
  assert.deepEqual(C.importSnapshot(result,exported).state.logs,result.logs);
 });
 

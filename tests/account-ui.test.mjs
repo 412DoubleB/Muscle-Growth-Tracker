@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {defaultState,makeExercise,CATALOG} from '../core.mjs';
+import {defaultState,makeExercise,CATALOG,readRecoverySnapshots} from '../core.mjs';
 import {CloudSync} from '../cloud.mjs?v=8.1.1';
 
 function environment(source,{scope='guest',confirmImport=true}={}){
@@ -53,7 +53,7 @@ test('switching account A to empty B never offers or merges A workouts as guest 
   const a=JSON.parse(env.rows.get('MGT_BETA_V8:account-a')),b=JSON.parse(env.rows.get('MGT_BETA_V8:account-b'));
   assert.deepEqual(env.prompts,[]);assert.deepEqual(b.logs,{});assert.deepEqual(b.meals,{});assert.equal(b.ownerId,'account-b');
   assert.equal(env.rows.get('MGT_BETA_V8:account-a'),before);assert.deepEqual(a.logs,original.logs);assert.deepEqual(a.meals,original.meals);
-  const recovery=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:account-a'))[0].state;assert.deepEqual(recovery.logs,original.logs);assert.deepEqual(recovery.meals,original.meals);
+  const recovery=readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:account-a'))[0].state;assert.deepEqual(recovery.logs,original.logs);assert.deepEqual(recovery.meals,original.meals);
  }finally{env.restore()}
 });
 
@@ -64,7 +64,7 @@ for(const accepted of [true,false])test('genuine guest workouts import only when
   assert.equal(env.prompts.length,1);assert.match(env.prompts[0],/guest workouts/);assert.equal(b.ownerId,'account-b');
   assert.deepEqual(b.logs,accepted?original.logs:{});assert.deepEqual(b.meals,accepted?original.meals:{});
   assert.equal(env.rows.get('MGT_BETA_V8:guest'),before);
-  const recovery=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.deepEqual(recovery.logs,original.logs);
+  const recovery=readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.deepEqual(recovery.logs,original.logs);
  }finally{env.restore()}
 });
 
@@ -93,6 +93,6 @@ test('accepted guest workouts survive first synchronization with an existing rem
   assert.equal(commit.options.body.expected_version,4);
   assert.deepEqual(commit.options.body.payload.logs,saved.logs);
   assert.deepEqual(JSON.parse(env.rows.get('MGT_BETA_V8:guest')).logs,original.logs);
-  assert.deepEqual(JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state.logs,original.logs);
+  assert.deepEqual(readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state.logs,original.logs);
  }finally{env.restore()}
 });

@@ -56,13 +56,13 @@ test('keep current then acknowledge matching copies archives all 107 without cha
   await import('../app.mjs?conflict-review=keep');const before=env.state,current=active(before),historical=C.clone(before.conflicts);
   await env.click('conflicts');await env.click('keep-current-conflict',{id:'different-nutrition'});
   assert.deepEqual(active(env.state),current);assert.equal(env.state.conflicts.length,106);assert.equal(C.reviewedConflicts(env.state).length,1);assert.equal(env.elements.get('modal').open,true);assert.equal(scheduled,0);
-  const firstSnapshot=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.deepEqual(firstSnapshot.conflicts,historical);assert.deepEqual(firstSnapshot.nutrition,before.nutrition);
+  const firstSnapshot=C.readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.deepEqual(firstSnapshot.conflicts,historical);assert.deepEqual(firstSnapshot.nutrition,before.nutrition);
   await env.click('acknowledge-matching-conflicts');const reviewed=env.state,archives=C.reviewedConflicts(reviewed);
   assert.deepEqual(active(reviewed),current);assert.deepEqual(reviewed.conflicts,[]);assert.equal(archives.length,107);assert.equal(new Set(reviewed.resolvedConflicts).size,107);
   for(const conflict of historical)assert.deepEqual(archives.find(entry=>entry.data.conflict.id===conflict.id).data.conflict,conflict);
   const nutrition=archives.find(entry=>entry.data.conflict.id==='different-nutrition');assert.deepEqual(nutrition.data.current,{exists:true,value:before.nutrition});
   const recipe=archives.find(entry=>entry.data.conflict.id==='matching-0');assert.deepEqual(recipe.data.current,{exists:true,value:before.recipes[0]});
-  const preBulk=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.equal(preBulk.conflicts.length,106);assert.equal(C.reviewedConflicts(preBulk).length,1);
+  const preBulk=C.readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.equal(preBulk.conflicts.length,106);assert.equal(C.reviewedConflicts(preBulk).length,1);
   assert.equal(env.elements.get('modal').open,true);assert.equal(scheduled,0);assert.match(env.elements.get('modalBody').innerHTML,/No pending reviews\. Your current settings are unchanged\. Close to sync\./);assert.match(env.elements.get('modalBody').innerHTML,/Reviewed copies · 107/);
   await env.click('view',{view:'history'});assert.match(env.elements.get('app').innerHTML,/1 original snapshots saved\./);assert.match(env.elements.get('app').innerHTML,/Reviewed copies/);assert.doesNotMatch(env.elements.get('app').innerHTML,/108 original snapshots/);
   const backup=JSON.parse(JSON.stringify(reviewed));assert.equal(C.reviewedConflicts(backup).length,107);assert.deepEqual(backup.logs,current.logs);
@@ -101,7 +101,7 @@ test('historical selection is explicit and reviewed copies can restore both an o
   assert.deepEqual(C.reviewedConflicts(env.state).find(entry=>entry.id===archive.id),archive);
   await env.click('restore-reviewed-conflict',{id:archive.id,choice:'current'});
   const current=C.clone(env.state.nutrition),expected=C.clone(before.nutrition);delete current.updatedAt;delete expected.updatedAt;assert.deepEqual(current,expected);assert.equal(C.reviewedConflicts(env.state).length,3);assert.deepEqual(env.state.logs,before.logs);assert.equal(env.elements.get('modal').open,true);
-  const snapshot=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.equal(snapshot.nutrition.diet,'Any');assert.equal(C.reviewedConflicts(snapshot).length,2);
+  const snapshot=C.readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.equal(snapshot.nutrition.diet,'Any');assert.equal(C.reviewedConflicts(snapshot).length,2);
  }finally{env.restore()}
 });
 
@@ -110,7 +110,7 @@ test('a quota failure keeps the pending review and never displays completion',as
  try{
   await import('../app.mjs?conflict-review=quota');const before=env.state;
   await env.click('conflicts');env.failNextWorkspaceSave();await env.click('keep-current-conflict',{id:'different-nutrition'});
-  assert.deepEqual(env.state,before);assert.equal(C.reviewedConflicts(env.state).length,0);assert.equal(env.elements.get('modal').open,true);assert.doesNotMatch(env.elements.get('modalBody').innerHTML,/No pending reviews/);assert.match(env.elements.get('modalBody').innerHTML,/Acknowledge 106 matching copies/);assert.match(env.elements.get('toast').textContent,/quota/);
-  const snapshot=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.deepEqual(snapshot.conflicts,before.conflicts);assert.deepEqual(snapshot.nutrition,before.nutrition);
+  assert.deepEqual(env.state,before);assert.equal(C.reviewedConflicts(env.state).length,0);assert.equal(env.elements.get('modal').open,true);assert.doesNotMatch(env.elements.get('modalBody').innerHTML,/No pending reviews/);assert.match(env.elements.get('modalBody').innerHTML,/Acknowledge 106 matching copies/);assert.match(env.elements.get('toast').textContent,/could not be saved to device storage/);
+  const snapshot=C.readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state;assert.deepEqual(snapshot.conflicts,before.conflicts);assert.deepEqual(snapshot.nutrition,before.nutrition);
  }finally{env.restore()}
 });

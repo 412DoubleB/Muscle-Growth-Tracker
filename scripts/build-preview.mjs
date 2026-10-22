@@ -16,7 +16,7 @@ export async function buildPreview(output,{mode='local'}={}){
  // An older output may still contain the superseded owner-only report.
  await fs.rm(path.join(output,'beta-report.html'),{force:true});
  for(const name of files)await fs.copyFile(path.join(source,name),path.join(output,name));
- for(const dir of ['media','artwork','fonts'])await fs.cp(path.join(source,dir),path.join(output,dir),{recursive:true});
+ for(const dir of ['media','artwork','fonts','vendor'])await fs.cp(path.join(source,dir),path.join(output,dir),{recursive:true});
  let html=await fs.readFile(path.join(source,'index.html'),'utf8');
  html=html.replace('<html lang="en">',`<html lang="en" data-preview="${mode}"${testCloud?' data-test-project="'+testProject+'" data-beta-admission="menei"':''} data-preview-revision="${revision.slice(0,12)}">`).replace('<meta charset="utf-8">',`<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="connect-src 'self'${testCloud?' https://'+testProject+'.supabase.co':''}; object-src 'none'; base-uri 'self'; form-action 'self'">`);
  html=html.replace('<main id="app">',`<aside class="callout" style="margin:16px 18px" aria-label="Private preview"><b>${testCloud?'Limited beta · Isolated test cloud':'Private preview · Device-only test workspace'}</b><p>${testCloud?'Use your MENEI test account to join the beta and sync. AI gym search runs inside MENEI; no ChatGPT account or extra download is needed. Start with sample data and review the gym and schedule templates. Your live app stays separate. Scheduled push is disabled.':'Your live app stays separate. Cloud sync and scheduled push are disabled here.'} <a href="./preview-guide.html">Testing checklist</a></p></aside><main id="app">`);

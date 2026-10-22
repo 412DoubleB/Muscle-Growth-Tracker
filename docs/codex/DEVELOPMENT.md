@@ -2421,3 +2421,39 @@ Owner check: /update.html, Settings → Edit lifting & running options → Start
 should show the revised workout on Home. With load, reps, RIR or a checked set,
 the review should explain that the day stays protected while future unstarted
 workouts take the new options. Preserve completed conditioning too.
+
+## Recovery snapshot storage quota fix
+
+Owner reported a browser Storage.setItem quota failure on the account-scoped
+MGT_BETA_SNAPSHOTS key while saving a program. A full recovery copy could exceed
+localStorage even after the existing three-copy retention reduced to one copy.
+Recovery snapshots now use lossless UTF-16 compression, with a versioned envelope,
+uncompressed length and checksum. Existing JSON-array recovery keys remain
+readable and only compact when a new snapshot is requested. Unknown fields,
+Unicode, zero values, original snapshots and other account keys are preserved.
+Main workspace JSON, schema 8, raw legacy keys and cloud wire format are unchanged.
+No records or other account keys are cleared to make room. Unreadable recovery
+copies fail closed without overwriting the saved value. Existing retention remains
+at most three recovery copies; pressure may reduce it to the latest full copy.
+
+Bundled lz-string 1.5.0 (MIT, pieroxy) provides the lossless codec. The pinned
+registry source hash and ESM-only footer adaptation are recorded in vendor/README.md;
+the full license ships beside the module. No runtime provider/dependency download.
+Offline shell and isolated preview builder include the codec. Recovery browsing
+and JSON export decode both old and compressed formats; exports stay ordinary
+complete workspace JSON. Tests read decoded contents rather than assuming an
+internal recovery-key representation.
+
+Program Save now builds a candidate workspace, writes it successfully, and only
+then closes the preview or clears its draft. A failed snapshot or primary write
+keeps the prior state and draft available for retry. The review has an Export
+backup action; errors explain the save failure instead of exposing raw setItem
+messages. Storage errors do not silently skip the recovery copy.
+
+Synthetic 5 MiB quota tests reproduce the rejected uncompressed full-state copy,
+then verify compressed recovery creation and a subsequent program save. A UI test
+exports the compressed recovery through the app and compares the complete JSON to
+the prior workspace, including large retained originals and unknown fields.
+Additional failures cover snapshot and primary writes, unchanged durable state,
+no false completion, and retrying the same open draft. No user-data export was
+accessed and no user storage was cleared for testing.

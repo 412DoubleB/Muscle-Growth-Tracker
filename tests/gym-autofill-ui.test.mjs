@@ -122,7 +122,7 @@ test('notes-only edits retain equipment confirmation while changing the location
   const noted=env.state.gyms[0];assert.equal(noted.equipmentConfirmedAt,stamp);assert.deepEqual(noted.sourceInfo,original.sourceInfo);
   await env.click('gym',{id:original.id});env.writes.length=0;await env.set('location','Different Synthetic City');await env.set('address','100 Different Synthetic Avenue');assert.deepEqual(env.writes,[]);await env.submit();
   const moved=env.state.gyms[0];assert.equal(moved.equipmentConfirmedAt,null);assert.equal(moved.sourceInfo,null);assert.equal(moved.notes,'Edited synthetic notes only');assert.deepEqual(moved.inventory,noted.inventory);
-  const recovery=JSON.parse(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state.gyms[0];assert.deepEqual(recovery.sourceInfo,original.sourceInfo);assert.equal(recovery.equipmentConfirmedAt,stamp);
+  const recovery=C.readRecoverySnapshots(env.rows.get('MGT_BETA_SNAPSHOTS:guest'))[0].state.gyms[0];assert.deepEqual(recovery.sourceInfo,original.sourceInfo);assert.equal(recovery.equipmentConfirmedAt,stamp);
  }finally{env.restore()}
 });
 
