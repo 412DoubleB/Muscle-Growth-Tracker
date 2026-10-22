@@ -1776,3 +1776,34 @@ time, including after zero, without changing logged fields. Enable Sound with a
 tap, verify the completion cue, mute it, and check focus/phone layout. Reload and
 sleep should catch up; other app tabs should still finish rest. Closed-app sound
 and scheduled push are not promised or enabled by this change.
+
+## Stage 26 — unconditional final-pair popup and default-on audio
+
+Owner reported the final superset rest still required a manual start and requested
+automatic audio with a mute control. Inspection found the completion handler
+gated every automatic rest on selectedDate === today and the ordinary Auto rest
+preference. The final-pair completion now bypasses both gates: checking its last
+valid unfinished working set automatically opens the 180-second blocking dialog
+after a successful save, even if the workout has another scheduled date or
+ordinary set/round rest is manual. There is no confirmation or start action.
+Ordinary set/round timing retains its existing optional/today behavior.
+
+Owner reconfirmed that the blocking popup belongs only AFTER ALL rounds of the
+pair, not between rounds. Unmatched working sets still count toward completion.
+Redraws, sync, duplicate checks and completed history do not manufacture a new
+completion event. Stop remains available immediately and after the timer reaches
+zero; Escape also stops it. No recorded loads, reps, RIR or structure are changed.
+
+Timer audio is now on by default. Policy 2 enables previous unversioned default-off
+preferences once; an explicit Mute saved under the new policy persists. Buttons
+say Mute sound / Unmute sound, with aria-pressed representing mute. The checked
+Done or manual-timer gesture automatically arms browser audio; there is no
+separate enable prompt. Audio still depends on browser/OS availability and volume.
+No sound is played on page load, and no closed-app push is enabled.
+
+Regression coverage includes final completion on another scheduled date with the
+old disabled/default-off preferences, automatic sound without an enable click,
+explicit persistent mute, one completion cue, manual dismissal and preservation
+of other dates and legacy snapshots. Real-phone playback/layout acceptance is
+still separate from synthetic DOM checks. Backend, budgets and deferred photos
+remain unchanged.

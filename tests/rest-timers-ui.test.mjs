@@ -39,17 +39,27 @@ test('Done starts ordinary rest without changing loads/history; duplicate Done, 
   await import('../app.mjs?rest-ui=ordinary');assert.equal(env.timer,null);assert.equal(env.audio.contexts,0);const before=env.state;
   await env.check(2,0);assert.equal(env.timer.kind,'set');assert.equal(env.timer.end-Date.now(),90000);assert.equal(env.element('restTray').hidden,false);assert.equal(env.element('restDialog').open,false);
   assert.deepEqual(env.state.logs['2026-12-01'],before.logs['2026-12-01']);assert.deepEqual(env.state.legacySnapshots,before.legacySnapshots);assert.deepEqual({...env.state.logs[date].exercises[2].sets[0],done:false},before.logs[date].exercises[2].sets[0]);
+  assert.equal(env.audio.contexts,1);await env.click('timer-sound');assert.equal(JSON.parse(env.rows.get('MGT_BETA_REST_SETTINGS:guest')).sound,false);
   const end=env.timer.end;t.mock.timers.tick(10000);await env.check(2,0);assert.equal(env.timer.end,end);await env.change(2,0,'done',false);assert.equal(env.timer.end,end);
   await env.click('view',{view:'nutrition'});t.mock.timers.tick(90000);env.poll();assert.equal(env.timer,null);assert.equal(env.element('restTray').hidden,true);assert.match(env.element('toast').textContent,/Rest complete/);assert.equal(env.audio.starts,0);assert.equal(env.rows.get('MGT28v6'),'{"untouched":true}');
  }finally{env.restore()}
 });
-test('pair rest waits for both sets of every round, blocks entries, sounds once if enabled, and stays until Stop',async t=>{
+test('pair rest waits for both sets of every round, blocks entries, sounds automatically, and stays until Stop',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
   await import('../app.mjs?rest-ui=pair');await env.check(0,0);assert.equal(env.timer,null);await env.check(1,0);assert.equal(env.timer.kind,'round');assert.equal(env.timer.end-Date.now(),75000);assert.equal(env.element('restDialog').open,false);
   await env.check(0,1);assert.equal(env.timer.kind,'round');await env.check(1,1);assert.equal(env.timer.kind,'pair');assert.equal(env.timer.end-Date.now(),180000);assert.equal(env.element('restDialog').open,true);
-  const saved=env.state;await env.change(2,0,'w',999);await env.click('remove-exercise',{index:2});assert.deepEqual(env.state,saved);assert.equal(env.audio.contexts,0);
-  await env.click('timer-sound');assert.equal(env.audio.contexts,1);t.mock.timers.tick(180000);env.poll();assert.equal(env.audio.starts,2);env.poll();assert.equal(env.audio.starts,2);assert.equal(env.element('restDialog').open,true);assert.match(env.element('restDialogStatus').textContent,/Stop timer to continue/);
+  const saved=env.state;await env.change(2,0,'w',999);await env.click('remove-exercise',{index:2});assert.deepEqual(env.state,saved);assert.equal(env.audio.contexts,1);
+  t.mock.timers.tick(180000);env.poll();assert.equal(env.audio.starts,2);env.poll();assert.equal(env.audio.starts,2);assert.equal(env.element('restDialog').open,true);assert.match(env.element('restDialogStatus').textContent,/Stop timer to continue/);
   await env.click('stop-timer');assert.equal(env.timer,null);assert.equal(env.element('restDialog').open,false);assert.deepEqual(env.state,saved);await env.change(2,0,'w',45);assert.equal(env.state.logs[date].exercises[2].sets[0].w,45);
+ }finally{env.restore()}
+});
+test('finishing a pair in the selected workout opens the popup without a prompt even on another scheduled date with Auto rest off',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
+  env.rows.set('MGT_BETA_REST_SETTINGS:guest',JSON.stringify({auto:false,sound:false}));await import('../app.mjs?rest-ui=selected-pair');await env.click('open-date',{date:'2026-12-01'});const before=env.state;
+  await env.check(0,0);await env.check(1,0);assert.equal(env.timer,null);await env.check(0,1);assert.equal(env.timer,null);await env.check(1,1);
+  assert.equal(env.timer.kind,'pair');assert.equal(env.timer.date,'2026-12-01');assert.equal(env.timer.end-Date.now(),180000);assert.equal(env.element('restDialog').open,true);assert.equal(env.audio.contexts,1);
+  assert.deepEqual(env.state.logs[date],before.logs[date]);assert.deepEqual(env.state.legacySnapshots,before.legacySnapshots);
+  const saved=env.state;await env.click('stop-timer');assert.equal(env.element('restDialog').open,false);assert.deepEqual(env.state,saved);
  }finally{env.restore()}
 });
 test('auto rest can be disabled; invalid, past-day and failed saves do not start timers',async t=>{

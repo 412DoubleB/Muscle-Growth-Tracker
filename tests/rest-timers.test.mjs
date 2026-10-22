@@ -35,7 +35,7 @@ test('timers and preferences are account scoped, ignore corrupt/expired records,
  assert.equal(new RestTimer({storage:saved,scope:'B',now:()=>1000}).record,null);assert.equal(new RestTimer({storage:saved,scope:'A',now:()=>200000}).record.completed,true);
  saved.setItem('MGT_BETA_REST_TIMER:B','broken');assert.equal(new RestTimer({storage:saved,scope:'B'}).record,null);
  const b=new RestTimer({storage:saved,scope:'B',now:()=>1000});b.start({seconds:1});assert.equal(new RestTimer({storage:saved,scope:'B',now:()=>3000}).record,null);
- assert.equal(saved.getItem('MGT_BETA_TIMER'),'legacy');saveRestPreferences(saved,'A',{auto:false,sound:true});assert.deepEqual(restPreferences(saved,'A'),{auto:false,sound:true});assert.deepEqual(restPreferences(saved,'B'),{auto:true,sound:false});
+ assert.equal(saved.getItem('MGT_BETA_TIMER'),'legacy');saved.setItem('MGT_BETA_REST_SETTINGS:A',JSON.stringify({auto:false,sound:false}));assert.deepEqual(restPreferences(saved,'A'),{auto:false,sound:true});saveRestPreferences(saved,'A',{auto:false,sound:false});assert.deepEqual(restPreferences(saved,'A'),{auto:false,sound:false});assert.deepEqual(restPreferences(saved,'B'),{auto:true,sound:true});
 });
 test('timer audio is dormant before a user gesture, uses two quiet tones, and can stop active sound',async()=>{
  let contexts=0,starts=0,stops=0;const context={state:'suspended',currentTime:1,destination:{},async resume(){this.state='running'},createOscillator(){return {frequency:{value:0},connect(){},disconnect(){},start(){starts++},stop(){stops++}}},createGain(){return {gain:{setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){},disconnect(){}}}};

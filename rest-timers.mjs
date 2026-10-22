@@ -22,11 +22,13 @@ export function restAfterCompletion(before,after,exerciseIndex,setIndex){
 }
 
 export function restPreferences(storage,scope){
- try{const saved=JSON.parse(storage.getItem('MGT_BETA_REST_SETTINGS:'+scope)||'null');return {auto:saved?.auto!==false,sound:saved?.sound===true}}catch{return {auto:true,sound:false}}
+ // Policy 2 makes sound automatic, including previous default-off preferences.
+ // An explicit mute saved under this policy remains muted across reloads.
+ try{const saved=JSON.parse(storage.getItem('MGT_BETA_REST_SETTINGS:'+scope)||'null');return {auto:saved?.auto!==false,sound:saved?.audioPolicy===2?saved.sound!==false:true}}catch{return {auto:true,sound:true}}
 }
 export function saveRestPreferences(storage,scope,preferences){
- const result={auto:preferences.auto!==false,sound:preferences.sound===true};
- storage.setItem('MGT_BETA_REST_SETTINGS:'+scope,JSON.stringify(result));return result;
+ const result={auto:preferences.auto!==false,sound:preferences.sound!==false};
+ storage.setItem('MGT_BETA_REST_SETTINGS:'+scope,JSON.stringify({...result,audioPolicy:2}));return result;
 }
 
 // Device-session state stays outside workout history and cloud synchronization.
