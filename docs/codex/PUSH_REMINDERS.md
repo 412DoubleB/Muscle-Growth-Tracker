@@ -167,3 +167,32 @@ without a cloud registration write. Helper tests cover repeat alerts and denied
 permission; a service-worker VM dispatch verifies waitUntil holds notification
 creation and uses alert options on repeated tags. All responses are synthetic.
 No new backend, tracking receipt, account, credential or push send is introduced.
+
+
+## Background delivery priority
+
+The owner verified that Test notification now displays a real phone notification.
+Closed-app delivery is still not accepted. Subsequent server tests reached FCM
+with zero sender errors, which is provider acceptance only. The sender previously
+omitted urgency, so pinned web-push 3.6.7 selected normal priority. Set urgency to
+high for these time-sensitive user-visible reminders and tests. Keep TTL 900,
+network timeout 10000, the minute schedule, cron authentication, pilot restrictions,
+slot leases and duplicate suppression unchanged. Do not resend a completed slot
+or rotate keys to test this change; a new owner-requested test creates a new slot.
+
+Primary references:
+https://github.com/web-push-libs/web-push#sendnotificationpushsubscription-payload-options
+https://firebase.google.com/docs/cloud-messaging/customize-messages/setting-message-priority
+
+An actual-handler VM test runs the stripped TypeScript with synthetic database,
+provider and cron credentials. It failed for missing high urgency before the
+change and passes with high urgency plus bounded TTL/timeout. Additional cases
+retain duplicate suppression, reject invalid cron authentication and prevent
+requests to a different project. No real provider request occurs in these tests.
+
+A saved workout time is the workout start, not the alert time: its reminder is
+one hour earlier. Saving a start with less than an hour remaining does not create
+an on-start alert or retroactively replay an already expired reminder window.
+The two-minute test can be sent on the next minute tick after its exact due time.
+These timing rules remain unchanged. Neither high priority nor a successful
+showNotification promise overrides device settings or proves physical delivery.

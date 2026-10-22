@@ -39,7 +39,7 @@ Deno.serve(async(req:Request)=>{
      const claim={subscription_id:sub.id,slot_kind:item.kind,slot_key:item.slot};
      const lease=await rpc('menei_beta_push_claim',claim);if(!lease)continue;
      try{
-      await webpush.sendNotification(sub.subscription,JSON.stringify(item.message),{TTL:900,timeout:10000});
+      await webpush.sendNotification(sub.subscription,JSON.stringify(item.message),{TTL:900,timeout:10000,urgency:'high'});
       await rpc('menei_beta_push_finish',{...claim,lease_token:lease,delivered:true});sent++;
      }catch(error){
       const status=(error as {statusCode?:number}).statusCode;

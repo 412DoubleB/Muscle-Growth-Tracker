@@ -2883,3 +2883,16 @@ now. Leave MENEI open for this immediate test and check the notification panel a
 well as sound/popup. It tests local Chrome display only. A success toast is not
 proof of physical presentation. Next diagnosis depends on the real device result;
 do not mark closed-app delivery accepted merely because the provider accepted it.
+
+
+### Timely background push priority
+
+Immediate local notification display is now owner-confirmed; closed-app delivery
+remains unresolved. Server tests have provider acceptance without sender errors.
+The sender omitted urgency and therefore used pinned web-push's normal priority.
+Explicit high urgency is appropriate for this low-volume, time-sensitive visible
+owner pilot. Only the sendNotification options change; TTL, timeout, authentication,
+project/account/pilot isolation, due windows and duplicate suppression stay intact.
+No new test push, replay, quota reset, VAPID key or frontend deployment is needed.
+An actual-handler VM regression fails before and passes after the option change,
+with negative auth/project/dedup cases. Full regression validation is in progress.
