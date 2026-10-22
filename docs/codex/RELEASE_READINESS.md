@@ -2,7 +2,7 @@
 
 This is the current release checklist, not authorization to publish. Historical
 setup and handoff reports remain evidence for their original stages. The latest
-private implementation is preview 46, build `3eda3bfa219c`, with isolated push
+private implementation is preview 47, build `103544ed83dc`, with isolated push
 sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 ## Verified and accepted at the reported scope
@@ -19,6 +19,11 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
   disabled; rest sounds/timers, progression, account isolation and preserved
   storage checks pass. Older preview 45 results remain in DEVELOPMENT.md as
   historical evidence, not the current regression result.
+- Preview 47 fixes obsolete private app-file cache cleanup. Its six affected
+  update/offline/package/push test files passed (8974.054945 ms), plus a VM check
+  of the packaged worker with all 53 cached shell entries. The active offline
+  Home/code, unrelated caches and API/Auth bypass were retained. This is not a
+  new full-suite or physical-phone result.
 - Static validation passed again during this readiness review: 33 JavaScript
   modules, 53 offline entries, 162 original image identities, 113 WebP assets and
   35 retained movement pairs. No browser or physical-device result is inferred.
@@ -71,7 +76,7 @@ credentials now. Exercise-photo review, including the unresolved supinated
 cross-body preacher curl, remains deferred. Further mascot refinement is also
 deferred after provisional acceptance. No quote playback is requested.
 
-See DEVELOPMENT.md for the private preview 46 publication receipt. This step
-changed only the speech gate/copy and private build metadata. No notification,
+See DEVELOPMENT.md for the private preview 47 publication receipt. This step
+changed only obsolete app-file cache cleanup and private build metadata. No notification,
 provider request, account data, backend setting, media asset, sharing policy or
 live deployment changed. The concrete live cutover plan is in LIVE_RELEASE_PLAN.md.

@@ -3185,3 +3185,47 @@ followed these checks. Exact private publication receipt follows separately.
 Speech stays disabled; wearables/photos remain deferred. The one-hour reminder
 and physical installed/offline reopening checks remain pending, not accepted
 merely because the owner asked to continue.
+
+
+Offline/update correction — private preview 47 receipt:
+Runtime source 103544ed83dc0bff265b3046454cecba22fa3321, exact pushed Sites
+source 2b22c33ae037e44fe72cf8b562920a00452219f3. The packaged worker was also
+executed in a VM against the actual checkout files: all 53 shell entries installed,
+two obsolete build caches were removed, the active Home and app module loaded
+offline, an unrelated cache remained, and API/no-store/Auth traffic bypassed the
+cache. No browser/CUA was available; installed-phone acceptance is pending.
+
+Archive contains 186 files / 170 client, 158395942 bytes, SHA-256
+230d11aca35d198dc43c43157e4ca60d01a36c30035d07e0f8d08c83b73403f7.
+Every member matches the clean pushed checkout. Only sw.js and five expected
+private build metadata members changed. All 124 protected media/font assets,
+media bindings, app.mjs and all other client modules, server/migrations and all
+remaining existing members match preview 46 byte for byte. No additions/removals,
+private inputs, exports or runtime keys. Speech remains disabled.
+
+The first native publication returned a plain tool error without a saved version
+or deployment ID. Read-only reconciliation found latest version 46 and no version
+for this source. One retry reused the exact unchanged project/source/archive and
+succeeded; no duplicate version/deployment was initiated after a successful result.
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_3abca6486ee48191a5f1402c67c0725a.
+Deployment appgdep_6ada9e684d888191ab4b5e37b7c313bd succeeded at
+2026-10-22 23:38:28.354119 UTC; runtime revision 6 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Native saved provenance confirms the exact pushed source, 186 files and normalized
+tar size 160696320, SHA-256
+59b2dab5ec40be7133e5dfd3f44f2778376892bea6c5776ab5012af63638e29d.
+Uploaded gzip and saved tar are distinct representations, not equal archive bytes.
+
+Fresh access remains one owner, zero additional users/editors/groups/external
+visitors/automations. Source credentials and bearer-bearing/signed-URL responses
+were cleared from session storage. No public GitHub push/main merge, live-app or
+backend change, sharing change, notification, provider request, AI budget/key
+change, user data reset or media change occurred. Isolated sender v3 remains
+unchanged. Both checkouts are clean after the receipt commit.
+
+Owner check: load /update.html online and open Home (build 103544ed83dc), then
+close/reopen with airplane mode enabled and inspect existing saved entries.
+Restore the connection afterward. Do not clear storage, uninstall, sign out or
+create artificial workout records for this check. The one-hour reminder remains
+pending separately; asking to move on did not establish device acceptance.
