@@ -2380,3 +2380,44 @@ including an entry added after preview. Preview uses a cloned scratch workspace;
 changes are applied only by Save, with the existing recovery snapshot. Historical
 logs, conflicting copies, meals, pantry, recipes and unrelated planned days stay
 preserved. No schema, asset, backend, AI-budget or push change.
+
+Validation: all 64 test files passed (184702 ms). npm run check passed: 29 JS
+modules, 48 offline shell entries, 162 original identities, 113 WebP assets and
+35 protected pairs. git diff --check and packaged module syntax checks passed.
+Focused UI checks cover Settings after browsing a future date, Start today with
+no writes, read-only preview, today's new sets/reps/running options on Home,
+zero-load/RIR protection, entered plan rows and an entry added after preview.
+Past logs, retained copies, future recorded sessions, unrelated plans, meals,
+recipes, pantry and raw legacy storage remain equal in synthetic checks. No
+browser/phone visual QA is claimed for this new screen behavior.
+
+Private preview 37: app source 04f84400ba77f7d8332160560a72439c9777d9e9;
+exact pushed Sites source 740b232a1857b4378d84a673dd00b96e9537a752.
+Eight expected client/build changes, no additions/removals; 179 packaged files,
+163 client. All 124 retained media/font assets, media-manifest bindings and
+server/provider/migration members are identical to preview 36. No private
+records, exports, backups or keys included. Previous archives retained.
+Uploaded gzip: 158381710 bytes, SHA-256
+7b9826a60e120ef0c96f3df41cb7a614457c6974f8cd9fba5737a9253c42cf91.
+Local Git tar: 160645120 bytes, SHA-256
+b7da0b712f7b419fd1e0f0e82e8b9884c54586ea8bdf59dfa74c2254fed0a30a.
+Saved-version archive: 179 files, 160645120 bytes, SHA-256
+f3d1e211657d7985b5af7fa641df9520ddcb337a1427ecd722498ea7d7430abf.
+Local and native archive hashes are recorded separately; fresh source provenance
+matches the exact pushed commit above.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_7e9958ed72d481918642a825bd798afa.
+Deployment appgdep_6ad9f3f354908191a0547f6183fba4e1 succeeded at
+2026-10-22 07:31:19 America/New_York; runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience read: one owner; zero other users, editors, groups, external
+visitors or automations. Source credentials cleared from orchestration storage.
+No public GitHub push/main merge, live app/backend, sharing, schema, AI-key/budget
+or scheduled-push change.
+
+Owner check: /update.html, Settings → Edit lifting & running options → Start today
+(build 04f84400ba77). With no gym entries, preview and Save program + update today
+should show the revised workout on Home. With load, reps, RIR or a checked set,
+the review should explain that the day stays protected while future unstarted
+workouts take the new options. Preserve completed conditioning too.
