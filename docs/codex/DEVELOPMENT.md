@@ -2782,3 +2782,16 @@ workout time and time zone. Choose Enable push on this device → Allow. Choose
 Test with app closed · 2 min, close MENEI, and allow roughly 2–3 minutes for the
 server test. Actual notification permission and delivery are owner-device checks.
 Calendar alerts are optional; they are not required for this direct push path.
+
+
+### Private push controls correction
+
+The owner’s signed-in Settings screenshot exposed a client configuration bug:
+the accepted pushServiceReady value was overwritten with false and its public
+VAPID key was omitted. Preserve those validated server values in runtimeConfig.
+This restores the existing owner-only Enable/Test controls and passes the public
+key into browser registration; it does not bypass admission or widen the pilot.
+An integrated beta-entry test failed before the fix and passes afterward for
+owner controls/registration; member, offline and server-disabled paths remain
+blocked. Synthetic tests do not establish physical phone delivery. No backend,
+credential, runtime environment, user-data, live-app or media change is needed.

@@ -177,7 +177,7 @@ async function loadRuntimeConfig(){
   failure='The private preview public test connection is invalid. Please report this setup error.';
   if(betaAdmissionPage&&config.betaAdmissionRequired!==true)throw Error();
   if(config.betaAdmissionRequired!==true&&(Object.hasOwn(config,'betaAccountContext')||Object.hasOwn(config,'betaMemberRole')))requireBetaBrowserContext(localStorage,config.betaAccountContext);
-  cloud.disabled=false;cloud.configure(config.supabase.url,config.supabase.key);runtimeConfig={supabase:cloud.config,pushServiceReady:false,gymResearchReady:config.gymResearchReady===true,...(config.betaAdmissionRequired===true?{betaAdmissionRequired:true,betaPhase:config.betaPhase,betaStorageReady:config.betaStorageReady===true}:{})};
+  cloud.disabled=false;cloud.configure(config.supabase.url,config.supabase.key);runtimeConfig={supabase:cloud.config,pushServiceReady:config.pushServiceReady,...(config.pushServiceReady?{vapidPublicKey:config.vapidPublicKey}:{}),gymResearchReady:config.gymResearchReady===true,...(config.betaAdmissionRequired===true?{betaAdmissionRequired:true,betaPhase:config.betaPhase,betaStorageReady:config.betaStorageReady===true}:{})};
  }catch(error){
   if(needsBetaAdmission()&&receivedConfigResponse)forgetBetaAdmission(localStorage,testCloudProject,cloud.session?.user?.id);
   if(error instanceof BetaBrowserContextError){cloud.disabled=true;cloud.stopped=true;throw error}

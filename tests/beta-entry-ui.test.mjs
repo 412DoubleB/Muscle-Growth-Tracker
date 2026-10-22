@@ -9,8 +9,8 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
 const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve}};
 const session=id=>({user:{id,email:id+'@example.invalid'},access_token:'synthetic-'+id,refresh_token:'synthetic-refresh-'+id,expires_at:Date.now()/1000+3600});
 const workspaceKey=key=>/^MGT_BETA_(V8|SNAPSHOTS):/.test(key)||['MGT28v6','MGT28v5'].includes(key);
-function environment({owner=null,join=async()=>({ok:true,status:200,json:async()=>({joined:true,role:'member'})}),configStatus=200,recovery=false,ready=false,online=true,stored=null,beta=true,cachedManifest=null}={}){
- const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','fetch','FormData','addEventListener','caches'];
+function environment({owner=null,join=async()=>({ok:true,status:200,json:async()=>({joined:true,role:'member'})}),configStatus=200,recovery=false,ready=false,online=true,stored=null,beta=true,cachedManifest=null,pushConfig={}}={}){
+ const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','fetch','FormData','addEventListener','caches','Notification','PushManager'];
  const previous=new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
  const rows=new Map(),reads=[],writes=[],requests=[],cacheReads=[],elements=new Map(),forms=new Set(),listeners=new Map(),windowListeners=new Map();
  for(const id of ['account-a','account-b','guest']){const state=C.defaultState();state.ownerId=id==='guest'?null:id;state.profile.name='Private '+id;state.nutrition.setupPromptSeen=true;rows.set('MGT_BETA_V8:'+id,JSON.stringify(state))}
@@ -31,7 +31,7 @@ function environment({owner=null,join=async()=>({ok:true,status:200,json:async()
  globalThis.caches={match:async path=>{cacheReads.push(path);return cachedManifest?{ok:true,json:async()=>cachedManifest}:null}};
  Object.defineProperty(globalThis,'navigator',{value:{onLine:online,vibrate(){}},configurable:true});
  globalThis.location={origin:'https://synthetic.example.invalid',pathname:'/beta',href:'https://synthetic.example.invalid/beta',hash:recovery?'#access_token=synthetic-callback&refresh_token=synthetic-recovery&type=recovery':'',search:'',reload(){}};globalThis.history={replaceState(){location.hash=''}};globalThis.confirm=()=>assert.fail('New beta must never automatically offer guest import');globalThis.setInterval=()=>0;globalThis.setTimeout=()=>0;
- globalThis.fetch=async(path,options={})=>{assert.notEqual(navigator.onLine,false,'No network calls while offline');requests.push({path,options});if(path==='/api/preview-config'||path==='./api/preview-config')return {ok:configStatus===200,status:configStatus,json:async()=>({supabase:{url:'https://'+project+'.supabase.co',key:'sb_publishable_synthetic'},pushServiceReady:false,gymResearchReady:ready,betaAdmissionRequired:beta,betaStorageReady:true,betaPhase:'open'})};if(path==='/api/beta-join')return join(options);if(path==='./media-manifest.json')return {ok:true,json:async()=>({exercises:[],assets:[],lookup:{}})};if(path==='/api/gym-research')return {ok:true,json:async()=>({locations:[]})};assert.fail('No external calls: '+path)};
+ globalThis.fetch=async(path,options={})=>{assert.notEqual(navigator.onLine,false,'No network calls while offline');requests.push({path,options});if(path==='/api/preview-config'||path==='./api/preview-config')return {ok:configStatus===200,status:configStatus,json:async()=>({supabase:{url:'https://'+project+'.supabase.co',key:'sb_publishable_synthetic'},pushServiceReady:false,gymResearchReady:ready,betaAdmissionRequired:beta,betaStorageReady:true,betaPhase:'open',...pushConfig})};if(path==='/api/beta-join')return join(options);if(path==='./media-manifest.json')return {ok:true,json:async()=>({exercises:[],assets:[],lookup:{}})};if(path==='/api/gym-research')return {ok:true,json:async()=>({locations:[]})};assert.fail('No external calls: '+path)};
  globalThis.FormData=class{constructor(form){this.pairs=Object.entries(form.values||{})}*[Symbol.iterator](){yield* this.pairs}getAll(){return []}has(){return false}};
  return {rows,reads,writes,requests,cacheReads,elements,authKey,async click(action,attrs={}){const button={dataset:{action,...attrs},disabled:false};for(const listener of listeners.get('click')||[])listener({target:{closest:()=>button},preventDefault(){}});await tick()},async change(attrs){for(const listener of listeners.get('change')||[])listener({target:{dataset:{},...attrs}});await tick()},async submit(id,values){const form=element(id);form.values=values;for(const listener of listeners.get('submit')||[])listener({target:form,preventDefault(){}});await tick()},async connection(connected){navigator.onLine=connected;await Promise.all((windowListeners.get(connected?'online':'offline')||[]).map(fn=>fn({})));await tick()},async storage(newValue){for(const fn of windowListeners.get('storage')||[])fn({key:authKey,newValue});await tick()},credentials(email='synthetic@example.invalid',password='synthetic-password'){element('betaEntryForm').elements={email:{value:email},password:{value:password}}},restore(){for(const [name,descriptor]of previous)if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name]}};
 }
@@ -201,4 +201,30 @@ test('admitted MENEI settings cannot invalidate admission through legacy sign-in
 
 test('existing preview mode retains its Settings sign-in and create-account controls',async t=>{
  const env=environment({owner:'account-a',beta:false});try{await open(t,env);await env.click('view',{view:'settings'});assert.match(env.elements.get('app').innerHTML,/data-action="signin"/);assert.match(env.elements.get('app').innerHTML,/data-action="signup"/)}finally{env.restore()}
+});
+
+
+for(const role of ['owner','member'])test('server push capability reaches only the admitted online owner controls and device registration '+role,async t=>{
+ const publicKey='B'+'A'.repeat(86),env=environment({owner:'account-a',pushConfig:{pushServiceReady:true,pushPilot:'private-test',vapidPublicKey:publicKey},join:async()=>({ok:true,json:async()=>({joined:true,role})})});
+ try{
+  const {cloud}=await open(t,env);await env.click('view',{view:'settings'});
+  const html=env.elements.get('app').innerHTML;
+  assert.equal(html.includes('data-action="enable-push"'),role==='owner');
+  assert.equal(html.includes('data-action="test-push-closed"'),role==='owner');
+  assert.equal(cloud.canPush(),role==='owner');
+  if(role!=='owner'){await env.click('enable-push');assert.match(env.elements.get('toast').textContent,/disabled/);return}
+  Object.assign(cloud.getState().reminders,{workoutTime:'18:00',workoutTimezone:'America/New_York'});
+  let permissionRequests=0,applicationServerKey;const saves=[];
+  globalThis.Notification={async requestPermission(){permissionRequests++;return 'granted'}};globalThis.PushManager=class{};
+  navigator.serviceWorker={ready:Promise.resolve({pushManager:{async getSubscription(){return null},async subscribe(options){applicationServerKey=options.applicationServerKey;return {toJSON:()=>({endpoint:'https://fcm.googleapis.com/synthetic'}),unsubscribe:async()=>true}}}})};
+  t.mock.method(CloudSync.prototype,'savePush',async function(sub,prefs){assert.equal(this,cloud);saves.push({sub,prefs})});
+  await env.click('enable-push');
+  assert.equal(permissionRequests,1);assert.equal(Buffer.from(applicationServerKey).toString('base64url'),publicKey);assert.equal(saves.length,1);assert.equal(saves[0].prefs.enabled,true);assert.match(env.elements.get('toast').textContent,/Push enabled/);
+  await env.connection(false);await env.click('view',{view:'settings'});assert.equal(cloud.canPush(),false);assert.doesNotMatch(env.elements.get('app').innerHTML,/data-action="enable-push"|data-action="test-push-closed"/);
+ }finally{env.restore()}
+});
+
+test('server-disabled push stays unavailable even for the admitted owner',async t=>{
+ const env=environment({owner:'account-a',join:async()=>({ok:true,json:async()=>({joined:true,role:'owner'})})});
+ try{const {cloud}=await open(t,env);await env.click('view',{view:'settings'});assert.equal(cloud.canPush(),false);assert.doesNotMatch(env.elements.get('app').innerHTML,/data-action="enable-push"|data-action="test-push-closed"/)}finally{env.restore()}
 });

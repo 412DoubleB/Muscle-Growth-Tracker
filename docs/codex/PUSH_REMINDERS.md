@@ -118,3 +118,22 @@ MENEI_PUSH_ENABLED flag to false and deploy the chosen saved version to apply
 that revision. Disable the pilot row if access must be revoked. Keep Vault keys,
 workspaces, revisions and original app identities; do not clear or reset user
 data. Existing browser permissions can also be revoked through device settings.
+
+
+## Private preview capability correction
+
+The owner reported that Settings showed “Scheduled push is not active for this
+account” after successful sign-in. The deployed worker and revision 6 were ready,
+but loadRuntimeConfig validated pushServiceReady and then replaced it with false.
+The app also dropped the validated public VAPID key. Retain both validated values
+in memory so the admitted online owner can see Enable and the closed-app test.
+The existing server-ready, isolated-project, owner admission, current-account and
+offline gates remain in force. Public-key validation still runs before assignment.
+
+An integrated beta-entry regression reproduces the missing owner controls before
+the fix. After the fix it drives Settings → Enable through permission, browser
+subscription with the runtime public key, and account-bound registration. Member,
+server-disabled and offline cases retain their restrictions. All test records
+and transport responses are synthetic; no real push was sent by these tests.
+The private sender, scheduler, runtime environment, audience and user records did
+not require changes. Actual Samsung delivery remains pending owner acceptance.
