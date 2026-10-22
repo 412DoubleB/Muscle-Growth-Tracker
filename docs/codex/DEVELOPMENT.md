@@ -2608,3 +2608,36 @@ Validation: all 66 test files passed (318662 ms). npm run check passed with
 and 35 protected pairs. git diff --check passed. Program draft rollback, recovery
 exports, independent progression, automatic rest and synthetic sync checks pass.
 No real browser visual/phone acceptance or live backend operation was performed.
+
+Private preview 40: app source dcdafdaba174345d77f5e1fb1895c3b5a99b9bbf;
+exact pushed Sites source 8a592cae059b7ba942155755912fb6e77423e8b1.
+Ten expected client/build member changes, no additions/removals; 183 files,
+167 client. All 124 retained media/font assets, media-manifest bindings and
+server/provider/migration members remain identical to preview 39. The four
+runtime module changes are app, core, cloud and recovery. No private records,
+exports, backups or runtime keys included. Archive retained.
+Uploaded gzip: 158389269 bytes, SHA-256
+df94d5bb143256470edb67d3a4d8684310e99c37de331192ba862e8b09b0053c.
+Local Git tar: 160686080 bytes, SHA-256
+252cad41d63a11175a7157a51cae71a5c068087d79efb2cc66b1a698ee840f42.
+Saved-version archive: 183 files, 160675840 bytes, SHA-256
+95ce01e0ca986b33a4a4914e0d1400530fcb627ff038ca820f313462bfe91872.
+Local and native archive hashes describe separate representations; fresh source
+provenance matches the exact pushed commit above. Every uploaded local member
+matched the clean pushed checkout byte for byte.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_05dd6649a09c81918f54fdb297bd87b6.
+Deployment appgdep_6ada35f5839c81919e0826ecaf405591 succeeded at
+2026-10-22 12:12:57 America/New_York; runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience read: one owner, zero other users/editors/groups/external visitors
+or automations. Source credentials cleared from orchestration storage. No public
+GitHub push/main merge, live app/backend, sharing, schema, AI key/budget or
+scheduled-push change. User-device storage acceptance remains pending.
+
+Owner check: /update.html (build dcdafdaba174), then reopen the program preview
+and retry Save this program. Confirm the saved program appears with A1/A2 pairs
+and that prior workout history remains available. If it still cannot fit, the
+existing failure path retains the draft and prior saved workspace; do not clear
+site data, history or other accounts to force a save.
