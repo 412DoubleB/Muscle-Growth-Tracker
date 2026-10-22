@@ -2268,3 +2268,8 @@ alignment, contact, release/catch continuity and far-hand/globe/near-hand depth
 order. The UI suite passed again after strengthening the guard that waits for
 the separate hand image before starting. These checks establish geometry and
 loading behavior; visual anatomy and motion acceptance remain owner checks.
+
+During artwork loading the rig stays hidden until all images are ready, avoiding
+a brief partial figure with unloaded hands. Quote, wordmark and Skip remain
+available. This adds only a CSS readiness guard; checked loading/class-state
+behavior is unchanged.
