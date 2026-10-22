@@ -2896,3 +2896,37 @@ project/account/pilot isolation, due windows and duplicate suppression stay inta
 No new test push, replay, quota reset, VAPID key or frontend deployment is needed.
 An actual-handler VM regression fails before and passes after the option change,
 with negative auth/project/dedup cases. Full regression validation is in progress.
+
+Priority correction verification and deployment:
+App/backend source 194a45a99552eac80cda56162786e5906714d02e. Full regression
+passed all 69 test files (284705.977384 ms); focused sender/schedule tests and
+TypeScript syntax passed. Static checks passed (32 root modules, 52 offline
+entries, 162 original identities, 113 WebP assets and 35 protected pairs).
+The actual-handler regression failed before urgency=high and passed afterward;
+negative cron/project/dedup cases passed. All test credentials and provider/database
+responses were synthetic. No paid model request was made.
+
+Native deployed only menei-push-reminders in isolated project
+bhyrrxrpqaxiwpfxnwpa, existing function ID
+45b9f05d-b86b-474d-8693-7c0d66a15cc1, version 3 ACTIVE at
+2026-10-22 17:54:03 America/New_York. Bundle SHA-256
+03336ca9df25541b3e8346e4c973616d35702eefc93570e38ed372f3e6d00737.
+The five-file bundle retains explicit relative deno.json import-map configuration.
+Only the sendNotification options changed; no key, schema, migration, cron command,
+pilot, user state, delivered slot or runtime setting was changed. The existing
+minute job remains active. Its post-deployment run at 17:55 America/New_York
+returned HTTP 200, ready=true, sent=0, failed=0, expired=0. No test was triggered
+or delivered slot replayed during deployment. Original keys remain in Vault.
+
+The owner confirmed that the delayed two-minute closed-app test arrived before
+this priority deployment. Immediate local display and basic closed-app delivery
+are therefore accepted. Reduced latency under the new priority is not separately
+phone-verified. Exact one-hour workout delivery remains pending a future valid
+scheduled reminder; the previously saved start time put its one-hour alert in the
+past. A start time is not an on-start alert setting. Completed/skipped workouts
+remain suppressed. The feedback register now distinguishes these acceptance states.
+
+Sites preview 44 and runtime revision 6 remain unchanged; no phone refresh is
+required for this backend-only correction. No public GitHub push/main merge,
+live-app/backend mutation, sharing change, new credential, AI budget reset,
+protected-media change or data reset occurred. Both source checkouts remain clean.
