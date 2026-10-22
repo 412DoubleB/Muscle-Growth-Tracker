@@ -1980,3 +1980,48 @@ without plan/history writes. No recorded rest values are retroactively rewritten
 
 Schema, app/storage identities, raw legacy snapshots, backend, AI allowance,
 runtime keys, scheduled-push state and deferred photo review remain unchanged.
+
+### Stage 28 validation and private preview 31
+
+Final `npm test` passed all 60 files, zero failures/skips (168432 ms).
+`npm run check` passed 28 JS files, 44 shell members, 162 original image identities,
+113 WebP assets and 35 protected pairs; `git diff --check` passed. New pure/UI
+tests cover canonical streaks, recovery/unknown gaps, incomplete/invalid activity,
+future/deleted/archived exclusions, zero loads, runs, daily-text stability,
+milestones, duplicate suppression, no writes from viewing, one opening reveal
+per page and valid 60-second strength/hypertrophy program previews. The first
+new UI fixture used malformed legacy data and hit the existing recovery gate;
+it was corrected to a valid retained legacy snapshot. No recovery assertion or
+data-protection behavior was weakened. Actual phone motion/layout and acceptance
+of the new streak presentation remain device checks.
+
+App source 31953c41c9a7c4ef78ae55f1ffe374d998f394f6 was packaged in exact pushed
+Sites source 492ffff789ab53d42c12688a2119e09528b7ca16. The archive has 175
+members (159 client): motivation.mjs is the sole addition, eight expected
+client/UI/build members change, and none are removed. All other members remain
+byte-identical to preview 30, including 121 protected media/font assets, image
+manifest bindings and all server/provider/migration files. No legal/IP agreement
+was activated, no media candidate/review page was uploaded, and private inputs,
+exports, backups and runtime keys are excluded. Prior archives are retained.
+
+Native private deployment appgdep_6ad972f32ed88191bc548851361af5fb succeeded at
+2026-10-21 22:20:49 America/New_York. Saved version 31:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_6b5efd4b8d9481918f4182e7b63ea8b5.
+URL: https://menei-private-beta.crispcrown515.chatgpt.site.
+Local gzip: 153116989 bytes, SHA-256
+d9dfafccd27af4f37a2223dff100e19c89d1696419cb860f4794d9a0f32030af.
+Native tar: 155299840 bytes, SHA-256
+5dc82be64fb8d14575f5409f1701af798eb8dd2336c5d5367e005bf5aa4ca57b.
+Native provenance confirms exact source/175 members. A fresh access read confirms
+owner-only audience: one owner, zero other users, editors, groups, external
+visitors or automations. Runtime revision stays 5. No GitHub push, main merge,
+live app/backend change, schema migration, source-license/access change,
+key/AI-budget change or scheduled-push activation occurred.
+
+Phone acceptance: refresh /update.html, confirm Settings preview build
+31953c41c9a7, and check Home's streak/How it counts, daily quote, brief existing-art
+reveal and Skip. Reduced-motion should disable the reveal. Complete a synthetic
+valid workout today to check a new milestone when eligible, keeping backups and
+prior records intact. A repeated unlock/re-completion of that date should not
+replay the milestone. The IP review is a documented requirement/draft only and
+still needs ownership/jurisdiction, licensing and professional legal review.
