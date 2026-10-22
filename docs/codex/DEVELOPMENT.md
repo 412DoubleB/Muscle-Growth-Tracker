@@ -2194,3 +2194,34 @@ an exact zero after settlement. UI checks advance an animation frame, confirm
 arm transforms change without history writes, and verify frame cancellation on
 close alongside existing loading/replay/Skip/reduced-motion checks. Diff check
 passed. Phone/browser motion acceptance remains pending.
+
+Private preview 34 publication: app source
+2b46fcc72014b275f75f7c73367b83af0c7ff1b1, exact pushed Sites source
+640223a7694072fdf03b9efe414bc361f87ece2e. Two new members (rig PNG and
+wall-ball.mjs), eight expected client/build changes, none removed: 178 files,
+162 client. All other members remain byte-identical to preview 33, including
+122 retained media/font assets (the original assets plus the preview-33 atlas),
+image bindings and all server/provider/migration files. No runtime keys, private
+inputs, exports or backups are included; previous archives retained.
+Gzip: 157144420 bytes, SHA-256
+76c797ff0d9584ca15b50ff010e997bc0b23131f3314cd9b9018f5817871e93a.
+Native tar: 159365120 bytes, 178 files, SHA-256
+f8c58d01269e92f7275a5f163a98a7485dc803fe88c6813e27f2f33f4735e1da.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_3baa111da82c81918c81682ea9de515f.
+Deployment appgdep_6ad9805051788191a8ebb1558f6fdf30 succeeded at
+2026-10-21 23:17:48 America/New_York; runtime revision remains 5.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh native provenance confirms source/count; fresh access read confirms one
+owner, no other users/editors/groups/external visitors/automations. An expired
+source Git token was refreshed using the same Site credential workflow before
+successful push; no extra version/deployment was created by that push failure.
+Source credentials cleared from orchestration storage. No GitHub push/main
+merge, audience/live app/backend/schema, AI key/budget or scheduled-push change.
+
+Owner device check: /update.html, then Home, build 2b46fcc72014. Replay opening:
+check continuous visible arms/palms, globe release/separation/rebound and receiving
+hands, lowering into chest-held stance, and existing quote/MENEI/wreath sequence.
+Skip/Escape and reduced motion should remain effective. This is a 2D illustrated
+rig; static render/geometric tests do not establish phone animation acceptance.
