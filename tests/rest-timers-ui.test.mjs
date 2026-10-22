@@ -49,7 +49,7 @@ test('pair rest waits for both sets of every round, blocks entries, sounds autom
   await import('../app.mjs?rest-ui=pair');await env.check(0,0);assert.equal(env.timer,null);await env.check(1,0);assert.equal(env.timer.kind,'round');assert.equal(env.timer.end-Date.now(),75000);assert.equal(env.element('restDialog').open,false);
   await env.check(0,1);assert.equal(env.timer.kind,'round');await env.check(1,1);assert.equal(env.timer.kind,'pair');assert.equal(env.timer.end-Date.now(),180000);assert.equal(env.element('restDialog').open,true);
   const saved=env.state;await env.change(2,0,'w',999);await env.click('remove-exercise',{index:2});assert.deepEqual(env.state,saved);assert.equal(env.audio.contexts,1);
-  t.mock.timers.tick(180000);env.poll();assert.equal(env.audio.starts,2);env.poll();assert.equal(env.audio.starts,2);assert.equal(env.element('restDialog').open,true);assert.match(env.element('restDialogStatus').textContent,/Stop timer to continue/);
+  t.mock.timers.tick(180000);env.poll();assert.equal(env.audio.starts,8);env.poll();assert.equal(env.audio.starts,8);assert.equal(env.element('restDialog').open,true);assert.match(env.element('restDialogStatus').textContent,/Stop timer to continue/);
   await env.click('stop-timer');assert.equal(env.timer,null);assert.equal(env.element('restDialog').open,false);assert.deepEqual(env.state,saved);await env.change(2,0,'w',45);assert.equal(env.state.logs[date].exercises[2].sets[0].w,45);
  }finally{env.restore()}
 });

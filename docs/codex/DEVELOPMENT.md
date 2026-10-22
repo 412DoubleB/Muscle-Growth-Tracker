@@ -1807,3 +1807,11 @@ explicit persistent mute, one completion cue, manual dismissal and preservation
 of other dates and legacy snapshots. Real-phone playback/layout acceptance is
 still separate from synthetic DOM checks. Backend, budgets and deferred photos
 remain unchanged.
+
+Stage 26 audio refinement: owner requested the same sound four times because
+the single chime was too brief. The original 660/880 Hz two-tone chime, gain and
+envelope are preserved. Four copies start one second apart (about 3.4 seconds
+total). All eight tone voices are tracked so Mute/Stop immediately cancels the
+remaining sequence. A controlled audio-clock regression verifies pitches,
+spacing, four repetitions and cancellation; the UI verifies only one sequence
+per timer completion.

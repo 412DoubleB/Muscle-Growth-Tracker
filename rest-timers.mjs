@@ -73,7 +73,16 @@ export class RestAudio{
  async arm(){try{this.context??=this.contextFactory();if(this.context?.state==='suspended')await this.context.resume();return this.context?.state==='running'}catch{return false}}
  cue(){
   const context=this.context;if(context?.state!=='running')return false;
-  try{for(const [offset,frequency]of [[0,660],[.22,880]]){const oscillator=context.createOscillator(),gain=context.createGain(),start=context.currentTime+offset;oscillator.type='sine';oscillator.frequency.value=frequency;gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.10,start+.02);gain.gain.exponentialRampToValueAtTime(.001,start+.18);oscillator.connect(gain);gain.connect(context.destination);this.voices.add(oscillator);oscillator.onended=()=>{this.voices.delete(oscillator);oscillator.disconnect();gain.disconnect()};oscillator.start(start);oscillator.stop(start+.2)}return true}catch{return false}
+  try{
+   // Four copies of the original chime, one second apart. Schedule all voices
+   // together so Mute/Stop cancels both current and upcoming repetitions.
+   for(let repeat=0;repeat<4;repeat++)for(const [offset,frequency]of [[0,660],[.22,880]]){
+    const oscillator=context.createOscillator(),gain=context.createGain(),start=context.currentTime+repeat+offset;
+    oscillator.type='sine';oscillator.frequency.value=frequency;gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.10,start+.02);gain.gain.exponentialRampToValueAtTime(.001,start+.18);
+    oscillator.connect(gain);gain.connect(context.destination);this.voices.add(oscillator);oscillator.onended=()=>{this.voices.delete(oscillator);oscillator.disconnect();gain.disconnect()};oscillator.start(start);oscillator.stop(start+.2);
+   }
+   return true;
+  }catch{return false}
  }
  silence(){for(const voice of this.voices){try{voice.stop()}catch{}}this.voices.clear()}
 }
