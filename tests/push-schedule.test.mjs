@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {dueItems,pushPreferences} from '../supabase/functions/menei-push-reminders/logic.mjs';
-import {enablePush,requestPushTest,disablePush} from '../notifications.mjs';
+import {enablePush,requestPushTest,disablePush,testNotification} from '../notifications.mjs';
 const date='2027-01-04',prefs={enabled:true,workout:true,workoutTime:'18:00',workoutTimezone:'America/New_York',timezone:'America/New_York',time:'12:00',meals:false};
 const state={logs:{[date]:{date,kind:'strength',title:'Upper body',status:'in-progress'}},reminders:prefs};
 test('one-hour push uses absolute zone offsets, checks tomorrow for midnight starts and suppresses completed/skipped/deleted/rest days',()=>{
@@ -49,4 +49,22 @@ test('device opt-in survives closing before main sync, while newer global schedu
  const pending=pushPreferences(old,device);assert.equal(pending.enabled,true);assert.equal(pending.workoutTime,'18:00');assert.equal(pending.testAt,device.testAt);
  const saved={...old,workoutTime:'19:00',updatedAt:'2027-01-04T13:00:00Z',testAt:'unrelated device test'};const latest=pushPreferences(saved,device);assert.equal(latest.workoutTime,'19:00');assert.equal(latest.testAt,device.testAt);assert.equal(latest.enabled,true);
  assert.equal(pushPreferences(saved,{...device,enabled:false}).enabled,false);assert.equal(pushPreferences(saved,{enabled:true}).testAt,undefined);
+});
+
+
+test('immediate device test uses persistent notification alerts, re-alerts on repeats and respects denied permission',async()=>{
+ const f=browser(),shown=[];try{
+  navigator.serviceWorker.ready=Promise.resolve({showNotification:async(title,options)=>shown.push({title,options})});
+  await testNotification();await testNotification();assert.equal(shown.length,2);
+  for(const {title,options}of shown){assert.equal(title,'MENEI');assert.equal(options.renotify,true);assert.equal(options.silent,false);assert.equal(options.icon,'./icon-192.png');assert.ok(options.tag);assert.deepEqual(options.vibrate,[200,100,200])}
+  Notification.requestPermission=async()=> 'denied';await assert.rejects(()=>testNotification(),/not permitted/);assert.equal(shown.length,2);
+ }finally{f.restore()}
+});
+
+test('push events wait for persistent notification display and request alerts when replacing an existing tag',async()=>{
+ const {default:vm}=await import('node:vm'),handlers=new Map(),shown=[];
+ const self={location:{href:'https://synthetic.example.invalid/sw.js'},registration:{showNotification:async(title,options)=>shown.push({title,options})},addEventListener:(name,fn)=>handlers.set(name,fn)};
+ vm.runInNewContext(await fs.readFile(new URL('../sw.js',import.meta.url),'utf8'),{self,URL});
+ for(let i=0;i<2;i++){let pending;handlers.get('push')({data:{json:()=>({title:'MENEI test reminder',tag:'menei-push-test'})},waitUntil:p=>{pending=p}});assert.equal(typeof pending.then,'function');await pending}
+ assert.equal(shown.length,2);for(const {options}of shown){assert.equal(options.renotify,true);assert.equal(options.silent,false);assert.equal(options.tag,'menei-push-test');assert.deepEqual(Array.from(options.vibrate),[200,100,200])}
 });

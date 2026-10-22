@@ -137,3 +137,33 @@ server-disabled and offline cases retain their restrictions. All test records
 and transport responses are synthetic; no real push was sent by these tests.
 The private sender, scheduler, runtime environment, audience and user records did
 not require changes. Actual Samsung delivery remains pending owner acceptance.
+
+
+## Device display diagnosis and repeat alerts
+
+A real owner test registered one FCM subscription. The sender recorded provider
+acceptance with zero failures, but the owner reported no sound or popup. Provider
+acceptance is not a device display receipt. The owner's Android site category
+already permits Alert, sound, vibration and popup; do not ask to toggle those
+again without new evidence. Physical notification-panel visibility is pending.
+
+The owner Settings card now includes Test notification now, using the existing
+persistent service-worker showNotification API directly. This does not send a
+server push or change a subscription, and the explanatory copy distinguishes it
+from Test with app closed. A successful promise reports only that Chrome accepted
+the device test; it does not claim the owner heard or saw an alert. Errors still
+flow to the existing visible toast/error path.
+
+Local and push notifications explicitly request silent=false, a short vibration
+pattern and renotify=true with a nonempty tag. This asks for a fresh alert when
+replacing an existing tagged notification; it cannot override OS/channel settings
+or prove why the first test was not seen. Scheduler deduplication stays unchanged.
+The local test uses the existing PNG icon/badge. Original images are unchanged.
+The Notifications standard defines replacement alerts and platform preferences:
+https://notifications.spec.whatwg.org/#dom-notification-renotify.
+
+Integrated UI coverage drives the new owner button through showNotification
+without a cloud registration write. Helper tests cover repeat alerts and denied
+permission; a service-worker VM dispatch verifies waitUntil holds notification
+creation and uses alert options on repeated tags. All responses are synthetic.
+No new backend, tracking receipt, account, credential or push send is introduced.

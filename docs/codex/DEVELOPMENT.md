@@ -2831,3 +2831,17 @@ Owner check: open /update.html, choose Load latest version, then Settings
 (build 0171e738991a). Save usual workout time/timezone, Enable push on this device
 and Allow. Use Test with app closed · 2 min and wait about 2–3 minutes after
 closing MENEI. Acceptance requires a real device result; no delivery claim yet.
+
+
+### Device notification display diagnosis
+
+The owner test registered and reached the push provider with zero sender failures,
+but sound/popup acceptance remains unresolved. The supplied Android site category
+already allows alerts, sound, vibration and popups. Expose the existing local
+persistent-notification test in owner Settings to isolate display from transport.
+Its toast reports Chrome acceptance only; the closed-app test stays separate.
+Explicitly request non-silent/replacement alerts and a short vibration pattern for
+local and push notifications, retaining tags and server duplicate suppression.
+No claim is made that this establishes the cause of the first missed alert or
+guarantees physical device delivery. No background sender, admission, account or
+runtime setting change is needed. The live app stays unchanged.

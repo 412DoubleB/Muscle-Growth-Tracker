@@ -210,6 +210,7 @@ for(const role of ['owner','member'])test('server push capability reaches only t
   const {cloud}=await open(t,env);await env.click('view',{view:'settings'});
   const html=env.elements.get('app').innerHTML;
   assert.equal(html.includes('data-action="enable-push"'),role==='owner');
+  assert.equal(html.includes('data-action="test-notification"'),role==='owner');
   assert.equal(html.includes('data-action="test-push-closed"'),role==='owner');
   assert.equal(cloud.canPush(),role==='owner');
   if(role!=='owner'){await env.click('enable-push');assert.match(env.elements.get('toast').textContent,/disabled/);return}
@@ -220,6 +221,7 @@ for(const role of ['owner','member'])test('server push capability reaches only t
   t.mock.method(CloudSync.prototype,'savePush',async function(sub,prefs){assert.equal(this,cloud);saves.push({sub,prefs})});
   await env.click('enable-push');
   assert.equal(permissionRequests,1);assert.equal(Buffer.from(applicationServerKey).toString('base64url'),publicKey);assert.equal(saves.length,1);assert.equal(saves[0].prefs.enabled,true);assert.match(env.elements.get('toast').textContent,/Push enabled/);
+  const displayed=[];navigator.serviceWorker.ready=Promise.resolve({showNotification:async(title,options)=>displayed.push({title,options})});const saved=saves.length;await env.click('test-notification');assert.equal(displayed.length,1);assert.equal(displayed[0].options.renotify,true);assert.equal(saves.length,saved);assert.match(env.elements.get('toast').textContent,/Check the notification panel/);
   await env.connection(false);await env.click('view',{view:'settings'});assert.equal(cloud.canPush(),false);assert.doesNotMatch(env.elements.get('app').innerHTML,/data-action="enable-push"|data-action="test-push-closed"/);
  }finally{env.restore()}
 });
