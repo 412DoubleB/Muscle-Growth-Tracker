@@ -93,17 +93,17 @@ test('working-set order follows real Done checks and is read-only; duplicate che
 });
 
 
-test('first saved set and explicit workout completion speak once; mute, stop and failed saves respect voice controls',async t=>{
+test('launch defers speech on Done and Complete while retaining rest timers, sound controls and history',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({voice:true});try{
-  await import('../app.mjs?rest-ui=workout-voice');assert.equal(env.spoken.length,0);assert.doesNotMatch(env.element('app').innerHTML,/motivation-listen|Hear today/);
-  await env.check(2,0);assert.equal(env.spoken.length,1);assert.match(env.spoken[0].text,/First set logged/);assert.equal(env.timer.seconds,60);
-  await env.check(2,0);await env.change(2,0,'done',false);await env.check(2,0);assert.equal(env.spoken.length,1);
-  await env.click('timer-sound');assert.equal(env.speechCancels,1);assert.equal(env.spoken.length,1);
-  await env.click('timer-sound');assert.equal(env.spoken.length,1);await env.click('stop-timer');assert.equal(env.speechCancels,1);
+  await import('../app.mjs?rest-ui=workout-voice');assert.equal(env.spoken.length,0);assert.doesNotMatch(env.element('app').innerHTML,/motivation-listen|Hear today|Short voice cues|Spoken motivation/);assert.match(env.element('app').innerHTML,/Mute silences rest-timer chimes/);
+  await env.check(2,0);assert.equal(env.spoken.length,0);assert.equal(env.timer.seconds,60);
+  await env.check(2,0);await env.change(2,0,'done',false);await env.check(2,0);assert.equal(env.spoken.length,0);
+  await env.click('timer-sound');assert.equal(env.speechCancels,0);assert.equal(env.spoken.length,0);
+  await env.click('timer-sound');assert.equal(env.spoken.length,0);await env.click('stop-timer');assert.equal(env.speechCancels,0);
   await env.check(2,1);assert.equal(env.timer.kind,'exercise');assert.equal(env.timer.seconds,180);await env.click('stop-timer');globalThis.confirm=()=>true;
-  await env.click('complete');assert.equal(env.spoken.length,2);assert.match(env.spoken[1].text,/Workout complete/);assert.equal(env.state.logs[date].status,'completed');
-  await env.click('stop-timer');assert.equal(env.speechCancels,2);await env.click('close-modal');await env.click('unlock');await env.click('complete');assert.equal(env.spoken.length,2);
-  assert.equal(env.rows.get('MGT28v6'),env.legacyRaw);
+  await env.click('complete');assert.equal(env.spoken.length,0);assert.equal(env.state.logs[date].status,'completed');
+  await env.click('stop-timer');assert.equal(env.speechCancels,0);await env.click('close-modal');await env.click('unlock');await env.click('complete');assert.equal(env.spoken.length,0);
+  assert.equal(env.rows.has('MGT_BETA_WORKOUT_VOICE:guest'),false);assert.equal(env.rows.get('MGT28v6'),env.legacyRaw);
  }finally{env.restore()}
  const failed=environment({voice:true});try{await import('../app.mjs?rest-ui=voice-failed-save');failed.failSave();await failed.check(2,0);assert.equal(failed.spoken.length,0);assert.equal(failed.rows.has('MGT_BETA_WORKOUT_VOICE:guest'),false)}finally{failed.restore()}
 });

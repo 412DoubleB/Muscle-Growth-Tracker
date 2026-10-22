@@ -1,3 +1,6 @@
+// Spoken workout cues are deferred until post-launch; rest chimes are separate.
+export const WORKOUT_VOICE_ENABLED=false;
+
 const positive=value=>value!==''&&value!=null&&Number.isFinite(+value)&&+value>0;
 const checked=day=>(day?.exercises||[]).some(e=>(e.sets||[]).some(s=>s.done&&positive(s.r)&&s.w!==''&&s.w!=null&&Number.isFinite(+s.w)&&+s.w>=0));
 const activity=day=>checked(day)||day?.run?.done&&positive(day.run.minutes);

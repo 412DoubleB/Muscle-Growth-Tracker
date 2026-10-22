@@ -1,5 +1,5 @@
 import * as P from './progress.mjs?v=8.1.1';
-import {WorkoutVoice} from './workout-voice.mjs?v=8.1.1';
+import {WorkoutVoice,WORKOUT_VOICE_ENABLED} from './workout-voice.mjs?v=8.1.1';
 import * as C from './core.mjs?v=8.1.1';
 import * as N from './nutrition.mjs?v=8.1.1';
 import {CloudSync} from './cloud.mjs?v=8.1.1';
@@ -35,7 +35,7 @@ const previewProject=document.documentElement?.dataset?.testProject;
 const betaAdmissionPage=document.documentElement?.dataset?.betaAdmission==='menei';
 let betaAdmissionConfig=betaAdmissionPage;
 const store=new C.LocalStore(localStorage);
-const workoutVoice=new WorkoutVoice({storage:localStorage,getScope:()=>store.scope});
+const workoutVoice=WORKOUT_VOICE_ENABLED?new WorkoutVoice({storage:localStorage,getScope:()=>store.scope}):null;
 let state,view='today',selectedDate=C.iso(),nutritionTab='meals',libraryFilter={q:'',group:'All',gym:'All',equipment:'All'},libraryLimit=36,programOffset=0;
 let openingPhase='pending',openingTimer=null,openingDeadline=0,openingRun=0,openingFrame=0,openingStarted=0;
 let restTimer=null;const restAudio=new RestAudio();let restReturnFocus=null;
@@ -351,7 +351,7 @@ function celebrateStreak(before){
  openModal(`<div class="eyebrow">A little progress, kept</div><h2>${after.current} training ${after.current===1?'day':'days'} in a row</h2><p class="dailyQuote">${h(dailyMotivation())}</p><p>Your completed workout is saved. Recovery days are part of consistency, too.</p>${button('Keep going','close-modal','','primary')}`);
 }
 function workoutTimingHtml(log){const t=W.estimateWorkoutDuration(log);const scheduled=['strength','run'].includes(log.kind)&&selectedDate>=C.iso()&&!['completed','skipped'].includes(log.status)&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(state.reminders.workoutTime||'');return `<div class="callout workoutTiming" aria-label="Estimated workout duration"><b>${t.totalMinutes?'Estimated session · '+t.lowMinutes+'–'+t.highMinutes+' min':'Recovery day · no timed session planned'}</b>${t.totalMinutes?`<p class="tiny">Lifting ${t.liftingMinutes} min${t.runMinutes?' · Run '+t.runMinutes+' min':''}${t.saunaMinutes?' · Sauna '+t.saunaMinutes+' min':''}. Estimate includes a warm-up, set rests, recovery and transitions; your pace may differ.</p>`:''}${scheduled?`<p class="sub">Usual start · ${h(state.reminders.workoutTime)} ${h(state.reminders.workoutTimezone||state.reminders.timezone)} · reminder 1 hour before</p>`:''}</div>`}
-function dailyMotivationHtml(){return `<section class="dailyMotivation" aria-labelledby="dailyMotivationTitle"><div id="dailyMotivationTitle" class="eyebrow">Daily motivation</div><blockquote class="dailyQuote">${h(dailyMotivation())}</blockquote><div class="row wrap">${button(restOptions().sound?'Mute sound':'Unmute sound','timer-sound',`aria-pressed="${!restOptions().sound}"`,'small ghost')}</div><p class="tiny">${workoutVoice.available?'Short voice cues after your first checked set and when you complete today’s workout, while MENEI is open. Mute also silences rest chimes.':'Spoken motivation is unavailable in this browser. The daily quote and rest timer remain available.'}</p></section>`}
+function dailyMotivationHtml(){return `<section class="dailyMotivation" aria-labelledby="dailyMotivationTitle"><div id="dailyMotivationTitle" class="eyebrow">Daily motivation</div><blockquote class="dailyQuote">${h(dailyMotivation())}</blockquote><div class="row wrap">${button(restOptions().sound?'Mute sound':'Unmute sound','timer-sound',`aria-pressed="${!restOptions().sound}"`,'small ghost')}</div><p class="tiny">The daily quote stays on screen. Mute silences rest-timer chimes.</p></section>`}
 function finishOpening(){
  if(openingPhase==='finished')return;openingPhase='finished';openingRun++;clearTimeout(openingTimer);window.cancelAnimationFrame?.(openingFrame);openingDeadline=0;
  const scene=$('openingScene'),returnFocus=document.activeElement?.id==='skipLaunch';if(scene?.open)scene.close();
@@ -579,7 +579,7 @@ async function action(b){if(b.dataset.action?.startsWith('beta-'))return betaEnt
  case'timer':startRestTimer({kind:'manual',seconds:+b.dataset.seconds,label:'Rest timer'});break;
  case'stop-timer':stopRestTimer();break;
  case'timer-auto':{const p=restOptions();saveRestPreferences(localStorage,store.scope,{...p,auto:!p.auto});draw();notify('Set and round rest '+(!p.auto?'automatic':'manual')+'. Completion rest stays automatic.');break}
- case'timer-sound':{const p=restOptions();saveRestPreferences(localStorage,store.scope,{...p,sound:!p.sound});if(p.sound){restAudio.silence();workoutVoice.cancel()}else if(!await restAudio.arm())notify(workoutVoice.available?'Rest chimes are unavailable here; spoken cues can still play.':'Sound is unavailable in this browser. The visible timer still works.');updateTimer();for(const el of document.querySelectorAll('[data-action="timer-sound"]')){el.textContent=!p.sound?'Mute sound':'Unmute sound';el.setAttribute('aria-pressed',String(p.sound))}break}
+ case'timer-sound':{const p=restOptions();saveRestPreferences(localStorage,store.scope,{...p,sound:!p.sound});if(p.sound){restAudio.silence();workoutVoice?.cancel()}else if(!await restAudio.arm())notify('Sound is unavailable in this browser. The visible timer still works.');updateTimer();for(const el of document.querySelectorAll('[data-action="timer-sound"]')){el.textContent=!p.sound?'Mute sound':'Unmute sound';el.setAttribute('aria-pressed',String(p.sound))}break}
  case'more-library':libraryLimit+=36;draw();break;
  case'nutrition-tab':nutritionTab=b.dataset.tab;view='nutrition';draw();break;
  case'meal-generator':{const result=N.previewMealPlan(state,{start:selectedDate,days:7});pendingMeals=result;openModal(`<h2>Your 7-day meal plan</h2><p class="sub">Existing meals are preserved. Targets: ${state.nutrition.calories} kcal · ${state.nutrition.protein}g protein.</p>${Object.values(result.meals).map(d=>`<div class="listItem"><div><b>${d.date}</b><div class="sub">${d.items.map(m=>`${h(m.recipeSnapshot.name)} (${m.servings})`).join('<br>')}</div></div>`).join('')}${result.warnings.length?`<div class="callout">${result.warnings.map(h).join('<br>')}</div>`:''}<div class="modalButtons">${button('Save meal plan','apply-meals',Object.keys(result.meals).length?'':'disabled','primary')}</div>`);break}
@@ -675,13 +675,13 @@ async function submitForm(form){if(restTimer?.blocking)return;requireCurrentForm
 $('recipeFile').addEventListener('change',async event=>{const context=workspaceContext();try{const file=event.target.files?.[0];if(!file)return;if(file.size>R.MAX_PACK_BYTES)throw Error('Recipe collection exceeds 5 MB.');const raw=JSON.parse(await file.text());requireWorkspaceContext(context);pendingRecipeImport={...R.previewRecipePack(raw,state.recipes),scope:store.scope,context};recipeImportPreview()}catch(e){fail(e)}finally{event.target.value=''}});
 $('avatarFile').addEventListener('change',async event=>{const context=workspaceContext(),file=event.target.files?.[0];if(!file)return;try{const photo=await preparePhoto(file);requireWorkspaceContext(context);const before=C.clone(state.profile);state.profile=C.touch({...state.profile,photo});try{save({render:true})}catch(e){state.profile=before;throw e}notify('Profile photo saved.')}catch(e){fail(e)}finally{event.target.value=''}});
 $('backupFile').addEventListener('change',async event=>{const context=workspaceContext(),sequence=++backupReadSequence;pendingBackup=null;try{const file=event.target.files[0];if(!file)return;if(file.size>25*1024*1024)throw Error('Backup exceeds the 25 MB import limit.');const raw=JSON.parse(await file.text());requireWorkspaceContext(context);if(sequence!==backupReadSequence)return;const preview=C.previewSnapshot(state,raw),s=preview.summary;pendingBackup={preview,context};openModal(`<h2>Review backup import</h2><p class="sub">${h(file.name||'Selected backup')} · ${h(s.format)}</p><p>Your saved data has not changed. Merge adds records and keeps conflicting versions for review.</p><div class="card compact"><p>${s.workoutRecords} workout records · ${s.setRows} set rows</p><p>${s.mealItems} meal items · ${s.recipes} recipes · ${s.gyms} gyms</p><p>Backup units: ${h(s.sourceUnits)} · current units: ${h(s.currentUnits)}</p><p>${s.pendingReviews} pending reviews after merging</p></div><p class="sub">Counts include removed and preserved records. Your current account stays signed in. A recovery copy is saved before merging. Cancel leaves everything unchanged.</p><div class="modalButtons">${button('Cancel','close-modal','','small')}${button('Merge this backup','apply-backup','','primary')}</div>`)}catch(e){fail(e)}finally{event.target.value=''}});
-function observeWorkoutVoice(before,after){workoutVoice.observe(before,after,{date:selectedDate,today:C.iso(),enabled:restOptions().sound&&!document.hidden})}
+function observeWorkoutVoice(before,after){workoutVoice?.observe(before,after,{date:selectedDate,today:C.iso(),enabled:restOptions().sound&&!document.hidden})}
 function restOptions(){return restPreferences(localStorage,store.scope)}
 function timerOptionsHtml(){const p=restOptions();return `<div class="row wrap restOptions">${button('Set/round rest: '+(p.auto?'Auto':'Manual'),'timer-auto',`aria-pressed="${p.auto}"`,'small')}${button(p.sound?'Mute sound':'Unmute sound','timer-sound',`aria-pressed="${!p.sound}"`,'small ghost')}</div>`}
 function restoreRestTimer(){restTimer=new RestTimer({storage:sessionStorage,scope:store.scope,legacyCompatibility:true})}
-function pauseRestTimer(){workoutVoice.cancel();restAudio.silence();restTimer=null;if($('restDialog')?.open)$('restDialog').close();if($('restTray'))$('restTray').hidden=true;document.body?.classList.remove('hasRestTimer');restReturnFocus=null}
+function pauseRestTimer(){workoutVoice?.cancel();restAudio.silence();restTimer=null;if($('restDialog')?.open)$('restDialog').close();if($('restTray'))$('restTray').hidden=true;document.body?.classList.remove('hasRestTimer');restReturnFocus=null}
 function startRestTimer(rest){if(!restTimer)restoreRestTimer();if(!restTimer.start({...rest,date:selectedDate}))return;if(restOptions().sound)void restAudio.arm();updateTimer()}
-function stopRestTimer(){restTimer?.stop();workoutVoice.cancel();restAudio.silence();if($('restDialog')?.open)$('restDialog').close();updateTimer();if(restReturnFocus){document.querySelector(restReturnFocus)?.focus();restReturnFocus=null}cloud?.schedule()}
+function stopRestTimer(){restTimer?.stop();workoutVoice?.cancel();restAudio.silence();if($('restDialog')?.open)$('restDialog').close();updateTimer();if(restReturnFocus){document.querySelector(restReturnFocus)?.focus();restReturnFocus=null}cloud?.schedule()}
 function updateTimer(){
  const finished=restTimer?.tick();
  if(finished){notify(isCompletionRest(finished)?'Recovery rest complete. Ready to continue.':'Rest complete. Ready for your next set.');if(restOptions().sound)restAudio.cue();try{navigator.vibrate?.([150,50,150])}catch{}}
@@ -703,7 +703,7 @@ document.addEventListener('animationend',event=>{if(event.animationName==='menei
 document.addEventListener('visibilitychange',catchUpOpening);
 window.addEventListener('pageshow',catchUpOpening);
 window.matchMedia?.('(prefers-reduced-motion: reduce)').addEventListener?.('change',event=>{if(event.matches&&['loading','playing'].includes(openingPhase))finishOpening()});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)workoutVoice.cancel();updateTimer()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)workoutVoice?.cancel();updateTimer()});
 window.addEventListener('pageshow',updateTimer);
 setInterval(updateTimer,500);
 document.addEventListener('focusout',()=>cloud.schedule());

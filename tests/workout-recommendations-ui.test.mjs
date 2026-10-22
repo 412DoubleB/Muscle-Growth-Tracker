@@ -100,8 +100,8 @@ test('checking an over-range set updates same-workout guidance immediately and a
   assert.equal(after.logs[date].exercises[1].sets[1].w,165);assert.equal(after.logs[date].exercises[1].sets[1].r,6);assert.equal(after.logs[date].exercises[1].sets[1].done,false);
   assert.deepEqual(after.logs[date].exercises[1].sets[0],checked.logs[date].exercises[1].sets[0]);for(let j=2;j<4;j++)assert.deepEqual(after.logs[date].exercises[1].sets[j],before.logs[date].exercises[1].sets[j]);
   assert.match(env.html,/Set 2 load entered/);for(const [key,log]of Object.entries(before.logs))if(key!==date)assert.deepEqual(after.logs[key],log);
-  const voiceKey='MGT_BETA_WORKOUT_VOICE:guest';assert.deepEqual(JSON.parse(env.rows.get(voiceKey)),{version:1,date,start:true,complete:false});
-  assert.deepEqual(new Map([...env.rows].filter(([key])=>key!=='MGT_BETA_V8:guest'&&key!==voiceKey)),otherRows);
+  const voiceKey='MGT_BETA_WORKOUT_VOICE:guest';assert.equal(env.rows.has(voiceKey),false);
+  assert.deepEqual(new Map([...env.rows].filter(([key])=>key!=='MGT_BETA_V8:guest')),otherRows);
  }finally{env.restore()}
 });
 

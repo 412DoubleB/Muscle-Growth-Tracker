@@ -5,6 +5,8 @@ The maintenance release remains unpublished to the live GitHub app. New work sta
 in the owner-only preview; live backend/publication approval is still separate.
 Current release checks and deferred work are consolidated in
 [RELEASE_READINESS.md](RELEASE_READINESS.md).
+Deployment differences and the remaining live cutover work are recorded in
+[LIVE_RELEASE_PLAN.md](LIVE_RELEASE_PLAN.md).
 
 | Request | Existing behavior / next work |
 | --- | --- |

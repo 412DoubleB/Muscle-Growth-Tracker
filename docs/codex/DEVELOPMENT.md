@@ -3086,3 +3086,33 @@ short-lived source credential was obtained for the investigation but was not
 used or persisted, and was cleared from session storage when work stopped.
 No app files, deployment, backend, sharing, media, workout data or settings were
 changed. Documentation-only deferral; no runtime rerun is needed.
+
+## Launch scope preparation — spoken cues switched off
+
+Following the owner's instruction to continue with spoken cues and wearable
+sync deferred, the launch candidate explicitly sets WORKOUT_VOICE_ENABLED=false.
+The app does not construct WorkoutVoice, request speech, write voice receipts or
+call the speech engine while this fixed source gate is off. The existing helper
+is retained for future work without a user-facing switch, new test control or
+attempt to debug the phone failure. Daily motivation copy describes only the
+on-screen quote and existing rest-chime mute. No quote playback was added.
+
+RestAudio, rest-timer policy, progression, cloud storage, schema and recorded
+workouts are unchanged. Integrated tests now verify no speech on first Done or
+Complete, mute/unmute, Stop and account changes while retaining automatic 60/180
+second rest, completion state, failed-save silence and legacy preservation. The
+load-guidance test requires no new speech receipt and once again compares every
+non-primary storage entry, without exclusions. Deferred helper tests remain.
+
+The four affected test files passed (87594.757147 ms); static validation passed
+33 modules, 53 offline entries, 162 original identities, 113 WebP and 35 pairs.
+The full regression result and private publication receipt follow separately.
+No browser/CUA was available; the deferred phone-speech failure is not resolved.
+
+LIVE_RELEASE_PLAN.md records concrete deployment differences: original live
+GitHub project path and cloud identity versus root-origin Sites Worker/D1,
+fixed isolated test Auth and owner push pilot. Copying static files cannot
+activate those backend services for live users. Do not weaken origin/identity
+checks or replace original accounts to bypass that requirement. Live scope,
+version/artifact/rollback and explicit cutover authorization remain separate.
+No backend, audience, key, AI budget or live-app change is part of this step.

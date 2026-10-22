@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {WorkoutVoice,workoutVoiceCue} from '../workout-voice.mjs';
+import {WorkoutVoice,workoutVoiceCue,WORKOUT_VOICE_ENABLED} from '../workout-voice.mjs';
 const date='2027-01-04',clone=x=>structuredClone(x);
 const before={date,kind:'strength',status:'in-progress',exercises:[{sets:[{w:0,r:12,done:false}]}]},started=clone(before);started.exercises[0].sets[0].done=true;
 const completed={...clone(started),status:'completed'};
@@ -13,6 +13,8 @@ function fixture(t,{denyStorage=false}={}){
  const make=()=>new WorkoutVoice({storage,getScope:()=>scope,api:()=>api});
  return {rows,spoken,api,make,get cancels(){return cancels},set scope(value){scope=value}};
 }
+test('spoken cues are disabled for launch while the deferred implementation is retained',()=>{assert.equal(WORKOUT_VOICE_ENABLED,false)});
+
 test('only valid current-day local first-set and completion transitions produce cues without rewriting records',()=>{
  const original=clone({before,started,completed});assert.equal(workoutVoiceCue(before,started,date,date).kind,'start');assert.equal(workoutVoiceCue(started,completed,date,date).kind,'complete');
  for(const [a,b,d,today]of [[started,started,date,date],[completed,completed,date,date],[before,started,date,'2027-01-05'],[before,{...started,deleted:true},date,date],[before,{...started,date:'2027-01-05'},date,date],[before,{...started,kind:'rest'},date,date]])assert.equal(workoutVoiceCue(a,b,d,today),null);

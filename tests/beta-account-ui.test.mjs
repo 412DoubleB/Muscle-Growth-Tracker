@@ -111,11 +111,11 @@ test('service worker never masks auth, admission or API navigation with the cach
 });
 
 
-test('changing accounts cancels an active workout voice cue and never replays it from the next workspace',async t=>{
+test('deferred workout speech stays off across a saved set and account changes',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date('2027-01-04T12:00:00Z').getTime()});
  const env=environment();let spoken=0,cancelled=0;try{
   const saved=JSON.parse(env.rows.get('MGT_BETA_V8:account-a')),day=C.clone(saved.logs['2026-10-01']);Object.assign(day,{date:'2027-01-04',id:'2027-01-04',status:'in-progress'});day.exercises[0].sets[0].done=false;saved.logs[day.date]=day;env.rows.set('MGT_BETA_V8:account-a',JSON.stringify(saved));
   globalThis.SpeechSynthesisUtterance=class{constructor(text){this.text=text}};globalThis.speechSynthesis={getVoices:()=>[],speak:()=>spoken++,cancel:()=>cancelled++};
-  const cloud=await open(t,env);await env.change({dataset:{set:'0:0:done'},type:'checkbox',checked:true});assert.equal(spoken,1);await switchTo(cloud,'account-b');assert.equal(cancelled,1);assert.equal(spoken,1);
+  const cloud=await open(t,env);await env.change({dataset:{set:'0:0:done'},type:'checkbox',checked:true});assert.equal(spoken,0);await switchTo(cloud,'account-b');assert.equal(cancelled,0);assert.equal(spoken,0);
  }finally{env.restore()}
 });
