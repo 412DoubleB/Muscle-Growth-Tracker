@@ -2687,3 +2687,37 @@ Validation: all 67 test files passed (391118 ms). npm run check passed with
 and 35 protected pairs. git diff --check passed. Checks use synthetic data and a
 DOM contract harness; real phone/browser visual acceptance is still pending.
 No paid requests, backend mutations or scheduled-push activation were performed.
+
+Private preview 41: app source 9bc5606dfc9d38e37e91860f26bb49c5062f1c29;
+exact pushed Sites source 32570adb51286d6d1306b4e330c6fe3c7761ed89.
+Ten expected changed client/build members plus session-order.mjs; no removals.
+184 files, 168 client. All 124 retained media/font assets, media-manifest bindings
+and server/provider/migration members remain identical to preview 40. The storage
+retry codec/cloud behavior is retained. No private records, exports, backups or
+runtime keys included. Every uploaded member matches the clean pushed checkout.
+Uploaded gzip: 158392011 bytes, SHA-256
+95a2e82d5a33e90d689abe93e64f571db7da50fa49923e9c60e3442eeba39c09.
+Local Git tar: 160686080 bytes, SHA-256
+640d4647b075f0c6ede69aedf541282985ae3c9c7a02bb8c3494e1d3caf932ab.
+Saved-version archive: 184 files, 160686080 bytes, SHA-256
+bdad4018430c4a7a984c8f06109d48971ca15fa34236c7d35331fb34352c7a3b.
+Local and native hashes describe separate archive representations; fresh saved
+source provenance matches the exact pushed commit above. Archive retained.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_36a8c9184eb481919757d90b4ecd6196.
+Deployment appgdep_6ada3e13f0d08191a0d38010bc5a79e7 succeeded at
+2026-10-22 12:47:31 America/New_York; runtime revision 5 unchanged.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Fresh audience read: one owner, zero other users/editors/groups/external visitors
+or automations. Source credentials cleared from orchestration storage. No public
+GitHub push/main merge, live app/backend, sharing, schema, AI key/budget or
+scheduled-push change. Exercise photos remain deferred. User-device acceptance
+of the new timing display is pending.
+
+Owner check: /update.html (build 9bc5606dfc9d), then Home → Workout order in the
+strength summary. Check valid sets in today's workout as training proceeds;
+verify chronological checks and recorded working-set order, including alternating
+supersets. Old/backdated entries must keep unknown timing. Reviewing this modal
+must not change loads, recommendations or history. Existing automatic rest rules
+remain active; Stop or timer expiry dismisses final blocking recovery as before.
