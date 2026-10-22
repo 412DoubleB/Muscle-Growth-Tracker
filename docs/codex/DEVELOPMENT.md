@@ -3152,3 +3152,36 @@ rest timers/chimes remain unchanged. Next device checks are the future scheduled
 one-hour workout reminder and installed/offline reopening; never reset data or
 invent workout completion to force a test. LIVE_RELEASE_PLAN.md records remaining
 production backend/cutover prerequisites. Live publication remains separate.
+
+## Offline/update review — clean obsolete private shell caches
+
+The next release check found that buildPreview renames the service-worker cache
+to menei-owner-preview-<12-hex-commit>, but activation only removed the older
+mgt-private-beta family and two known legacy cache names. Consequently, repeated
+private updates retained obsolete app-file caches. This is a reproduced cleanup
+bug, not an established cause of earlier localStorage quota failures; Cache
+Storage and localStorage are distinct stores.
+
+Activation now also recognizes the exact generated private-cache name pattern.
+It keeps the active CACHE, retains unrelated caches including similar names
+without a 12-hex build suffix, and leaves the existing legacy cleanup unchanged.
+Only the service-worker activation predicate changed. Shell installation,
+network/offline fetch rules, update activation, push handlers and app modules
+are unchanged. No account/workout store, IndexedDB, cloud record or subscription
+is cleared. The standalone updater still preserves sign-in, history and push.
+
+A new VM regression failed before the fix because an obsolete private cache
+survived activation. Afterward it verifies removal of two prior build caches and
+legacy shell caches, preservation of the current and unrelated caches, and
+offline fetching of the current cached code after activation. This is controlled
+service-worker coverage, not actual installed-phone or browser QA.
+
+Six affected test files passed in one run (8974.054945 ms): updates, release,
+preview, test-cloud-preview, preview-worker and push-schedule. Static validation
+passed 33 modules / 53 shell entries / 162 originals / 113 WebP / 35 pairs.
+The preceding full 70-file run remains the baseline; it was not rerun or claimed
+as a new full-suite result for this one-predicate change. No runtime changes
+followed these checks. Exact private publication receipt follows separately.
+Speech stays disabled; wearables/photos remain deferred. The one-hour reminder
+and physical installed/offline reopening checks remain pending, not accepted
+merely because the owner asked to continue.
