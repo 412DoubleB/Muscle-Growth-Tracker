@@ -2574,3 +2574,37 @@ Owner check: /update.html (build d11af39839a5), lifting/running options → Supe
 Home and calendar must agree. Demanding free-weight legs may remain straight,
 limited single-muscle splits show fatigue cautions, and each lift keeps its own
 progression. Already recorded sessions remain unchanged.
+
+## Primary workspace quota retry — isolated private preview
+
+The owner confirmed the new pair labels but encountered the friendly primary
+device-save failure. Recovery compression alone does not remove the other full
+workspace-sized local copy: the sync baseline used for three-way comparisons.
+The primary workspace stays ordinary schema-8 JSON at its original key.
+
+Encode future sync baselines losslessly using the existing pinned LZString
+codec, with a versioned envelope, decoded length and checksum. Old raw JSON
+baselines remain readable. Preserve the complete baseline, including version,
+timestamps, unknown fields and all saved copies; no merge input is discarded.
+Corrupt caches fail closed rather than silently becoming an empty baseline.
+
+On a primary or recovery quota error, LocalStore may compact the exact current
+account/project's existing baseline and retry once. Require the enabled cloud
+client, signed-in user, workspace owner and LocalStore scope to agree. Never
+enumerate or compact another account's cache. Do not touch auth, raw legacy
+keys, history, other workspaces or primary JSON format. If space is still
+insufficient, existing atomic program-save rollback/draft protection remains.
+No startup migration, backend request/schema/auth change, cache clearing or
+history pruning is introduced. Sync HTTP payloads remain full ordinary JSON.
+
+Focused synthetic checks pass for a full 84-day Supersets primary write under
+a 5 MiB UTF-16 quota after compaction, complete recovery snapshots, exact-key
+isolation, unknown fields, Unicode and corruption handling. Existing JSONB,
+three-way merge, account-switch and CAS retry checks pass with both raw and
+encoded baseline reads. Real phone acceptance remains a separate owner check.
+
+Validation: all 66 test files passed (318662 ms). npm run check passed with
+30 root JS modules, 50 offline entries, 162 original identities, 113 WebP assets
+and 35 protected pairs. git diff --check passed. Program draft rollback, recovery
+exports, independent progression, automatic rest and synthetic sync checks pass.
+No real browser visual/phone acceptance or live backend operation was performed.

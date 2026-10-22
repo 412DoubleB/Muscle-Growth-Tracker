@@ -344,17 +344,26 @@ export function restoreReviewedConflict(state,archiveId,choice){
  return applyConflictReview(state,[conflict],'restore-'+choice,{value:choice==='current'?current.value:conflict[choice]},archiveId);
 }
 export class LocalStore{
- constructor(storage){this.storage=storage;this.scope='guest';this.state=null}
+ constructor(storage){this.storage=storage;this.scope='guest';this.state=null;this.onQuota=null}
  load(scope='guest'){this.scope=scope;const text=this.storage.getItem('MGT_BETA_V8:'+scope);this.state=text?JSON.parse(text):defaultState();validateState(this.state);return this.state}
- save(state){const data=JSON.stringify({...state,updatedAt:now()});this.storage.setItem('MGT_BETA_V8:'+this.scope,data);this.state=JSON.parse(data);return this.state}
+ save(state){
+  const data=JSON.stringify({...state,updatedAt:now()}),key='MGT_BETA_V8:'+this.scope;
+  try{this.storage.setItem(key,data)}catch(error){
+   if(!isStorageQuotaError(error))throw error;
+   if(!this.recoverQuota())throw error;
+   this.storage.setItem(key,data);
+  }
+  this.state=JSON.parse(data);return this.state;
+ }
+ recoverQuota(){try{return this.onQuota?.()===true}catch{return false}}
  recoverySnapshots(){return readRecoverySnapshots(this.storage.getItem('MGT_BETA_SNAPSHOTS:'+this.scope))}
  snapshot(){
-  const key='MGT_BETA_SNAPSHOTS:'+this.scope,list=[{at:now(),state:clone(this.state)},...this.recoverySnapshots()].slice(0,3);
+  let recovered=false;const key='MGT_BETA_SNAPSHOTS:'+this.scope,list=[{at:now(),state:clone(this.state)},...this.recoverySnapshots()].slice(0,3);
   for(;;){
    const data=encodeRecoverySnapshots(list);
    if(list.length>1&&data.length>700000){list.pop();continue}
    try{this.storage.setItem(key,data);return}
-   catch(error){if(!isStorageQuotaError(error))throw error;if(list.length>1){list.pop();continue}throw Error('Device storage is full. This change was not applied because a recovery copy could not be saved. Export a backup before retrying.');}
+   catch(error){if(!isStorageQuotaError(error))throw error;if(!recovered&&this.recoverQuota()){recovered=true;continue}if(list.length>1){list.pop();continue}throw Error('Device storage is full. This change was not applied because a recovery copy could not be saved. Export a backup before retrying.');}
   }
  }
  legacy(){for(const key of ['MGT28v6','MGT28v5']){const data=this.storage.getItem(key);if(data)return {key,data:JSON.parse(data)}}return null}

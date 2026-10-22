@@ -1,3 +1,4 @@
+import {readSyncBase} from '../recovery.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CloudSync} from '../cloud.mjs';
@@ -123,6 +124,6 @@ test('a successful same-account refresh still allows synchronization and preserv
  const f=fixture(async url=>url.includes('grant_type=refresh_token')?response(session('account-a')):url.includes('mgt_beta_states')?response([]):response({version:1}));
  f.cloud.saveSession(session('account-a',true));const before=clone(f.state);
  await f.cloud.sync();assert.deepEqual(f.state,before);assert.equal(f.applied.length,1);assert.equal(f.requests.length,3);
- assert.equal(JSON.parse(f.storage.getItem('MGT_BETA_SYNC_BASE:account-a')).version,1);assert.equal(f.cloud.session.user.id,'account-a');
+ assert.equal(readSyncBase(f.storage.getItem('MGT_BETA_SYNC_BASE:account-a')).version,1);assert.equal(f.cloud.session.user.id,'account-a');
  f.cloud.stop();
 });

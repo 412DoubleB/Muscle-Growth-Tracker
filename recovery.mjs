@@ -19,3 +19,31 @@ export function readRecoverySnapshots(raw){
   const list=JSON.parse(text);if(!Array.isArray(list))throw Error('Invalid recovery list.');return list;
  }catch{throw Error('The saved recovery copies could not be read. They have not been overwritten. Export your current backup before continuing.');}
 }
+
+// The sync baseline is a comparison cache, not the primary workspace or auth.
+const SYNC_FORMAT='menei-sync-base';
+export function readSyncBase(raw){
+ if(raw==null)return null;
+ try{
+  let base=JSON.parse(raw);
+  if(base?.format===SYNC_FORMAT){
+   if(base.version!==VERSION||base.encoding!=='lz-string-utf16'||typeof base.data!=='string'||!Number.isInteger(base.length)||base.length<0||base.length>MAX_TEXT)throw Error('Unsupported sync cache.');
+   const text=LZString.decompressFromUTF16(base.data);
+   if(typeof text!=='string'||text.length!==base.length||checksum(text)!==base.checksum)throw Error('Sync cache integrity check failed.');
+   base=JSON.parse(text);
+  }
+  if(base!==null&&(!base||typeof base!=='object'||Array.isArray(base)||!base.state||typeof base.state!=='object'||Array.isArray(base.state)))throw Error('Invalid sync cache.');
+  return base;
+ }catch{throw Error('The saved sync comparison copy could not be read. Your workspace and saved copies were not cleared.');}
+}
+export function encodeSyncBase(base){
+ const text=JSON.stringify(base);if(text.length>MAX_TEXT)throw Error('The sync comparison copy is too large to save safely.');
+ const compressed=JSON.stringify({format:SYNC_FORMAT,version:VERSION,encoding:'lz-string-utf16',length:text.length,checksum:checksum(text),data:LZString.compressToUTF16(text)});
+ return compressed.length<text.length?compressed:text;
+}
+export function compactSyncBase(storage,key){
+ const raw=storage.getItem(key);if(raw==null)return false;
+ let encoded;try{encoded=encodeSyncBase(readSyncBase(raw))}catch{return false}
+ if(encoded.length>=raw.length)return false;
+ storage.setItem(key,encoded);return true;
+}

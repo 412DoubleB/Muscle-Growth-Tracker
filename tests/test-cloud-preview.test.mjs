@@ -1,3 +1,4 @@
+import {readSyncBase} from '../recovery.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CloudSync} from '../cloud.mjs';
@@ -34,7 +35,7 @@ test('test preview isolates credentials and sync bases without deleting the old 
  assert.equal(cloud.config,null);assert.equal(cloud.session,null);
  cloud.configure(url,'sb_publishable_synthetic');cloud.saveSession(session);await cloud.sync();
  assert.equal(requests.length,2);assert.ok(requests.every(request=>request.request.startsWith(url+'/')));assert.ok(requests.every(request=>request.options.redirect==='error'&&request.options.credentials==='omit'));
- assert.equal(JSON.parse(storage.getItem('MGT_BETA_SYNC_BASE:'+project+':test-user')).version,1);
+ assert.equal(readSyncBase(storage.getItem('MGT_BETA_SYNC_BASE:'+project+':test-user')).version,1);
  await cloud.signOut();assert.equal(storage.getItem(authKey),null);
  for(const [key,value]of before)assert.equal(storage.getItem(key),value);
  cloud.stop();
