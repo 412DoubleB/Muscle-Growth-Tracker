@@ -2496,3 +2496,41 @@ Owner check: /update.html (build a49d16f9cc48), reopen lifting/running options,
 preview the program and retry Save. Existing recovery copies should still browse
 and export through Settings. If the primary write still cannot fit, the preview
 must remain open with the prior saved program intact and an Export backup action.
+
+## Automatic superset matching and explicit program pair labels
+
+Owner confirmed the storage fix saves, but selecting Supersets did not produce
+visible A1/A2, B1/B2 pairs. Reproduction identified adjacent-only matching that
+could produce zero pairs on a single-muscle day; previews also flattened the
+exercise names even when pairs existed. Custom-block and continuing custom
+routine paths replaced generated exercises after pairing, dropping the format.
+
+Automatic pairing now evaluates the actual workout as a whole. For at most 16
+eligible exercises it maximizes the number of two-exercise pairs, then minimizes
+catalog-based primary/assisting-muscle and compound overlap, unequal working-set
+counts and distance in the original order. Larger manually assembled sessions
+use a bounded greedy fallback with the same costs. This is a practical heuristic
+within the selected exercise list, not a claim of personally optimal training.
+Demanding free-weight lower-body compounds stay straight; machine leg work can
+pair. Same-muscle/compound combinations remain possible when the selected split
+has limited alternatives, with fatigue cautions shown on Home. Broad Legs group
+labels no longer incorrectly imply calves and quads share a primary muscle.
+
+Exercise arrays, IDs, sets, entries and counts are retained. Existing manual pairs
+and any entered member/partner stay protected. Each exercise keeps independent
+load, reps, RIR and superset progression context. Global raw exercise order is
+unchanged; the displayed execution groups put each chosen pair together. The
+existing 60-second set and final 3-minute whole-pair rest rules remain unchanged.
+No exercise is silently substituted to manufacture a pair.
+
+Generator review, custom review, Home and the calendar now show explicit A1/A2,
+B1/B2 names. New custom blocks, continuing routine calendars and fresh routine
+choices apply the selected format after loading their final exercise list.
+Existing paired routines retain their chosen pairs. Straight-set mode is unchanged.
+No saved history is retroactively auto-paired, and no automatic migration is run.
+
+Focused checks cover cross-list press/curl pairing, first-exercise eligibility,
+single-muscle days, demanding leg exclusions, odd/large lists, idempotence,
+recorded partners, compact plans, saved/continuing routines and visible labels.
+The integrated program check includes an 84-day Supersets preview in a large
+workspace under a synthetic 5 MiB storage limit, preserving the quota fix.

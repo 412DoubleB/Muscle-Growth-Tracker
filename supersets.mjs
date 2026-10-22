@@ -21,7 +21,7 @@ const muscleFamilies=text=>new Set([
   ['shoulder',/deltoid|supraspinatus|\bshoulder/i],['biceps',/biceps|brachialis|brachioradialis/i],
   ['triceps',/triceps/i],['quads',/quadriceps|\bquad/i],['hamstrings',/hamstring/i],
   ['glutes',/glute/i],['calves',/gastrocnemius|soleus|\bcalf|\bcalves/i],
-  ['core',/abdominis|oblique|\bcore\b/i],['erectors',/erector/i],['grip',/\bgrip\b|forearm/i]
+  ['core',/abdominis|oblique|\bcore\b/i],['erectors',/erector/i],['grip',/\bgrip\b|forearm|carpi|\bwrist/i]
 ].filter(([,pattern])=>pattern.test(text||'')).map(([name])=>name));
 const overlaps=(a,b)=>[...a].some(x=>b.has(x));
 function assessPair(a,b,metaFor){
@@ -29,7 +29,7 @@ function assessPair(a,b,metaFor){
   const ap=muscleFamilies(am.primary),bp=muscleFamilies(bm.primary),as=muscleFamilies(am.secondary),bs=muscleFamilies(bm.secondary);
   let score=0;
   if(!ap.size||!bp.size){score+=3;notes.push('Muscle information is incomplete. Check this pairing yourself before training.');}
-  if((am.group&&am.group===bm.group&&am.group!=='Other')||overlaps(ap,bp)){score+=4;notes.push('These exercises share a main muscle group. The second may need a lighter load as fatigue builds.');}
+  if(overlaps(ap,bp)||(!ap.size||!bp.size)&&am.group&&am.group===bm.group&&am.group!=='Other'){score+=4;notes.push('These exercises share a main muscle group. The second may need a lighter load as fatigue builds.');}
   else if(overlaps(ap,bs)||overlaps(bp,as)){score+=2;notes.push('One exercise uses muscles that assist the other. Watch technique and reduce the load if needed.');}
   if(am.compound&&bm.compound){score+=3;notes.push('Both are compound lifts. Straight sets may make it easier to maintain technique and load.');}
   if(am.group==='Legs'&&am.compound||bm.group==='Legs'&&bm.compound){score+=6;notes.push('A demanding lower-body compound is included. Consider keeping it as straight sets.');}
@@ -73,16 +73,42 @@ export function pairExercises(day,first,second,restSeconds=120){
   for(const [order,index] of [first,second].entries()){const e=out.exercises[index];if(entered(e))throw Error('Choose exercises without entered sets to create a new superset.');e.supersetId=id;e.supersetOrder=order+1;e.supersetRestSeconds=restSeconds;e.progressionContext='superset'}
   return out;
 }
-export function autoSupersets(day,metaFor=()=>({}),restSeconds=120){
+// Exclude demanding free-weight lower-body compounds from automatic pairs.
+// Machines can pair with less competing work; manual pairing remains available.
+export function demandingStraightLift(exercise,metaFor=e=>e){
+  const meta=metaFor(exercise)||exercise;
+  return !!(meta.group==='Legs'&&meta.compound&&!/machine|leg press|hack squat|belt squat|smith|pendulum|glute drive|sled/i.test(meta.name||exercise.name||''));
+}
+export function pairingRationale(a,b,metaFor=e=>e){
+  const result=assessPair(a,b,metaFor);
+  return result.notes.length?result.notes.join(' '):'Different main muscles limit direct overlap. Keep each exercise’s own reps, load and RIR.';
+}
+export function autoSupersets(day,metaFor=e=>e,restSeconds=120){
   editable(day);let out=copy(day);
-  // Keep the first exercise and demanding lower-body compounds as straight sets.
-  // Adjacent pairs preserve the approved exercise order. Never add or remove exercises.
-  for(let i=1;i<out.exercises.length-1;i++){
-    const a=out.exercises[i],b=out.exercises[i+1],am=metaFor(a)||{},bm=metaFor(b)||{};
-    const plain=e=>!entered(e)&&!e.supersetId&&(!e.setType||e.setType==='straight')&&(e.sets||[]).every(s=>s.role==='working');
-    if(!plain(a)||!plain(b)||a.sets.length!==b.sets.length||am.compound&&bm.compound||am.group==='Legs'&&am.compound||bm.group==='Legs'&&bm.compound)continue;
-    out=pairExercises(out,i,i+1,restSeconds);i++;
+  const workCount=e=>(e.sets||[]).filter(s=>!['warmup','ramp','backoff','drop'].includes(s.role)).length;
+  const eligible=out.exercises.map((e,index)=>({e,index})).filter(({e,index})=>!pairingUnavailableReason(out,index)&&!e.supersetId&&workCount(e)>0&&!demandingStraightLift(e,metaFor));
+  const cost=(a,b)=>assessPair(a.e,b.e,metaFor).score*100+(workCount(a.e)===workCount(b.e)?0:40)+Math.abs(a.index-b.index);
+  const edges=eligible.flatMap((a,i)=>eligible.slice(i+1).map((b,j)=>({a:i,b:i+j+1,cost:cost(a,b)})));
+  let chosen=[];
+  if(eligible.length<=16){
+    // Exact matching for normal 6–9-exercise sessions. First maximize pairs,
+    // then minimize fatigue/compound overlap, unequal sets and order changes.
+    const costs=new Map(edges.map(e=>[e.a+':'+e.b,e.cost])),memo=new Map();
+    function solve(mask){
+      if(!mask)return {pairs:[],cost:0};if(memo.has(mask))return memo.get(mask);
+      let a=0;while(!(mask&(1<<a)))a++;const rest=mask&~(1<<a);let best=solve(rest);
+      for(let b=a+1;b<eligible.length;b++)if(rest&(1<<b)){
+        const tail=solve(rest&~(1<<b)),candidate={pairs:[[a,b],...tail.pairs],cost:costs.get(a+':'+b)+tail.cost};
+        if(candidate.pairs.length>best.pairs.length||candidate.pairs.length===best.pairs.length&&candidate.cost<best.cost)best=candidate;
+      }
+      memo.set(mask,best);return best;
+    }
+    chosen=solve((1<<eligible.length)-1).pairs;
+  }else{
+    // Bound work for unusually large manually assembled sessions.
+    const used=new Set();for(const edge of edges.sort((a,b)=>a.cost-b.cost||a.a-b.a||a.b-b.b))if(!used.has(edge.a)&&!used.has(edge.b)){chosen.push([edge.a,edge.b]);used.add(edge.a);used.add(edge.b)}
   }
+  for(const [a,b] of chosen.sort((a,b)=>eligible[a[0]].index-eligible[b[0]].index))out=pairExercises(out,eligible[a].index,eligible[b].index,restSeconds);
   return out;
 }
 export function roundStatus(group){

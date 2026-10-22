@@ -211,6 +211,7 @@ export function rollingDay(state,date){
     const r=routines[((d.sessionNumber-1)%routines.length+routines.length)%routines.length];d.title=r.name;
     d.exercises=clone(r.exercises).map(e=>({...e,id:uid(),sets:e.sets.map(s=>({...s,id:uid(),w:'',r:'',rir:'',done:false}))}));d.notes=[];
     for(const e of d.exercises){const missing=missingEquipment(exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),state.gyms.find(g=>g.id===d.gymId));if(missing.length)d.notes.push('Equipment to check: '+e.name+' — '+missing.join(', '))}
+    if(training.supersetMode==='supersets')Object.assign(d,autoSupersets(d,e=>exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),+training.restSeconds||60));
    }
   }
   cached={key,days:new Map(result.days.map(d=>[d.date,d]))};rollingCache.set(state,cached);

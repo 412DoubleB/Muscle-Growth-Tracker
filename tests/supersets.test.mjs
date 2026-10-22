@@ -54,8 +54,7 @@ test('automatic supersets are optional and retain exercise order, count, sets an
  assert.ok(paired.some(d=>S.supersetGroups(d).length));
  for(let i=0;i<plain.length;i++){
   assert.equal(S.supersetGroups(plain[i]).length,0);assert.deepEqual(paired[i].exercises.map(e=>e.exerciseId),plain[i].exercises.map(e=>e.exerciseId));assert.deepEqual(paired[i].exercises.map(e=>e.sets.map(s=>s.role)),plain[i].exercises.map(e=>e.sets.map(s=>s.role)));
-  assert.equal(paired[i].exercises[0]?.supersetId,undefined);
-  for(const group of S.supersetGroups(paired[i])){assert.equal(group.members[1].index-group.members[0].index,1);assert.equal(group.restSeconds,120);assert.ok(!group.members.some(m=>meta(m.exercise).group==='Legs'&&meta(m.exercise).compound))}
+  for(const group of S.supersetGroups(paired[i])){assert.equal(group.members.length,2);assert.equal(group.restSeconds,120);assert.ok(!group.members.some(m=>S.demandingStraightLift(m.exercise,meta)))}
  }
 });
 test('manual pairs respect the chosen first/second order and invalid changes are atomic',()=>{
@@ -106,4 +105,22 @@ test('re-pairing is explicit, keeps every set/order/unknown field and releases o
  let day={...pairDay(),exercises:[...pairDay().exercises,...pairDay().exercises]},n=0;for(const e of day.exercises){e.ownerNote='retain-'+n++;for(const s of e.sets)s.unknown={retain:true}}
  day=S.pairExercises(S.pairExercises(day,0,1,60),2,3,60);const before=C.clone(day);assert.match(S.pairingAdvice(day,1,3,meta).notes.join(' '),/replaces their existing unstarted pairs/);assert.deepEqual(day,before);
  const after=S.pairExercises(day,1,3,60);assert.deepEqual(after.exercises.map(e=>e.sets),before.exercises.map(e=>e.sets));assert.deepEqual(after.exercises.map(e=>e.ownerNote),before.exercises.map(e=>e.ownerNote));assert.deepEqual(after.exercises.map(e=>e.exerciseId),before.exercises.map(e=>e.exerciseId));assert.equal(after.exercises[0].supersetId,undefined);assert.equal(after.exercises[2].supersetId,undefined);assert.deepEqual(S.supersetGroups(after)[0].members.map(m=>m.index),[1,3]);assert.deepEqual(day,before);
+});
+
+test('automatic matching crosses the exercise list to pair presses with curls and retains independent overload context',()=>{
+ const names=['Barbell Bench Press','Dumbbell Bench Press','Hammer Curl','Incline Hammer Curl'],day={date:'2026-10-19',exercises:names.map(name=>C.makeExercise(C.exerciseFor(name)))};const before=C.clone(day),paired=S.autoSupersets(day,meta,60),groups=S.supersetGroups(paired);assert.equal(groups.length,2);
+ for(const g of groups){assert.deepEqual(g.members.map(m=>meta(m.exercise).group).sort(),['Biceps','Chest']);assert.equal(g.restSeconds,60);for(const m of g.members)assert.equal(S.progressionContext(m.exercise),'superset')}
+ assert.ok(groups.some(g=>g.members.some(m=>m.index===0)),'the first exercise can be paired');assert.deepEqual(paired.exercises.map(e=>e.sets),before.exercises.map(e=>e.sets));assert.deepEqual(paired.exercises.map(e=>e.exerciseId),before.exercises.map(e=>e.exerciseId));assert.deepEqual(day,before);assert.equal(S.supersetGroups(C.expandPlanDay(C.packPlanDay(paired))).length,2);
+ const again=S.autoSupersets(paired,meta,60);assert.deepEqual(again,paired,'existing pairs are left intact');
+});
+test('single-muscle generated days receive explicit pairs rather than silently remaining entirely straight',()=>{
+ for(const split of ['bro','ppl','split','seven','full','upper-lower']){const s=state(split,'supersets'),lifts=C.generateProgram(s,{days:14}).days.filter(d=>d.kind==='strength');for(const day of lifts){const eligible=day.exercises.filter(e=>!S.demandingStraightLift(e,meta));assert.equal(S.supersetGroups(day).length,Math.floor(eligible.length/2),split+' '+day.title);for(const g of S.supersetGroups(day))assert.ok(g.members.every(m=>!S.demandingStraightLift(m.exercise,meta)))}}
+});
+test('automatic pairing keeps recorded members and their partners intact and handles odd or unusually large sessions',()=>{
+ let day={date:'2026-10-19',exercises:['Barbell Bench Press','Dumbbell Bench Press','Hammer Curl','Incline Hammer Curl','Plank'].map(name=>C.makeExercise(C.exerciseFor(name)))};day=S.pairExercises(day,0,1,60);day.exercises[0].sets[0].rir=0;const before=C.clone(day),paired=S.autoSupersets(day,meta,60);assert.deepEqual(paired.exercises.slice(0,2),before.exercises.slice(0,2));assert.equal(S.supersetGroups(paired).length,2);assert.deepEqual(day,before);
+ const large={exercises:Array.from({length:35},(_,i)=>C.makeExercise(C.exerciseFor(i%2?'Hammer Curl':'Dumbbell Bench Press')))};const all=S.autoSupersets(large,meta,60);assert.equal(S.supersetGroups(all).length,17);assert.equal(all.exercises.length,35);assert.equal(new Set(S.supersetGroups(all).flatMap(g=>g.members.map(m=>m.index))).size,34);
+});
+test('saved routine choices and custom calendar continuation apply supersets after loading the actual routine',()=>{
+ const s=state('ppl','supersets');s.routines=[{id:'new',name:'Custom presses and curls',exercises:['Barbell Bench Press','Dumbbell Bench Press','Hammer Curl','Incline Hammer Curl'].map(name=>C.makeExercise(C.exerciseFor(name)))}];s.training.mode='custom';s.training.routineOrder=['new'];const before=C.clone(s.routines);const chosen=workoutFromChoice(s,'routine:new','2027-01-04','crunch');assert.equal(S.supersetGroups(chosen).length,2);
+ const day=Array.from({length:7},(_,i)=>C.dayFor(s,C.addDays('2027-01-04',i))).find(d=>d.kind==='strength');assert.ok(day);assert.equal(day.title,'Custom presses and curls');assert.equal(S.supersetGroups(day).length,2);assert.deepEqual(day.exercises.map(e=>e.exerciseId),before[0].exercises.map(e=>e.exerciseId));assert.deepEqual(s.routines,before);
 });

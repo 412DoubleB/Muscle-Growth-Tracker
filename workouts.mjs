@@ -1,4 +1,4 @@
-import {supersetGroups} from './supersets.mjs?v=8.1.1';
+import {supersetGroups,autoSupersets} from './supersets.mjs?v=8.1.1';
 import * as C from './core.mjs?v=8.1.1';
 import {LEGACY_PLAN} from './legacy.mjs?v=8.1.1';
 
@@ -38,7 +38,7 @@ export function workoutFromChoice(state,choice,date,gymId){
   if(type==='legacy')day=C.originalDay(state,C.addDays('2026-10-01',+key));
   if(type==='routine'){const r=state.routines.find(r=>r.id===key&&!r.deleted);day={title:r.name,kind:'strength',exercises:r.exercises,notes:[],sauna:{minutes:+state.training.saunaMinutes||20,done:false}}}
   if(type==='plan')day=C.expandPlanDay(state.plan[key]);
-  return fresh(day,date,gymId);
+  const chosen=fresh(day,date,gymId);return state.training.supersetMode==='supersets'?autoSupersets(chosen,e=>C.exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),+state.training.restSeconds||60):chosen;
 }
 function equipmentNotes(state,day){const gym=state.gyms.find(g=>g.id===day.gymId);day.notes=(day.notes||[]).filter(n=>!n.startsWith('Equipment to check:'));for(const e of day.exercises){const cat=C.exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId);const missing=C.missingEquipment(cat,gym);if(missing.length)day.notes.push('Equipment to check: '+e.name+' — '+missing.join(', '))}}
 // Validate only fresh automatic output. Existing short workouts, routines and
