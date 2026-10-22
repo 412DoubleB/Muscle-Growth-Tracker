@@ -1931,3 +1931,52 @@ start 60 seconds. Checking the last unfinished set of an exercise or whole pair
 should instead open 180-second recovery. The screen should block edits while
 active, close automatically at zero, and allow Stop/Escape to end early. Verify
 the four-chime cue and Mute on the phone, then confirm entered values remain.
+
+### Owner acceptance of preview 30
+
+Owner reported the timer change works and requested the next rebuild stage. This
+records acceptance of the observed timer flow, not proof of every device/format,
+background audio, account isolation or recovery scenario.
+
+## Stage 28 — recorded training streaks, daily motivation and opening artwork
+
+Added IP protection to the first-use legal requirements with a separate review
+draft (IP_PROTECTION_REVIEW.md). It covers eligible ownership, permitted use,
+copying/redistribution/reverse-engineering restrictions where enforceable,
+branding and registration review, third-party rights, user data exports, valid
+acceptance/versioning, and existing public-source exposure. No top-level license
+file was found; this does not establish absence of other rights. Terms cannot
+monopolize an app idea, undo public disclosure or guarantee no imitation. This
+is requirements work, not an activated legal agreement or filing. The current
+health acknowledgment was not silently repurposed as IP consent.
+
+Home now shows current/best training-day streak and total completed training
+days, with deterministic original daily motivation. The read-only counter uses
+date-keyed canonical completed logs with a valid checked set (including a genuine
+zero bodyweight load) or completed positive-duration run. It excludes deleted,
+future and preserved/conflicting copies. Explicit saved rest days preserve the
+streak without adding days. Missing known workout days break after that date;
+today has grace until midnight. Unknown gaps do not invent historical rest days
+or bridge a streak. Existing schedules are never regenerated to infer past effort.
+
+Fresh completion milestones (1, 3, 7, 14, 30, 60, 100) can show a dismissible
+message with the daily quote. This only follows successful explicit completion
+today, is remembered per account/date outside workout data, and is not replayed
+by viewing, importing or syncing older history. Details explain counting and
+recovery. No additional audio or provider requests are made.
+
+The existing emblem and globe athlete get a short opening reveal on first Home
+render of each page load. Later logging/navigation redraws do not restart it.
+Skip is available while it plays; reduced-motion disables it. Artwork bytes,
+geometry/bindings and all exercise photos remain intact. This is a CSS reveal
+of the existing artwork, not a newly articulated or regenerated character.
+
+Inspection also found that the previous fixed 60-second generator field was
+rejected by strength/hypertrophy legacy rest-range validation. The UI now accepts
+the owner's 60-second policy while retaining set/rep constraints and other valid
+legacy rest prescriptions. Focus summaries reflect the active policy. A preview
+regression covers both modes and confirms invalid set/rep choices still fail
+without plan/history writes. No recorded rest values are retroactively rewritten.
+
+Schema, app/storage identities, raw legacy snapshots, backend, AI allowance,
+runtime keys, scheduled-push state and deferred photo review remain unchanged.

@@ -12,8 +12,9 @@ in the owner-only preview; live backend/publication approval is still separate.
 | Easier recipe import | JSON upload/paste already exists; clearer discovery now; URL/photo/OCR is a later provider-reviewed import workflow |
 | Uneven gym increments | Current input accepts arbitrary decimals; no algorithm deliberately adds 5.1; expose distinct lb/kg steps and remove ambiguous number spinners |
 | First-use health/legal notice | Cover medical limits, injury, allergies, food safety and AI estimates; acknowledgment and later access; legal review before public release, no liability guarantee |
+| IP protection / anti-copying terms | Added to first-use legal scope: review ownership, limited app license, copying/redistribution/reverse-engineering restrictions where enforceable, branding, third-party rights and public-source exposure. See IP_PROTECTION_REVIEW.md. Terms cannot monopolize an idea or guarantee no imitation; no legal terms activated yet |
 | Soldier muscle avatar | New asset/design review; preserve existing exercise images and bindings |
-| Day streak / popup | One combined streak feature, grounded in actual canonical completed sessions; healthy rest-day behavior needs a clear definition |
+| Day streak / popup | Training-day streak/best/total on Home, based on valid completed canonical logs. Explicit saved rest days preserve without adding a day; missed recorded workouts or unknown gaps break. Today has grace until midnight. Milestone popup only on new genuine completion; no import/sync/view replay |
 | Today workout/nutrition secondary screens | Home entry points and secondary overlays, with daily motivation |
 | One-hour upcoming-workout push | Add workout time/timezone and review isolated test scheduler; closed-app push requires permission/backend/device validation; remains disabled until separately activated |
 | Muteable audio / motivation | Rest completion cue on by default: original two-tone chime repeated four times, one second apart (about 3.4 seconds total), with explicit Mute/Unmute. Mute/Stop cancels remaining repetitions. The Done/timer gesture arms audio automatically; no separate enable prompt. This policy enables previous default-off settings once, then preserves explicit mutes. Broader spoken/motivational audio remains queued |
@@ -24,7 +25,7 @@ in the owner-only preview; live backend/publication approval is still separate.
 | Watches / Samsung Health / Fitbit / MapMyRun | Separate capability/OAuth/native-health integration review and per-user consent; no connection or data sharing yet |
 | Automatic set/round rest | Latest owner policy: 60 seconds between every individual set, including supersets and all set roles/formats, on the selected workout date. Newly checked valid saved rows start rest; redraw, duplicate checks and sync do not. Ordinary rest can be set to manual |
 | Exercise/pair completion rest | Latest owner policy supersedes mandatory manual dismissal: automatic 3-minute blocking popup after ALL sets of a standalone exercise or ALL sets of both exercises in a superset pair, including warm-ups, back-offs, drops and extras. Closes automatically at zero; Stop/Escape can dismiss early. Applies regardless of ordinary rest setting or workout date; no start/confirmation prompt |
-| Launch animation / quote | Animate existing decorative assets with reduced-motion support; dismissible, no input interception after intro |
+| Launch animation / quote | Gentle opening reveal of the existing emblem/Greek globe athlete on first Home render per page load, Skip control and reduced-motion support. Stable original daily quote; no new asset, API or sound on launch |
 | Estimated workout duration | Show near Home top, label as estimate, account for sets/rest/supersets/run/sauna without writing history |
 | Home on startup | Fix refresh destination from recipes to Home; retain intentional recipe links |
 

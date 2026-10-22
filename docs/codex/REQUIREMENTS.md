@@ -5,6 +5,7 @@ This register consolidates the visible owner requests, recovered project files, 
 Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/EXERCISE_AUDIT.md; docs/MEDIA_AUDIT.md; media-manifest.json; docs/MENEI_NEXT_REBUILD.md; docs/MENEI_BACKGROUND.md; current tests; private equipment/approval register and retrieved evidence.
 
 ## Preservation and identity
+- Extend first-use legal review to IP ownership, permitted use and enforceable anti-copying/reverse-engineering restrictions. Review existing public-source/license exposure and third-party rights; do not promise exclusivity over an app idea, revoke existing rights by inference, or restrict users' personal-data backups. See IP_PROTECTION_REVIEW.md; draft requirements do not activate an agreement.
 - Keep all working features, approved photos, exercise/media IDs, aliases, saved routines, recipes, meals, gyms, account settings and workout history.
 - Current name: MENEI — Motivation · Excellence · Nutrition · Exercise · Intensity.
 - Use the exact uploaded M/pointed-leaf wreath: preserve geometry and leaf shape/count/placement. Keep the original JPEG, raster-backed SVG containers, current icon and decorative gold Greek athlete.
