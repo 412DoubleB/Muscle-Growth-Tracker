@@ -1735,3 +1735,44 @@ reload/sleep, duplicate completion suppression, blocked edits, manual Stop,
 explicit audio opt-in and history preservation. Real phone audio/focus/layout and
 installed/offline acceptance remain device checks. All existing artwork remains
 untouched; unresolved photo review stays deferred.
+
+### Stage 25 validation and private preview 28
+
+The final full `npm test` run passed all 58 files with no failures or skips
+(177638 ms). `npm run check` passed 27 JavaScript files, 43 shell members, 162
+original image identities, 113 WebP assets and 35 existing pairs; `git diff
+--check` passed. The first broad run found legacy numeric timer-key compatibility;
+that was fixed without weakening its assertions. Focused regression checks and
+the subsequent complete run passed. Browser rendering and real-device audio were
+not verified by the DOM harness.
+
+App source 2c40baa4a26c0c82fffb5070cbcd12452c178369 was packaged into exact
+pushed Sites source f409243c2f85d7dc7cc42ab785655d64bf450ff7. The archive contains
+174 files (158 client). Its only added member is rest-timers.mjs; nine expected
+client/UI/build metadata files changed. All other package members are identical
+to preview 27, including 121 protected media/font assets, image-manifest bindings,
+server/provider code and migrations. No photo review page or candidate was added.
+Private inputs, exports, backups and runtime keys are excluded.
+
+Native private deployment appgdep_6ad95904b69481918123fb79dec4affc succeeded at
+2026-10-21 20:30:11 America/New_York. Saved version 28:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_778ff8caf3748191ba264fcb4b5ac384.
+URL: https://menei-private-beta.crispcrown515.chatgpt.site.
+Local gzip is 153113451 bytes, SHA-256
+b2c394621c10e64ab27df14e38669ffa4bb592578a0903c0ab0463c025fcd6b0.
+Native tar is 155289600 bytes, SHA-256
+906de2918601166106cc05a7487260c82650f0bc8402af24b79a5b32975f2104.
+Native provenance confirms the exact source and 174 members. A fresh access read
+confirms owner-only audience (one owner; zero other users, editors, groups,
+external visitors or automations). Runtime revision remains 5. No GitHub push,
+main merge, live app/backend change, schema migration, key/AI-budget change or
+scheduled-push activation occurred. The previous archive is retained for rollback.
+
+Phone acceptance: open /update.html and confirm Settings preview build 2c40baa4a26c.
+In a synthetic workout today, check a valid ordinary set and verify the tray;
+check paired sets round by round, confirming no rest on the first member alone
+and the final 3-minute screen only after the whole pair. Stop must dismiss at any
+time, including after zero, without changing logged fields. Enable Sound with a
+tap, verify the completion cue, mute it, and check focus/phone layout. Reload and
+sleep should catch up; other app tabs should still finish rest. Closed-app sound
+and scheduled push are not promised or enabled by this change.
