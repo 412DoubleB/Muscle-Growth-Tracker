@@ -2359,3 +2359,24 @@ with overlapping main muscles, preview an alternative, or keep the intentional
 pair and Save. Viewing/changing draft choices should not change the workout;
 recorded exercises and their paired partners should be unavailable. Exercise
 order, entered values and the accepted rest policy remain intact.
+
+## Same-day lifting and running program options
+
+Owner confirmed preview 36 works. Next requested behavior: change the program
+on the day of the workout while no gym entries have been added. Implementation
+uses today onward as the stated default; the date picker still supports choosing
+another start date. Settings previously used whichever date was last viewed.
+It now opens the options with today's local date and provides a Start today
+shortcut. The form and review explain whether the first day can update or must
+remain protected. Saving a new program starting today opens its updated workout
+on Home, making the result immediately visible.
+
+No arbitrary date lock was removed: generation already allowed an unstarted day.
+The new controls make that path explicit. Any saved load (including zero), reps,
+RIR (including zero), or checked set protects the day. Existing protection for
+completed/skipped workouts, completed runs and sauna stays intact. Entered plan
+records now receive the same protection as logs during preview and at Save,
+including an entry added after preview. Preview uses a cloned scratch workspace;
+changes are applied only by Save, with the existing recovery snapshot. Historical
+logs, conflicting copies, meals, pantry, recipes and unrelated planned days stay
+preserved. No schema, asset, backend, AI-budget or push change.
