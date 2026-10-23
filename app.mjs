@@ -16,7 +16,7 @@ import {preparePhoto,safePhoto} from './photos.mjs?v=8.1.1';
 import * as R from './recipe-packs.mjs?v=8.1.1';
 import * as U from './upgrade.mjs?v=8.1.1';
 import {requireBetaBrowserContext,BetaBrowserContextError,invalidateChangedTabSession} from './beta-browser-context.mjs?v=8.1.1';
-import {betaEntryHtml,joinBetaAccount,rememberBetaAdmission,savedBetaAdmission,forgetBetaAdmission} from './beta-entry.mjs?v=8.1.1';
+import {betaEntryHtml,temporaryBetaFailure,BETA_TEMPORARY_MESSAGE,joinBetaAccount,rememberBetaAdmission,savedBetaAdmission,forgetBetaAdmission} from './beta-entry.mjs?v=8.1.1';
 const $=id=>document.getElementById(id);
 const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const foodQuantity=(q,unit)=>h(N.formatQuantity(q,unit,N.measurementSystem(state?.profile)));
@@ -43,6 +43,7 @@ const navItems=[['today','◫','Home'],['program','▦','Program'],['library','�
 const progressFilters={history:{period:'90'},detail:{period:'all'}};
 const progressSelected={history:null,detail:null};
 let cloud;
+let betaTemporaryFailure=null;
 let betaMember=null,betaVerifiedUser=null,betaAdmissionSequence=0,betaConnectionSequence=0,betaAdmissionContext=null,betaNetworkAdmission=false,betaActionSequence=0,betaEntryBusy=false,betaEntryEmail='',betaEntryMessage='',betaRecovery=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery',betaMediaLoaded=false;
 const needsBetaAdmission=()=>betaAdmissionConfig||runtimeConfig.betaAdmissionRequired===true;
 const hasBetaWorkspace=()=>!!state&&!!betaMember&&betaMember.userId===cloud.session?.user?.id&&state.ownerId===betaMember.userId;
@@ -68,7 +69,7 @@ function showBetaEntry(message=betaEntryMessage){
  $('nav').innerHTML='';$('mobileNav').innerHTML='';$('pageTitle').textContent='MENEI account';
  $('profileButton').innerHTML='';$('profileButton').hidden=true;
  for(const item of document.querySelectorAll('[data-action="tutorial"]'))item.hidden=true;
- $('app').innerHTML=betaEntryHtml({email:betaEntryEmail||cloud.session?.user?.email||'',message,recovery:betaRecovery,available:!cloud.disabled&&runtimeConfig.betaAdmissionRequired===true,signedIn:!!betaVerifiedUser&&betaVerifiedUser===cloud.session?.user?.id,busy:betaEntryBusy});
+ $('app').innerHTML=betaEntryHtml({email:betaEntryEmail||cloud.session?.user?.email||'',message,recovery:betaRecovery,available:!cloud.disabled&&runtimeConfig.betaAdmissionRequired===true,signedIn:!!betaVerifiedUser&&betaVerifiedUser===cloud.session?.user?.id,busy:betaEntryBusy,temporary:!!betaTemporaryFailure,localAvailable:canContinueBetaLocal()});
  bindWorkspaceForms();
 }
 function pauseBetaWorkspace(){
@@ -77,8 +78,16 @@ function pauseBetaWorkspace(){
  state=undefined;betaMember=null;betaVerifiedUser=null;
 }
 function forgetDeniedBetaAdmission(error,userId){if(error?.status===401||error?.status===403||['BETA_FULL','INVALID_ADMISSION'].includes(error?.code))forgetBetaAdmission(localStorage,testCloudProject,userId)}
-async function betaAccountChanged(user){
- const attempt=++betaAdmissionSequence,context=cloud.accountContext(),offline=navigator.onLine===false;
+function canContinueBetaLocal(){return !!betaTemporaryFailure&&betaTemporaryFailure.allowLocal!==false&&!betaRecovery&&testCloudPreview&&previewProject===testCloudProject&&cloud.config?.url==='https://'+testCloudProject+'.supabase.co'&&cloud.isCurrentAccount(betaTemporaryFailure)&&!!savedBetaAdmission(localStorage,testCloudProject,betaTemporaryFailure.userId)}
+function showBetaFailure(error,context,{allowLocal=true}={}){
+ if(!cloud.isCurrentAccount(context))return;
+ forgetDeniedBetaAdmission(error,context.userId);pauseBetaWorkspace();
+ betaTemporaryFailure=temporaryBetaFailure(error)?{...context,allowLocal}:null;
+ showBetaEntry(betaTemporaryFailure?BETA_TEMPORARY_MESSAGE:error.message);
+}
+async function betaAccountChanged(user,{localOnly=false}={}){
+ betaTemporaryFailure=null;
+ const attempt=++betaAdmissionSequence,context=cloud.accountContext(),offline=navigator.onLine===false||localOnly;
  pauseBetaWorkspace();betaVerifiedUser=user?.id||null;betaEntryEmail=user?.email||betaEntryEmail;
  showBetaEntry(user?'Checking your MENEI beta place…':'Sign in to open your MENEI workspace.');
  if(!user||betaRecovery)return;
@@ -98,6 +107,7 @@ async function betaAccountChanged(user){
    cloud.requireCurrentAccount(context);if(attempt!==betaAdmissionSequence)return;
   }
   const scope=member.userId;
+  if(offline){const raw=localStorage.getItem('MGT_BETA_V8:'+scope);if(!raw)throw Error('No saved workspace is available for this account on this device. Reconnect and sign in.');const saved=JSON.parse(raw);C.validateState(saved);if(saved.ownerId!==scope)throw Error('The saved workspace belongs to a different account. Reconnect and sign in.')}
   cloud.preferRemoteOnFirstSync=!localStorage.getItem('MGT_BETA_V8:'+scope);
   state=store.load(scope);state.ownerId=scope;betaMember=member;seedRecipes();save({sync:false});
   restoreRestTimer();
@@ -105,12 +115,13 @@ async function betaAccountChanged(user){
   if(location.hash==='#program')view='program';if(location.hash==='#library')view='library';
   $('profileButton').hidden=false;for(const item of document.querySelectorAll('[data-action="tutorial"]'))item.hidden=false;
   betaNetworkAdmission=!offline&&navigator.onLine!==false;betaAdmissionContext=betaNetworkAdmission?cloud.accountContext():null;
-  betaEntryMessage='';draw();if(betaNetworkAdmission)cloud.start();else cloud.status('Offline · Saved on this device. Cloud and AI resume after MENEI admission is verified.');
- }catch(error){if(attempt===betaAdmissionSequence&&cloud.isCurrentAccount(context)){forgetDeniedBetaAdmission(error,context.userId);pauseBetaWorkspace();showBetaEntry(error.message)}throw error}
+  betaEntryMessage='';draw();if(betaNetworkAdmission)cloud.start();else cloud.status(localOnly?'Cloud unavailable · Saved on this device. Retry the cloud connection to sync.':'Offline · Saved on this device. Cloud and AI resume after MENEI admission is verified.');
+ }catch(error){if(attempt===betaAdmissionSequence&&cloud.isCurrentAccount(context)){showBetaFailure(error,context)}throw error}
 }
 // The beta needs errors to reach its admission gate; the general cloud restore
 // intentionally reports failures only as status messages.
 async function restoreBetaSession(){
+ betaTemporaryFailure=null;
  if(navigator.onLine===false)return betaAccountChanged(cloud.session?.user);
  if(!cloud.session)return betaAccountChanged(null);
  const connection=betaConnectionSequence;
@@ -122,7 +133,7 @@ async function restoreBetaSession(){
   cloud.saveSession({...cloud.session,user});context=cloud.accountContext();
   await betaAccountChanged(user);cloud.requireCurrentAccount(context);
   if(canUseBetaNetwork())await cloud.sync();
- }catch(error){if(connection===betaConnectionSequence&&cloud.isCurrentAccount(context)){forgetDeniedBetaAdmission(error,context.userId);pauseBetaWorkspace();showBetaEntry(error.message)}throw error}
+ }catch(error){if(connection===betaConnectionSequence&&cloud.isCurrentAccount(context)){showBetaFailure(error,context)}throw error}
 }
 async function betaEntryAction(action){
  if(!needsBetaAdmission())return;
@@ -133,9 +144,17 @@ async function betaEntryAction(action){
  betaEntryBusy=true;
  try{
   if(action==='signout'){betaRecovery=false;const disabled=cloud.disabled;if(navigator.onLine===false)cloud.disabled=true;try{await cloud.signOut()}finally{cloud.disabled=disabled}return}
+  if(action==='offline'){
+   if(!canContinueBetaLocal())throw Error('Reconnect and verify this MENEI account before opening its saved workspace.');
+   const context=betaTemporaryFailure;cloud.requireCurrentAccount(context);
+   cloud.disabled=false;runtimeConfig={supabase:cloud.config,pushServiceReady:false,gymResearchReady:false,betaAdmissionRequired:true};
+   await betaAccountChanged(cloud.session.user,{localOnly:true});return;
+  }
   if(action==='retry'){
-   if(cloud.disabled||runtimeConfig.betaAdmissionRequired!==true){location.reload();return}
-   await restoreBetaSession();return;
+   if(navigator.onLine===false){await restoreBetaSession();return}
+   const connection=++betaConnectionSequence;++betaAdmissionSequence;betaTemporaryFailure=null;
+   pauseBetaWorkspace();showBetaEntry('Rechecking your MENEI account and beta place…');
+   await loadRuntimeConfig();if(connection!==betaConnectionSequence)return;await restoreBetaSession();return;
   }
   if(navigator.onLine===false)throw Error('Reconnect to sign in or update your MENEI account. Your saved data is preserved.');
   if(cloud.disabled||runtimeConfig.betaAdmissionRequired!==true)throw Error('The private beta connection is unavailable. Retry the connection to continue.');
@@ -148,7 +167,7 @@ async function betaEntryAction(action){
   if(!password)throw Error('Enter your MENEI account password.');
   if(action==='signin')await cloud.signIn(email,password);
   if(action==='signup'){const result=await cloud.signUp(email,password);if(!result.access_token){cloud.status('Signup request received.');betaEntryMessage='Request received. If email confirmation is needed, check your inbox and spam folder. Already have a MENEI account? Choose Sign in & join beta, or Reset password.'}}
- }catch(error){if(attempt===betaActionSequence){betaEntryMessage=error.message;notify(error.message)}}
+ }catch(error){if(attempt===betaActionSequence){if(temporaryBetaFailure(error)){showBetaFailure(error,cloud.accountContext(),{allowLocal:action!=='signin'||cloud.session?.user?.email?.toLowerCase()===email.toLowerCase()});notify(BETA_TEMPORARY_MESSAGE)}else{betaEntryMessage=error.message;notify(error.message)}}}
  finally{if(attempt===betaActionSequence){betaEntryBusy=false;if(!hasBetaWorkspace())showBetaEntry()}}
 }
 async function loadRuntimeConfig(){
@@ -169,7 +188,7 @@ async function loadRuntimeConfig(){
   if(!response.ok){
    if(!betaAdmissionPage&&(response.status===401||response.status===403))throw new BetaBrowserContextError('Open Beta admission and sign in with your enrolled ChatGPT account. Saved device data is preserved.');
    failure=response.status===404?'The test connection setup is missing. Refresh the latest private preview and report this setup error if it persists.':response.status===503?'The private preview test connection has not been configured. Please report this setup error.':'The test connection setup is temporarily unavailable. Retry and report this setup error if it persists.';
-   throw Error();
+   throw Object.assign(Error(failure),{status:response.status});
   }
   failure='The preview returned an invalid test connection response. Refresh the latest preview and report this setup error if it persists.';
   const config=await response.json();
@@ -181,9 +200,9 @@ async function loadRuntimeConfig(){
   if(config.betaAdmissionRequired!==true&&(Object.hasOwn(config,'betaAccountContext')||Object.hasOwn(config,'betaMemberRole')))requireBetaBrowserContext(localStorage,config.betaAccountContext);
   cloud.disabled=false;cloud.configure(config.supabase.url,config.supabase.key);runtimeConfig={supabase:cloud.config,pushServiceReady:config.pushServiceReady,...(config.pushServiceReady?{vapidPublicKey:config.vapidPublicKey}:{}),gymResearchReady:config.gymResearchReady===true,...(config.betaAdmissionRequired===true?{betaAdmissionRequired:true,betaPhase:config.betaPhase,betaStorageReady:config.betaStorageReady===true}:{})};
  }catch(error){
-  if(needsBetaAdmission()&&receivedConfigResponse)forgetBetaAdmission(localStorage,testCloudProject,cloud.session?.user?.id);
+  if(needsBetaAdmission()&&receivedConfigResponse&&!temporaryBetaFailure(error))forgetBetaAdmission(localStorage,testCloudProject,cloud.session?.user?.id);
   if(error instanceof BetaBrowserContextError){cloud.disabled=true;cloud.stopped=true;throw error}
-  runtimeConfig={};cloud.disabled=true;cloud.stopped=true;cloud.status('Test cloud unavailable · Saved on this device. '+failure);if(needsBetaAdmission())throw Error(failure);
+  runtimeConfig={};cloud.disabled=true;cloud.stopped=true;cloud.status('Test cloud unavailable · Saved on this device. '+failure);if(needsBetaAdmission())throw temporaryBetaFailure(error)?error:Error(failure);
  }
 }
 function safeWebUrl(url){try{const u=new URL(url);return u.protocol==='https:'?u.href:''}catch{return ''}}
@@ -388,7 +407,8 @@ function showOpening(){
  }
 }
 function catchUpOpening(){if(openingDeadline&&Date.now()>=openingDeadline)finishOpening()}
-function renderToday(){const log=current(),gym=gymFor(log),done=log.exercises.flatMap(e=>e.sets).filter(s=>s.done).length,total=log.exercises.reduce((n,e)=>n+e.sets.length,0),locked=log.status==='completed',meals=N.dayMacros(state,selectedDate,true);return `${dailyMotivationHtml()}<div class="intro meneiHero"><div class="heroCopy"><div class="eyebrow">Your next rep starts here</div><h1>Make progress.<br>Keep the record.</h1><p class="muted">A plan that fits your gym, your shifts, and your goals.</p>${streakHtml()}${workoutTimingHtml(log)}</div><div id="heroArtwork" class="heroArtwork" aria-hidden="true"><img class="heroCrest" src="./brand-emblem.svg" alt="" width="1536" height="852"><img class="heroAthlete" src="./artwork/greek-athlete-gold.webp" alt="" width="1024" height="1536" fetchpriority="high"></div><div class="heroDate"><div class="row wrap">${dateControl()}${button('Replay opening','replay-opening','id="replayOpening"','small ghost')}</div></div></div>${state.deviceUpgrade&&!state.deviceUpgrade.acknowledged?`<div class="callout"><b>Your previous workout history has been copied.</b><p>${state.deviceUpgrade.count} workout records restored. Both versions of any conflicting dates remain in History.</p><div class="row wrap">${button('Export original backup','export-original','','small')}${button('Got it','dismiss-upgrade','','small ghost')}</div></div>`:''}${overview(log,done,total,meals)}<div class="columns"><div><div class="card tint"><div class="row between"><div><div class="eyebrow">${h(C.dateOf(selectedDate).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))}</div><h2 style="margin:8px 0 4px">${h(log.title)}</h2><div class="sub">${h(gym?.name||'Choose a gym')} · ${log.exercises.length} exercises</div></div><span class="tag ${locked?'':'blue'}">${locked?'COMPLETED':'TODAY’S SESSION'}</span></div><div class="heroMeta"><span class="tag gray">${h(state.training.experience)}</span><span class="tag gray">${h(trainingStyle(log.trainingStyle||state.training.trainingStyle).label)}</span><span class="tag gray">${state.training.frequency} days / week</span>${log.run?`<span class="tag blue">${h(log.run.type||'Easy aerobic run')}</span>`:''}${log.sauna?`<span class="tag gray">${log.sauna.minutes} min sauna</span>`:''}</div><div class="progressBar"><i style="width:${total?Math.min(100,done/total*100):0}%"></i></div><div class="row between"><span class="sub">${done} of ${total} sets checked</span><div class="row wrap">${button('Save routine','save-routine','','small')}${button('Edit session','edit-day','','small')}${button('Supersets','supersets',locked?'disabled':'','small')}</div></div></div>${C.shortSessionTarget(log,state.training)&&!locked?`<div class="callout">This saved generated session has ${log.exercises.length} of ${C.shortSessionTarget(log,state.training)} template exercises. ${button('Restore full session','restore-session','','small')}<p class="tiny">Adds equipment-compatible exercises and keeps all existing sets.</p></div>`:''}${(log.notes||[]).length?`<div class="callout">${log.notes.map(h).join('<br>')}</div>`:''}<div class="sectionTitle" id="todayWorkout"><h2>Your workout</h2>${button('+ Add exercise','picker','', 'small')}</div>${renderWorkout(log,locked)||`<div class="card empty">${log.kind==='rest'?'A recovery day is part of the plan.':'No strength exercises scheduled.'}<p>${button('Build a workout','generator','','primary')}</p></div>`}${log.run||log.sauna?`<div class="card"><h3>Recovery & conditioning</h3>${log.run?`<label class="statRow">Run · ${log.run.minutes} minutes · ${h(log.run.type||'Easy aerobic run')}<input type="checkbox" data-daycheck="run" ${log.run.done?'checked':''} ${locked?'disabled':''}></label>`:''}${log.run?.guidance?`<p class="sub">${h(log.run.intensity)}<br>${h(log.run.guidance)}</p>`:''}${log.sauna?`<label class="statRow">Sauna · ${log.sauna.minutes} minutes<input type="checkbox" data-daycheck="sauna" ${log.sauna.done?'checked':''} ${locked?'disabled':''}></label>`:''}</div>`:''}<div class="sectionTitle">${button(locked?'Unlock completed workout':'Complete workout',locked?'unlock':'complete','',locked?'':'primary')}${button('Skip day','skip','','ghost small')}</div></div><aside class="stack asideStats"><div class="card"><div class="label">Session tools</div><div class="divider"></div><div class="row between"><span class="sub">Rest timer</span><span class="timer" id="restTimer">01:00</span></div><div class="row wrap">${[[60,'1 min'],[90,'90 sec'],[120,'2 min'],[180,'3 min'],[240,'4 min'],[300,'5 min']].map(([s,label])=>button(label,'timer',`data-seconds="${s}"`,'small')).join('')}${button('Stop','stop-timer','','ghost small')}</div>${timerOptionsHtml()}<div class="sub" style="margin-top:12px">All exercises rest 60 seconds between individual sets, including supersets. Finishing every set of an exercise or superset pair automatically opens a 3-minute recovery screen. This applies to the selected workout regardless of its scheduled date or the set/round rest setting. The screen closes automatically at zero; Stop ends rest early. Timers catch up after sleep; sound is on unless muted, needs this app open and may be silenced by your phone.</div></div><div class="card"><div class="label">Nutrition today · eaten</div><div class="metric" style="margin-top:12px">${Math.round(meals.protein)} <small>/ ${state.nutrition.protein} g protein</small></div><div class="progressBar"><i style="width:${Math.min(100,meals.protein/(+state.nutrition.protein||1)*100)}%"></i></div><div class="statRow"><span class="muted">Calories</span><b>${Math.round(meals.calories)} / ${state.nutrition.calories}</b></div>${button('Open meal plan','view','data-view="nutrition"','small')}</div><div class="card"><div class="eyebrow">Progress, carried forward</div><h3 style="margin-top:10px">Every set informs the next.</h3><p class="sub">Check off working sets and enter RIR to earn your next load increase. Warm-ups and drop sets stay separate.</p></div>${state.conflicts.length?`<div class="card"><span class="tag amber">${state.conflicts.length} sync conflicts</span><p class="sub">Both versions are preserved for review.</p>${button('Review versions','conflicts','','small')}</div>`:''}</aside></div>`}
+function localBetaStatusHtml(){return needsBetaAdmission()&&!canUseBetaNetwork()?`<div class="callout" role="status"><b>Saved on this device</b><p>Cloud sync, AI search and push setup are paused until your connection is verified.</p>${navigator.onLine!==false?button('Retry cloud connection','beta-retry','','small'):''}</div>`:''}
+function renderToday(){const log=current(),gym=gymFor(log),done=log.exercises.flatMap(e=>e.sets).filter(s=>s.done).length,total=log.exercises.reduce((n,e)=>n+e.sets.length,0),locked=log.status==='completed',meals=N.dayMacros(state,selectedDate,true);return `${localBetaStatusHtml()}${dailyMotivationHtml()}<div class="intro meneiHero"><div class="heroCopy"><div class="eyebrow">Your next rep starts here</div><h1>Make progress.<br>Keep the record.</h1><p class="muted">A plan that fits your gym, your shifts, and your goals.</p>${streakHtml()}${workoutTimingHtml(log)}</div><div id="heroArtwork" class="heroArtwork" aria-hidden="true"><img class="heroCrest" src="./brand-emblem.svg" alt="" width="1536" height="852"><img class="heroAthlete" src="./artwork/greek-athlete-gold.webp" alt="" width="1024" height="1536" fetchpriority="high"></div><div class="heroDate"><div class="row wrap">${dateControl()}${button('Replay opening','replay-opening','id="replayOpening"','small ghost')}</div></div></div>${state.deviceUpgrade&&!state.deviceUpgrade.acknowledged?`<div class="callout"><b>Your previous workout history has been copied.</b><p>${state.deviceUpgrade.count} workout records restored. Both versions of any conflicting dates remain in History.</p><div class="row wrap">${button('Export original backup','export-original','','small')}${button('Got it','dismiss-upgrade','','small ghost')}</div></div>`:''}${overview(log,done,total,meals)}<div class="columns"><div><div class="card tint"><div class="row between"><div><div class="eyebrow">${h(C.dateOf(selectedDate).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))}</div><h2 style="margin:8px 0 4px">${h(log.title)}</h2><div class="sub">${h(gym?.name||'Choose a gym')} · ${log.exercises.length} exercises</div></div><span class="tag ${locked?'':'blue'}">${locked?'COMPLETED':'TODAY’S SESSION'}</span></div><div class="heroMeta"><span class="tag gray">${h(state.training.experience)}</span><span class="tag gray">${h(trainingStyle(log.trainingStyle||state.training.trainingStyle).label)}</span><span class="tag gray">${state.training.frequency} days / week</span>${log.run?`<span class="tag blue">${h(log.run.type||'Easy aerobic run')}</span>`:''}${log.sauna?`<span class="tag gray">${log.sauna.minutes} min sauna</span>`:''}</div><div class="progressBar"><i style="width:${total?Math.min(100,done/total*100):0}%"></i></div><div class="row between"><span class="sub">${done} of ${total} sets checked</span><div class="row wrap">${button('Save routine','save-routine','','small')}${button('Edit session','edit-day','','small')}${button('Supersets','supersets',locked?'disabled':'','small')}</div></div></div>${C.shortSessionTarget(log,state.training)&&!locked?`<div class="callout">This saved generated session has ${log.exercises.length} of ${C.shortSessionTarget(log,state.training)} template exercises. ${button('Restore full session','restore-session','','small')}<p class="tiny">Adds equipment-compatible exercises and keeps all existing sets.</p></div>`:''}${(log.notes||[]).length?`<div class="callout">${log.notes.map(h).join('<br>')}</div>`:''}<div class="sectionTitle" id="todayWorkout"><h2>Your workout</h2>${button('+ Add exercise','picker','', 'small')}</div>${renderWorkout(log,locked)||`<div class="card empty">${log.kind==='rest'?'A recovery day is part of the plan.':'No strength exercises scheduled.'}<p>${button('Build a workout','generator','','primary')}</p></div>`}${log.run||log.sauna?`<div class="card"><h3>Recovery & conditioning</h3>${log.run?`<label class="statRow">Run · ${log.run.minutes} minutes · ${h(log.run.type||'Easy aerobic run')}<input type="checkbox" data-daycheck="run" ${log.run.done?'checked':''} ${locked?'disabled':''}></label>`:''}${log.run?.guidance?`<p class="sub">${h(log.run.intensity)}<br>${h(log.run.guidance)}</p>`:''}${log.sauna?`<label class="statRow">Sauna · ${log.sauna.minutes} minutes<input type="checkbox" data-daycheck="sauna" ${log.sauna.done?'checked':''} ${locked?'disabled':''}></label>`:''}</div>`:''}<div class="sectionTitle">${button(locked?'Unlock completed workout':'Complete workout',locked?'unlock':'complete','',locked?'':'primary')}${button('Skip day','skip','','ghost small')}</div></div><aside class="stack asideStats"><div class="card"><div class="label">Session tools</div><div class="divider"></div><div class="row between"><span class="sub">Rest timer</span><span class="timer" id="restTimer">01:00</span></div><div class="row wrap">${[[60,'1 min'],[90,'90 sec'],[120,'2 min'],[180,'3 min'],[240,'4 min'],[300,'5 min']].map(([s,label])=>button(label,'timer',`data-seconds="${s}"`,'small')).join('')}${button('Stop','stop-timer','','ghost small')}</div>${timerOptionsHtml()}<div class="sub" style="margin-top:12px">All exercises rest 60 seconds between individual sets, including supersets. Finishing every set of an exercise or superset pair automatically opens a 3-minute recovery screen. This applies to the selected workout regardless of its scheduled date or the set/round rest setting. The screen closes automatically at zero; Stop ends rest early. Timers catch up after sleep; sound is on unless muted, needs this app open and may be silenced by your phone.</div></div><div class="card"><div class="label">Nutrition today · eaten</div><div class="metric" style="margin-top:12px">${Math.round(meals.protein)} <small>/ ${state.nutrition.protein} g protein</small></div><div class="progressBar"><i style="width:${Math.min(100,meals.protein/(+state.nutrition.protein||1)*100)}%"></i></div><div class="statRow"><span class="muted">Calories</span><b>${Math.round(meals.calories)} / ${state.nutrition.calories}</b></div>${button('Open meal plan','view','data-view="nutrition"','small')}</div><div class="card"><div class="eyebrow">Progress, carried forward</div><h3 style="margin-top:10px">Every set informs the next.</h3><p class="sub">Check off working sets and enter RIR to earn your next load increase. Warm-ups and drop sets stay separate.</p></div>${state.conflicts.length?`<div class="card"><span class="tag amber">${state.conflicts.length} sync conflicts</span><p class="sub">Both versions are preserved for review.</p>${button('Review versions','conflicts','','small')}</div>`:''}</aside></div>`}
 function workoutPairingSummary(day){
  const groups=S.supersetGroups(day),shown=new Set();
  return day.exercises.flatMap((e,index)=>{
@@ -722,7 +742,7 @@ window.addEventListener('online',async()=>{
  const connection=++betaConnectionSequence;++betaAdmissionSequence;
  pauseBetaWorkspace();showBetaEntry('Rechecking your MENEI account and beta place…');
  try{await loadRuntimeConfig();if(connection!==betaConnectionSequence||navigator.onLine===false)return;await restoreBetaSession()}
- catch(error){if(connection===betaConnectionSequence){pauseBetaWorkspace();showBetaEntry(error.message)}}
+ catch(error){if(connection===betaConnectionSequence)showBetaFailure(error,cloud.accountContext())}
 });
 window.addEventListener('error',event=>{if(state)fail(Error('Something went wrong. Your saved data remains on this device. '+event.message))});
 window.addEventListener('unhandledrejection',event=>fail(event.reason));
@@ -738,6 +758,6 @@ try{
 state=store.load(cloud.session?.user?.id||'guest');const upgrade=U.commitDeviceUpgrade(store,localStorage);state=upgrade.state;state.leftovers??=[];state.routines??=[];state.resolvedConflicts??=[];seedRecipes();restoreRestTimer();const response=await fetch('./media-manifest.json');if(response.ok)media=await response.json();save({sync:false});view='today';if(location.hash==='#recipes'){view='nutrition';nutritionTab='recipes'}if(location.hash==='#program')view='program';if(location.hash==='#library')view='library';draw();if(localPreview||testCloudPreview)setCloudStatus(cloud.lastStatus);if('serviceWorker' in navigator)registerOffline().catch(e=>setCloudStatus('Offline installation unavailable: '+e.message));const callback=await cloud.acceptCallback();if(!callback)await cloud.restoreSession();cloud.start();
  }
 }catch(e){
- if(needsBetaAdmission()){pauseBetaWorkspace();showBetaEntry(e.message)}
+ if(needsBetaAdmission())showBetaFailure(e,cloud.accountContext())
  else $('app').innerHTML=`<div class="card"><h1>The app could not open.</h1><p class="error">${h(e.message)}</p><p class="sub">Existing stored data was not cleared. Keep your original app and JSON backup.</p>${e instanceof BetaBrowserContextError?'<a class="btn primary" href="/beta">Open beta admission</a>':U.originalDeviceBackup(localStorage)?button('Export original backup','export-original','','primary'):''}</div>`;
 }

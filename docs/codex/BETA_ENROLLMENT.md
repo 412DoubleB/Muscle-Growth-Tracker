@@ -43,6 +43,14 @@ Its public Auth endpoint is not itself a twenty-row signup cap: the limit applie
 to beta admission and services. A strict raw Auth-row limit would require a
 separately reviewed test-backend admission integration.
 
+During a temporary cloud/transport outage, a previously admitted cached identity
+may explicitly open its existing same-account device workspace. Cloud sync, AI
+and push readiness remain paused until an explicit retry successfully verifies
+Auth and admission again. This uses the same local-only receipt as offline
+continuation, never network authorization. Denied/invalid admission, mismatched
+accounts/configuration and password recovery cannot use the outage fallback.
+It does not admit a new tester or reset any usage limit.
+
 The original generic D1 schema is retained, including the historical
 site_user_id column name; new member values use the menei: prefix followed by the
 verified MENEI user ID. The original owner-trial usage, fixed cohort, additive

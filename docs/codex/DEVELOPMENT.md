@@ -3229,3 +3229,56 @@ close/reopen with airplane mode enabled and inspect existing saved entries.
 Restore the connection afterward. Do not clear storage, uninstall, sign out or
 create artificial workout records for this check. The one-hour reminder remains
 pending separately; asking to move on did not establish device acceptance.
+
+## Connected Auth 504 — explicit device-local continuation
+
+The owner encountered Cloud request failed (504) while connected, not during
+airplane-mode testing. The isolated project reported ACTIVE_HEALTHY at review;
+aggregate edge logs showed three /auth/v1/token 504s alongside 30 token successes
+and 187 successful /auth/v1/user requests in the tool's 24-hour window. No raw
+tokens, passwords, IDs, account records or subscription endpoints were retrieved.
+These observations establish transient token-endpoint failures, not their exact
+infrastructure cause or that the owner's current credentials were rejected.
+
+Source inspection and synthetic regressions reproduced the poor recovery path:
+restore/reconnect paused the workspace and presented generic sign-in on a service
+timeout; a failed runtime-config response also erased the retained admission
+receipt even for 5xx errors. This is separate from the corrected app-file cache
+cleanup. Current Supabase session documentation was reviewed; no session lifetime,
+refresh-token policy, gateway authentication or backend setting was changed.
+https://supabase.com/docs/guides/auth/sessions
+
+Temporary transport failures, 408/429 and 5xx now produce a clear retry message.
+Known admission-denial codes, 401/403, malformed configuration, account-change
+AbortError and recovery flows cannot use that classification to gain access.
+Temporary config failures retain the device receipt; explicit denials and invalid
+configuration still revoke it as before. No blind password/token retry was added.
+
+After a classified failure, Open saved data on this device is available only for
+the current cached isolated-project identity with its prior campaign/user receipt,
+outside password recovery. Selection is explicit, rechecks the account context
+and receipt, and requires an existing valid workspace owned by that same user.
+Missing/mismatched workspaces are neither created nor rebound. A sign-in attempt
+for a different email cannot expose the earlier account's local continuation.
+Account changes invalidate the in-memory offer; the receipt never authorizes
+network requests or reserves a seat.
+
+Local continuation uses the established offline account-loading path, reads media
+bindings from Cache Storage, leaves cloud stopped and network admission false,
+and disables AI/push readiness. Home labels device-local use and provides Retry
+cloud connection while online. That explicit retry reloads runtime configuration
+and checks Auth and server admission before cloud/AI/push readiness resumes.
+Denied retries close the local workspace view and preserve saved edits. Existing
+auth rows, raw legacy records, recovery copies, schema and quotas remain intact.
+No original cloud account/data migration or claim of offline encryption/revocation.
+
+The admission/UI regressions failed before the fix for the unavailable local
+action and erased config-timeout receipt. Afterward the three focused test files
+passed (52732.244848 ms), plus the two added recovery/denied-retry tests
+(944.83831 ms). Coverage includes the actual expired-token refresh path, explicit
+continuation with no further Auth/cloud requests, retained local edits, successful
+revalidation, unadmitted users, wrong-owner/missing data, another-email sign-in,
+cross-tab changes, recovery and real denial. Static checks passed 33 modules / 53
+offline entries / 162 originals / 113 WebP / 35 retained pairs. Full regression
+and private publication receipts follow separately. No browser/CUA or new phone
+acceptance is claimed; this does not prove Auth will never time out again.

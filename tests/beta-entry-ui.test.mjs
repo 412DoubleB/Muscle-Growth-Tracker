@@ -230,3 +230,80 @@ test('server-disabled push stays unavailable even for the admitted owner',async 
  const env=environment({owner:'account-a',join:async()=>({ok:true,json:async()=>({joined:true,role:'owner'})})});
  try{const {cloud}=await open(t,env);await env.click('view',{view:'settings'});assert.equal(cloud.canPush(),false);assert.doesNotMatch(env.elements.get('app').innerHTML,/data-action="enable-push"|data-action="test-push-closed"/)}finally{env.restore()}
 });
+
+test('connected auth timeout offers admitted device data without cloud access, then explicit retry revalidates the account',async t=>{
+ const env=environment({owner:'account-a',ready:true});let unavailable=true;
+ try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});
+  const savedB=env.rows.get('MGT_BETA_V8:account-b');
+  const {cloud,syncs}=await open(t,env,{request:async function(path){assert.equal(path,'/auth/v1/user');if(unavailable)throw Object.assign(Error('Cloud request failed (504).'),{status:504});return this.session.user}});
+  assert.equal(cloud.getState(),undefined);assert.equal(syncs(),0);assert.match(env.elements.get('app').innerHTML,/Open saved data on this device/);assert.match(env.elements.get('app').innerHTML,/temporarily unavailable/);assert.deepEqual(env.reads.filter(workspaceKey),[]);
+  const beforeRequests=env.requests.length;await env.click('beta-offline');
+  assert.equal(cloud.getState().ownerId,'account-a');assert.equal(cloud.getState().profile.name,'Private account-a');assert.equal(cloud.stopped,true);assert.equal(cloud.canSync(),false);assert.equal(syncs(),0);assert.equal(env.requests.length,beforeRequests);assert.match(env.elements.get('app').innerHTML,/Retry cloud connection/);
+  await env.click('view',{view:'settings'});await env.submit('profileForm',{name:'Retained during timeout',units:'lb'});await cloud.sync();assert.equal(syncs(),0);
+  await env.click('gym');assert.match(env.elements.get('modalBody').innerHTML,/data-action="gym-ai-search" disabled/);await env.click('close-modal');
+  unavailable=false;await env.click('beta-retry');assert.equal(cloud.getState().profile.name,'Retained during timeout');assert.equal(cloud.canSync(),true);assert.equal(cloud.stopped,false);assert.equal(syncs(),1);assert.ok(env.requests.filter(r=>r.path==='/api/preview-config').length>=2);assert.equal(env.rows.get('MGT_BETA_V8:account-b'),savedB);assert.equal(env.rows.get('MGT28v6'),'retained original history');
+ }finally{env.restore()}
+});
+
+test('config gateway timeout preserves admission and permits only an explicit local continuation',async t=>{
+ const env=environment({owner:'account-a',configStatus:504});try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});const {cloud,syncs}=await open(t,env);
+  assert.deepEqual(savedBetaAdmission(localStorage,project,'account-a'),{userId:'account-a',role:'member'});assert.equal(cloud.getState(),undefined);assert.match(env.elements.get('app').innerHTML,/Open saved data on this device/);
+  const calls=env.requests.length;await env.click('beta-offline');assert.equal(cloud.getState().ownerId,'account-a');assert.equal(cloud.canSync(),false);assert.equal(syncs(),0);assert.equal(env.requests.length,calls);
+ }finally{env.restore()}
+});
+
+test('an unadmitted cached identity cannot use a gateway timeout to open any workspace',async t=>{
+ const env=environment({owner:'account-a'});try{
+  const before=[...env.rows].filter(([k])=>workspaceKey(k));const {cloud}=await open(t,env,{request:async()=>{throw Object.assign(Error('Cloud request failed (504).'),{status:504})}});
+  assert.doesNotMatch(env.elements.get('app').innerHTML,/Open saved data on this device/);await env.click('beta-offline');assert.equal(cloud.getState(),undefined);assert.deepEqual(env.reads.filter(workspaceKey),[]);assert.deepEqual([...env.rows].filter(([k])=>workspaceKey(k)),before);
+ }finally{env.restore()}
+});
+
+test('a timeout continuation cannot survive a cross-tab account change',async t=>{
+ const env=environment({owner:'account-a'});try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});const {cloud}=await open(t,env,{request:async()=>{throw Object.assign(Error('Cloud request failed (504).'),{status:504})}});assert.match(env.elements.get('app').innerHTML,/Open saved data on this device/);
+  const other=JSON.stringify(session('account-b'));env.rows.set(env.authKey,other);await env.storage(other);assert.doesNotMatch(env.elements.get('app').innerHTML,/Open saved data on this device/);await env.click('beta-offline');assert.equal(cloud.getState(),undefined);assert.deepEqual(env.reads.filter(workspaceKey),[]);assert.equal(env.rows.get(env.authKey),other);
+ }finally{env.restore()}
+});
+
+for(const invalid of ['missing','wrong-owner'])test('local timeout continuation never creates or rebinds an '+invalid+' workspace',async t=>{
+ const env=environment({owner:'account-a'});try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});
+  if(invalid==='missing')env.rows.delete('MGT_BETA_V8:account-a');else{const saved=JSON.parse(env.rows.get('MGT_BETA_V8:account-a'));saved.ownerId='account-b';env.rows.set('MGT_BETA_V8:account-a',JSON.stringify(saved))}
+  const before=[...env.rows].filter(([k])=>workspaceKey(k));const {cloud}=await open(t,env,{request:async()=>{throw Object.assign(Error('timeout'),{status:504})}});
+  await env.click('beta-offline');assert.equal(cloud.getState(),undefined);assert.equal(cloud.canSync(),false);assert.deepEqual([...env.rows].filter(([k])=>workspaceKey(k)),before);
+ }finally{env.restore()}
+});
+
+test('failed sign-in for a different email cannot offer the previous account saved data',async t=>{
+ const env=environment({owner:'account-a'});try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});const {cloud}=await open(t,env,{request:async()=>{throw Object.assign(Error('timeout'),{status:504})}});
+  assert.match(env.elements.get('app').innerHTML,/Open saved data on this device/);env.credentials('account-b@example.invalid');await env.click('beta-signin');
+  assert.doesNotMatch(env.elements.get('app').innerHTML,/Open saved data on this device/);await env.click('beta-offline');assert.equal(cloud.getState(),undefined);assert.deepEqual(env.reads.filter(workspaceKey),[]);
+ }finally{env.restore()}
+});
+
+test('an expired admitted token can time out during refresh without being removed or replayed for local access',async t=>{
+ const env=environment({owner:'account-a'});let authCalls=0;try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});const auth=JSON.parse(env.rows.get(env.authKey));auth.expires_at=1;const raw=JSON.stringify(auth);env.rows.set(env.authKey,raw);
+  const {cloud,syncs}=await open(t,env,{request:async path=>{authCalls++;assert.equal(path,'/auth/v1/token?grant_type=refresh_token');throw Object.assign(Error('Cloud request failed (504).'),{status:504})}});
+  assert.equal(authCalls,1);assert.match(env.elements.get('app').innerHTML,/Open saved data on this device/);await env.click('beta-offline');assert.equal(authCalls,1);assert.equal(cloud.session.expires_at,1);assert.equal(env.rows.get(env.authKey),raw);assert.equal(cloud.canSync(),false);assert.equal(syncs(),0);
+ }finally{env.restore()}
+});
+
+test('password recovery never offers cached workspace continuation after a timeout',async t=>{
+ const env=environment({owner:'account-a',recovery:true});try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});const {cloud}=await open(t,env,{request:async()=>{throw Object.assign(Error('timeout'),{status:504})}});
+  assert.doesNotMatch(env.elements.get('app').innerHTML,/Open saved data on this device/);await env.click('beta-offline');assert.equal(cloud.getState(),undefined);assert.deepEqual(env.reads.filter(workspaceKey),[]);
+ }finally{env.restore()}
+});
+
+test('denied retry closes local continuation, revokes its receipt and preserves saved edits',async t=>{
+ const env=environment({owner:'account-a',join:async()=>({ok:false,status:403,json:async()=>({error:'BETA_FULL'})})});let unavailable=true;try{
+  rememberBetaAdmission(localStorage,project,{userId:'account-a',role:'member'});const {cloud,syncs}=await open(t,env,{request:async function(){if(unavailable)throw Object.assign(Error('timeout'),{status:504});return this.session.user}});
+  await env.click('beta-offline');await env.click('view',{view:'settings'});await env.submit('profileForm',{name:'Keep local edit',units:'lb'});const saved=env.rows.get('MGT_BETA_V8:account-a');
+  unavailable=false;await env.click('beta-retry');assert.equal(cloud.getState(),undefined);assert.equal(syncs(),0);assert.equal(cloud.canSync(),false);assert.equal(savedBetaAdmission(localStorage,project,'account-a'),null);assert.doesNotMatch(env.elements.get('app').innerHTML,/Open saved data on this device/);assert.equal(env.rows.get('MGT_BETA_V8:account-a'),saved);
+ }finally{env.restore()}
+});
