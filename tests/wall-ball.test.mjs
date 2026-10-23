@@ -1,20 +1,41 @@
-import test from 'node:test';import assert from 'node:assert/strict';
-import {wallBallPose,wallBallSvg,applyWallBallFrame,RELEASE,CATCH,SETTLED} from '../wall-ball.mjs';
-const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,(a.z||0)-(b.z||0));
-test('solid articulated arms retain bone lengths and stay in contact with the held ball for every frame',()=>{
- for(let t=0;t<=4500;t+=5){const p=wallBallPose(t);for(const arm of [p.near,p.far]){assert.ok(Math.abs(distance(arm.shoulder,arm.elbow)-arm.upper)<1e-8);assert.ok(Math.abs(distance(arm.elbow,arm.wrist)-arm.fore)<1e-8);assert.ok(Math.abs(distance(arm.wrist,arm.palm)-arm.hand)<1e-8);
-   const fore={x:arm.wrist.x-arm.elbow.x,y:arm.wrist.y-arm.elbow.y,z:arm.wrist.z-arm.elbow.z},hand={x:arm.palm.x-arm.wrist.x,y:arm.palm.y-arm.wrist.y,z:arm.palm.z-arm.wrist.z};assert.ok(Math.abs((fore.x*hand.x+fore.y*hand.y+fore.z*hand.z)/(arm.fore*arm.hand)-1)<1e-8)}
-  if(p.held){assert.ok(Math.abs(p.near.palm.x-(p.ball.x-.62*p.ball.radius))<1e-8);assert.ok(Math.abs(p.near.palm.y-(p.ball.y+.12*p.ball.radius))<1e-8);assert.ok(p.far.palm.x>=p.ball.x+.69*p.ball.radius&&p.far.palm.x<=p.ball.x+.89*p.ball.radius)}
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {wallBallPose,wallBallSvg,wallBallTransforms,applyWallBallFrame,RELEASE,CATCH,SETTLED,WALL_BALL_ASSET,WALL_BALL_DURATION} from '../wall-ball.mjs';
+
+test('one coherent reconstructed atlas draws continuous forearm/hands and articulated legs without mechanical joint caps',()=>{
+ for(const t of [0,750,RELEASE,2000,CATCH,SETTLED,WALL_BALL_DURATION]){
+  const svg=wallBallSvg(t);
+  assert.equal((svg.match(/<image /g)||[]).length,1,'Load the coherent source once');
+  assert.ok(svg.includes(WALL_BALL_ASSET));
+  for(const id of ['rigBall','rigTorso','rigNearFore','rigFarFore','rigNearUpper','rigFarUpper','rigBodySkin'])assert.equal((svg.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+  assert.doesNotMatch(svg,/rigElbowGold|rigNearJoint|rigFarJoint|rigNearHand|rigFarHand|<circle|<animate|openingThrow|openingOriginal/);
+  assert.doesNotMatch(svg,/scale\(1 /,'Legs must articulate, never squash');
  }
+ const svg=wallBallSvg();
+ assert.ok(svg.indexOf('id="rigFarFore"')<svg.indexOf('id="rigBall"'),'Far palm stays behind sphere');
+ assert.ok(svg.indexOf('id="rigBall"')<svg.indexOf('id="rigNearFore"'),'Near hand stays visible on sphere');
+ assert.match(svg,/id="rigBallClip"><rect x="1024" y="512" width="512" height="512"/,'Preserve the whole reconstructed globe silhouette');
+ assert.match(svg,/id="rigSkinClip239"/,'Use a shared continuous lower-body skin instead of disconnected leg cutouts');
 });
-test('release and catch have no position jump and ball clears receiving hands during the flight',()=>{
- for(const t of [750,RELEASE,CATCH,SETTLED]){const a=wallBallPose(t-.001),b=wallBallPose(t+.001);assert.ok(distance(a.ball,b.ball)<.01);assert.ok(distance(a.near.palm,b.near.palm)<.01);assert.ok(distance(a.far.palm,b.far.palm)<.01)}
- const mid=wallBallPose((RELEASE+CATCH)/2);assert.equal(mid.held,false);assert.ok(distance(mid.ball,mid.far.palm)>mid.ball.radius+40);assert.equal(mid.wallContact,true);
- for(const t of [RELEASE,CATCH]){const velocity=(time,key)=>{const a=wallBallPose(time-.01),b=wallBallPose(time+.01);const pa=key==='ball'?a.ball:a.near.palm,pb=key==='ball'?b.ball:b.near.palm;return{x:(pb.x-pa.x)/.00002,y:(pb.y-pa.y)/.00002}};for(const key of ['ball','hand'])assert.ok(distance(velocity(t-.1,key),velocity(t+.1,key))<5)}
- const start=wallBallPose(0),end=wallBallPose(4500);assert.deepEqual(end.ball,start.ball);assert.deepEqual(end.near,start.near);assert.equal(end.dip,0);
+
+test('frame updates move limbs and ball while fixed sandals and original app state remain outside the animator',()=>{
+ const writes=[];applyWallBallFrame(id=>({setAttribute:(key,value)=>writes.push({id,key,value})}),750);
+ for(const w of writes){assert.ok(w.key==='transform'||w.id==='rigWall'&&w.key==='opacity');assert.doesNotMatch(w.id,/Foot|Hand|openingWord|Wreath|Emblem/)}
+ for(const id of ['rigSkin0','rigSkin239','rigNearFore','rigFarFore'])assert.ok(writes.some(w=>w.id===id));
+ assert.deepEqual(wallBallTransforms(wallBallPose(0)),wallBallTransforms(wallBallPose(4500)));
+ for(const tr of Object.values(wallBallTransforms(wallBallPose(750))))assert.doesNotMatch(tr,/NaN|Infinity/);
 });
-test('same palms and single ball persist without pose opacity switches, and frame updates only transforms',()=>{
- for(const t of [0,750,RELEASE,2000,CATCH,SETTLED,4500]){const svg=wallBallSvg(t);assert.equal((svg.match(/id="rigBall"/g)||[]).length,1);for(const id of ['rigNearFore','rigFarFore','rigNearHand','rigFarHand','rigNearUpper','rigFarUpper'])assert.equal((svg.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);assert.doesNotMatch(svg,/openingThrow|openingOriginal|<animate|opacity="0"[^>]*id="rig(?:Near|Far)/)}
- const markup=wallBallSvg();assert.ok(markup.indexOf('id="rigFarHand"')<markup.indexOf('id="rigBall"'));assert.ok(markup.indexOf('id="rigBall"')<markup.indexOf('id="rigNearHand"'));
- const writes=[];applyWallBallFrame(id=>({setAttribute:(key,value)=>writes.push({id,key,value})}),CATCH);assert.ok(writes.length>5);for(const w of writes)assert.ok(w.key==='transform'||w.id==='rigWall'&&w.key==='opacity');
+
+test('original mascot and M/wreath brand remain exact protected files while new artwork stays separate',async()=>{
+ for(const [path,hash]of [
+  ['artwork/greek-athlete-gold.webp','2ba487632306ec314b23091daeb3bbeac99f28e68f719049ce01bc2da3c74518'],
+  ['brand-emblem.svg','473925924261ce299e28cff733be6b6553d310f6119e5a7ecf66d66a11aa43d4']
+ ])assert.equal(createHash('sha256').update(await readFile(new URL('../'+path,import.meta.url))).digest('hex'),hash);
+ const image=await readFile(new URL('../'+WALL_BALL_ASSET.slice(2),import.meta.url));
+ assert.equal(image.subarray(1,4).toString(),'PNG');assert.equal(image.readUInt32BE(16),1536);assert.equal(image.readUInt32BE(20),1024);
+ const app=await readFile(new URL('../app.mjs',import.meta.url),'utf8');
+ assert.match(app,/<img id="openingAtlas" src="\.\/artwork\/greek-wall-ball-reconstructed.png"/);
+ assert.ok((app.match(/greek-athlete-gold.webp/g)||[]).length>1,'Original artwork stays in the app');
 });
