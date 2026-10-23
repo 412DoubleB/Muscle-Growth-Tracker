@@ -86,8 +86,8 @@ test('only private previews display a valid build revision without changing the 
   const env=environment(gym(),{previewMode:mode,previewRevision:revision});
   try{
    await open(env,'preview-revision-'+mode+'-'+revision);await env.click('close-modal');await env.click('view',{view:'settings'});
-   const html=env.elements.get('app').innerHTML;assert.match(html,/Running 8\.1\.1/);
-   if(visible)assert.match(html,/Running 8\.1\.1 · Preview build 012345abcdef/);else assert.doesNotMatch(html,/Preview build/);
+   const html=env.elements.get('app').innerHTML;assert.equal(env.elements.get('appVersion').textContent,C.VERSION);assert.ok(html.includes('Running '+C.VERSION));
+   if(visible)assert.ok(html.includes('Running '+C.VERSION+' · Preview build 012345abcdef'));else assert.doesNotMatch(html,/Preview build/);
   }finally{env.restore()}
  }
 });

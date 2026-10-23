@@ -126,3 +126,25 @@ open-app rest audio. Home-screen installation is required for iOS push, optional
 for ordinary browser use/Android. Notification permissions apply per device.
 Actual upcoming one-hour delivery, production email/redirect and Apple physical
 acceptance remain release checks, not claims established by local tests.
+
+
+## Email confirmation readiness — October 23 owner check
+
+The owner reports the exact original live URL with trailing slash is saved in
+both Site URL and Redirect URLs. This is owner-reported configuration acceptance,
+not a captured real mail delivery/callback. No redirect-setting change is needed
+from testers.
+
+Custom SMTP readiness still needs confirmation. Supabase documents that its default
+mailer only sends to project-team addresses and is not for production. Before
+inviting outside testers, verify a configured production mail service/sender and
+successful confirmation and reset delivery to a permitted non-team test email.
+Do not add testers to the Supabase project team or disable email confirmation to
+bypass this requirement. SMTP settings/credentials belong in the owner's secure
+Supabase Dashboard, never chat, source, the client bundle or tester instructions.
+Current connector tools cannot read or change Auth SMTP management settings.
+Reference: https://supabase.com/docs/guides/auth/auth-smtp .
+
+This is an operator dependency. It does not add a service account or download for
+MENEI users. If a mail provider is not configured, public signup is not ready; do
+not advertise the full release or send the launch invitation.
