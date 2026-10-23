@@ -49,8 +49,14 @@ does not claim exact record auditing or a different installed-app mode.
 
 ## Publication preparation still to complete
 
-- Prepare the exact reviewed release package, version/release notes and rollback
-  reference. Compare it with the current live origin/path and PWA identities.
+- An unpublished 8.2.0 frontend candidate is retained at
+  `/workspace/work/menei-8.2.0-20261023-rc1`, from commit `833ed102a4bc`.
+  All 170 file hashes and archive hash/size were verified; 34 generated modules
+  passed syntax checks. Live URL/config/PWA identity and 124 protected assets are
+  preserved. See RELEASE_8_2_0.md and RELEASE_RECOVERY.md. This candidate remains
+  `deploymentReady=false` until the production integration and final review below.
+  Original 8.1.1 cannot safely be assumed to read compressed recovery snapshots;
+  use the documented preservation-aware correction plan.
 - Keep deferred spoken workout cues disabled in the launch artifact. Preview
   46 uses a fixed false source gate; no speech instance is constructed, no voice
   receipt is written and no speech is requested. Accepted rest timers/chimes are

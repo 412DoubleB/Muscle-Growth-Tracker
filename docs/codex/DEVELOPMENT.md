@@ -3395,3 +3395,26 @@ The unchanged runtime baseline retains its earlier 71-file passing run; this is
 not claimed as a new full 72-file suite. Root static checks and final artifact
 verification results follow with the retained package receipt. No browser/device
 or production-backend acceptance is inferred from these checks.
+
+
+### Retained unpublished 8.2.0 candidate receipt — 2026-10-23
+
+Source commit: `833ed102a4bcf329e882aa72b3369c9613f06b31`.
+Directory: `/workspace/work/menei-8.2.0-20261023-rc1`.
+Archive: `menei-8.2.0-candidate.tar.gz`, 158247173 bytes; SHA-256
+`0e065e13fd76116411dd38f2d81c6697a3825981a374919c44fb4932da20cd0a`.
+RELEASE_MANIFEST.json and ARCHIVE.json retain the exact file/archive evidence.
+Release notes and recovery instructions are copied beside, outside, the site.
+All 170 staged file byte counts/hashes and archive paths/hash/size independently
+verified. Executor syntax checks passed for all 34 generated JS/MJS files. Root
+static checks passed: 33 modules, 53 offline entries, 162 original identities,
+113 WebP assets and 35 retained movement pairs. These checks complement the
+three focused passing test files; no new full-suite/device result is claimed.
+
+Local backup branch `backup/pre-release-8.2.0-live-2026-10-23` points to the
+read-only verified public main baseline
+`fa142c3fc7c96c498b73b5943eac12ca49152dfb`. The artifact is explicitly not
+deployment-ready: production AI/Auth integration, one-hour reminder acceptance
+and final release/terms review remain. No live push, deployment, backend/audience
+change, provider request, credential change or saved-user-data mutation occurred.
+Private preview 48 remains the current published private version.
