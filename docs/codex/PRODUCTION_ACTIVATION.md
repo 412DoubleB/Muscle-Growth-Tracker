@@ -249,3 +249,12 @@ checks were previously accepted. iPhone physical acceptance, exact production
 one-hour workout delivery, password-reset delivery and outside-team mail delivery
 remain unverified. Do not broaden these claims based on synthetic tests or a saved
 form. The limited-beta guide includes each user's device tests and troubleshooting.
+
+## Final Android device confirmation
+
+The owner explicitly confirms that the live closed-app two-minute test
+notification arrived. This accepts physical Android delivery at the live origin;
+no additional claim about sound, iPhone or the exact one-hour workout trigger is
+implied. Live AI admission, email confirmation and cloud sync are owner-accepted.
+The limited-beta guide is cleared for publication under the existing release
+authorization, with the remaining platform/timing checks disclosed in metadata.

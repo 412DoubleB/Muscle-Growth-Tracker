@@ -5,7 +5,7 @@ Live email confirmation and cloud sync are owner-accepted. Live owner AI admissi
 is accepted after the API-only/private-service transport correction. The first
 20-account campaign is open; five attempts each and previous usage are preserved.
 The production reminder sender and minute scheduler are active. Provider delivery
-of a live device test is recorded; physical receipt is awaiting owner confirmation.
+and physical Android receipt of the live two-minute closed-app test are accepted.
 No iPhone physical push or exact one-hour workout delivery is claimed. See the
 latest receipt in PRODUCTION_ACTIVATION.md for source/deployment versions. Earlier
 entries below describe their original private-preview stages.
