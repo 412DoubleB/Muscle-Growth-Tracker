@@ -63,3 +63,16 @@ future offline use. Release metadata remains 8.2.0 pending publication review.
 The separate self-contained review includes Play, normal/slow speed, a time
 slider and the unchanged original mascot for reference. It bundles only public
 artwork/font/code, uses no app account or service worker, and changes no data.
+
+## Far-hand correction
+
+The owner accepted the rest of the reconstruction and requested only the far
+hand's thumb side corrected. The atlas and all pose/motion code stay unchanged.
+Only the far palm/fingers are reflected around their fixed wrist-to-palm axis;
+the original wrist collar and forearm pixels remain, with a short palm-side
+blend. This is a constant drawing correction, not a new animated wrist joint.
+A regression verifies opposite handedness, fixed wrist/palm anchors, unchanged
+atlas SHA-256, and the exact baseline digest of every accepted transform at
+91 times across the sequence. Hold, release, flight and catch stills were
+inspected. The isolated private demo is updated; public app publication remains
+pending separate authorization.

@@ -13,6 +13,16 @@ const transform=(a,b,sourceA,sourceB)=>{
  return `translate(${num(a.x)} ${num(a.y)}) rotate(${num(rotation)}) scale(${num(scale)}) translate(${-sourceA.x} ${-sourceA.y})`;
 };
 const matrix=m=>`matrix(${m.map(num).join(' ')})`;
+// Only the far palm/fingers have the wrong handedness in the source sheet.
+// Reflect their drawing about wrist -> palm, fixing both anchors in place.
+// The forearm, its source pixels, and its animated transform stay unchanged.
+export const FAR_HAND_WRIST=Object.freeze({x:751,y:799});
+export const FAR_HAND_PALM=Object.freeze({x:693,y:853});
+const handDx=FAR_HAND_PALM.x-FAR_HAND_WRIST.x,handDy=FAR_HAND_PALM.y-FAR_HAND_WRIST.y,handLength=Math.hypot(handDx,handDy),handUx=handDx/handLength,handUy=handDy/handLength;
+export const FAR_HAND_REFLECTION=Object.freeze((()=>{
+ const a=handUx*handUx-handUy*handUy,b=2*handUx*handUy;
+ return [a,b,b,-a,FAR_HAND_WRIST.x-a*FAR_HAND_WRIST.x-b*FAR_HAND_WRIST.y,FAR_HAND_WRIST.y-b*FAR_HAND_WRIST.x+a*FAR_HAND_WRIST.y];
+})());
 export function wallBallTransforms(p,includeSkin=true){
  const tr={rigTorso:matrix(p.torso.matrix),rigBall:`translate(${num(p.ball.x)} ${num(p.ball.y)}) scale(${num(p.ball.radius/211)}) translate(-1271 -746)`};
  for(const [side,label]of [['near','Near'],['far','Far']]){
@@ -45,6 +55,9 @@ export function wallBallSvg(milliseconds=0,asset=WALL_BALL_ASSET){
   return `<clipPath id="rigSkinClip${i}"><polygon points="${expanded}"/></clipPath>`;
  }).join('');
  const part=(id,clip,body=false,fade='')=>`<g id="${id}"${tr[id]?` transform="${tr[id]}"`:''}>${body?'<g transform="translate(-230 0) scale(2.8)">':''}<g clip-path="url(#${clip})"${fade?` mask="url(#${fade})"`:''}><use href="#rigAtlasImage"/></g>${body?'</g>':''}</g>`;
+ // Preserve the wrist collar too; the blend begins on the palm side of it.
+ const wristBand=`x1="${num(FAR_HAND_WRIST.x+10*handUx)}" y1="${num(FAR_HAND_WRIST.y+10*handUy)}" x2="${num(FAR_HAND_WRIST.x+18*handUx)}" y2="${num(FAR_HAND_WRIST.y+18*handUy)}" gradientUnits="userSpaceOnUse"`;
+ const farFore=`<g id="rigFarFore" transform="${tr.rigFarFore}"><g clip-path="url(#rigFarForeClip)" mask="url(#rigFarForeMask)"><g mask="url(#rigFarWristKeep)"><use href="#rigAtlasImage"/></g></g><g id="rigFarPalmCorrection" transform="${matrix(FAR_HAND_REFLECTION)}"><g clip-path="url(#rigFarForeClip)" mask="url(#rigFarWristReveal)"><use href="#rigAtlasImage"/></g></g></g>`;
  return `<svg class="openingRig" viewBox="0 -330 1024 1930" aria-hidden="true"><defs>
  <filter id="rigAtlasAlpha" x="0" y="0" width="1536" height="1024" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncA type="linear" slope="1.02"/></feComponentTransfer></filter>
  <image id="rigAtlasImage" href="${asset}" width="1536" height="1024" filter="url(#rigAtlasAlpha)"/>
@@ -52,11 +65,13 @@ export function wallBallSvg(milliseconds=0,asset=WALL_BALL_ASSET){
  <linearGradient id="rigNearUpperBlend" x1="0" y1="415" x2="0" y2="465" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><mask id="rigNearUpperMask" maskUnits="userSpaceOnUse" x="512" y="0" width="512" height="512"><rect x="512" y="0" width="512" height="512" fill="url(#rigNearUpperBlend)"/></mask>
  <linearGradient id="rigFarUpperBlend" x1="0" y1="908" x2="0" y2="965" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><mask id="rigFarUpperMask" maskUnits="userSpaceOnUse" x="0" y="533" width="512" height="491"><rect x="0" y="533" width="512" height="491" fill="url(#rigFarUpperBlend)"/></mask>
  <linearGradient id="rigNearElbowBlend" x1="0" y1="24" x2="0" y2="95" gradientUnits="userSpaceOnUse"><stop stop-color="white" stop-opacity="0"/><stop offset="1" stop-color="white"/></linearGradient><mask id="rigNearForeMask" maskUnits="userSpaceOnUse" x="1024" y="0" width="512" height="512"><rect x="1024" y="0" width="512" height="512" fill="url(#rigNearElbowBlend)"/></mask>
- <linearGradient id="rigFarElbowBlend" x1="0" y1="535" x2="0" y2="595" gradientUnits="userSpaceOnUse"><stop stop-color="white" stop-opacity="0"/><stop offset="1" stop-color="white"/></linearGradient><mask id="rigFarForeMask" maskUnits="userSpaceOnUse" x="512" y="512" width="512" height="512"><rect x="512" y="512" width="512" height="512" fill="url(#rigFarElbowBlend)"/></mask></defs>
+ <linearGradient id="rigFarElbowBlend" x1="0" y1="535" x2="0" y2="595" gradientUnits="userSpaceOnUse"><stop stop-color="white" stop-opacity="0"/><stop offset="1" stop-color="white"/></linearGradient><mask id="rigFarForeMask" maskUnits="userSpaceOnUse" x="512" y="512" width="512" height="512"><rect x="512" y="512" width="512" height="512" fill="url(#rigFarElbowBlend)"/></mask>
+ <linearGradient id="rigFarWristKeepGradient" ${wristBand}><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><linearGradient id="rigFarWristRevealGradient" ${wristBand}><stop stop-color="white" stop-opacity="0"/><stop offset="1" stop-color="white"/></linearGradient>
+ <mask id="rigFarWristKeep" maskUnits="userSpaceOnUse" x="512" y="512" width="512" height="512"><rect x="512" y="512" width="512" height="512" fill="url(#rigFarWristKeepGradient)"/></mask><mask id="rigFarWristReveal" maskUnits="userSpaceOnUse" x="512" y="512" width="512" height="512"><rect x="512" y="512" width="512" height="512" fill="url(#rigFarWristRevealGradient)"/></mask></defs>
  ${part('rigFarUpper','rigFarUpperClip',false,'rigFarUpperMask')}
  <g id="rigBodySkin">${BODY_SKIN_TRIANGLES.map((_,i)=>part(`rigSkin${i}`,`rigSkinClip${i}`)).join('')}</g>
  <foreignObject id="rigSkinSurface" x="0" y="784" width="1024" height="752" display="none"><canvas xmlns="http://www.w3.org/1999/xhtml" id="rigSkinCanvas" width="512" height="376" style="display:block;width:100%;height:100%"></canvas></foreignObject>
  ${part('rigTorso','rigTorsoClip',true)}${part('rigNearUpper','rigNearUpperClip',false,'rigNearUpperMask')}
- ${part('rigFarFore','rigFarForeClip',false,'rigFarForeMask')}${part('rigBall','rigBallClip')}${part('rigNearFore','rigNearForeClip',false,'rigNearForeMask')}
+ ${farFore}${part('rigBall','rigBallClip')}${part('rigNearFore','rigNearForeClip',false,'rigNearForeMask')}
  <path id="rigWall" d="M 946 -190 V 160" stroke="#FFB81C" stroke-width="5" opacity="${p.wallContact?'.65':'0'}"/></svg>`;
 }

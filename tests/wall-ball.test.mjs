@@ -39,3 +39,20 @@ test('original mascot and M/wreath brand remain exact protected files while new 
  assert.match(app,/<img id="openingAtlas" src="\.\/artwork\/greek-wall-ball-reconstructed.png"/);
  assert.ok((app.match(/greek-athlete-gold.webp/g)||[]).length>1,'Original artwork stays in the app');
 });
+
+test('far-hand chirality changes only the palm drawing, preserving its wrist and palm anchors and every accepted motion transform',async()=>{
+ const {FAR_HAND_REFLECTION:m,FAR_HAND_WRIST:w,FAR_HAND_PALM:p}=await import('../wall-ball.mjs');
+ const apply=q=>({x:m[0]*q.x+m[2]*q.y+m[4],y:m[1]*q.x+m[3]*q.y+m[5]});
+ const cross=q=>(p.x-w.x)*(q.y-w.y)-(p.y-w.y)*(q.x-w.x);
+ for(const q of [w,p])assert.ok(Math.hypot(apply(q).x-q.x,apply(q).y-q.y)<1e-8,'Hand must remain attached at the same wrist/palm');
+ assert.ok(Math.abs(m[0]*m[3]-m[1]*m[2]+1)<1e-8,'Opposite handedness requires one reflection');
+ const thumb={x:620,y:817};assert.ok(cross(thumb)*cross(apply(thumb))<0,'Thumb changes side of the hand axis');
+ const transforms=[];for(let t=0;t<=4500;t+=50)transforms.push(wallBallTransforms(wallBallPose(t)));
+ // Recorded from the owner-accepted reconstruction, commit358eeff, before
+ // correcting this hand. All body, limb, ball and skin transforms stay exact.
+ assert.equal(createHash('sha256').update(JSON.stringify(transforms)).digest('hex'),'dc4874ffdcacf9600d339828bb8ee539205479d6dae1c0e882f1e5758ccb33a4');
+ const svg=wallBallSvg(2000);assert.equal((svg.match(/id="rigFarPalmCorrection"/g)||[]).length,1);
+ assert.match(svg,/id="rigFarFore"[^>]*><g clip-path="url\(#rigFarForeClip\)" mask="url\(#rigFarForeMask\)"><g mask="url\(#rigFarWristKeep\)"/,'Keep the original forearm pixels');
+ assert.ok(svg.indexOf('id="rigFarPalmCorrection"')<svg.indexOf('id="rigBall"'),'Corrected palm remains behind globe');
+ assert.equal(createHash('sha256').update(await readFile(new URL('../artwork/greek-wall-ball-reconstructed.png',import.meta.url))).digest('hex'),'07d8b6cfd2d156ffa19a74fd28ccee435961f8a8ec9a9a733bda9f6487efac26','Do not regenerate any accepted artwork');
+});
