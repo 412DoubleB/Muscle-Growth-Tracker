@@ -1,7 +1,7 @@
 // Read-only views of canonical workout history. Archived/conflicting copies
 // remain available in History but never double-count toward a progress trend.
-import {completedSets, norm, iso, addDays} from './core.mjs?v=8.1.1';
-import {progressionContext} from './supersets.mjs?v=8.1.1';
+import {completedSets, norm, iso, addDays} from './core.mjs?v=8.2.0';
+import {progressionContext} from './supersets.mjs?v=8.2.0';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const round = value => Math.round(value * 10) / 10;
@@ -22,13 +22,15 @@ export function progressRecords(state, catalog = []) {
     Number.isFinite(Date.parse(log.date+'T12:00:00Z')) && !log.deleted && log.status !== 'skipped'
   ).flatMap(([, log]) => (log.exercises || []).flatMap(exercise => {
     const definition = meta.find(e => e.id === exercise.exerciseId || (!exercise.exerciseId && norm(e.name) === norm(exercise.name)));
-    const sets = completedSets(exercise).filter(s => s.w != null && Number.isInteger(+s.r));
+    const repUnit = definition?.repUnit || exercise.repUnit || 'reps';
+    const measured = ['seconds','metres'].includes(repUnit);
+    const sets = completedSets(exercise).filter(s => s.w != null && (measured || Number.isInteger(+s.r)));
     if (!sets.length) return [];
     return [{
       date:log.date, exerciseId:definition?.id || identity(exercise), name:definition?.name || exercise.name || 'Exercise',
       gymId:log.gymId || 'unknown', gym:state.gyms?.find(g => g.id === log.gymId)?.name || 'Unspecified gym',
       format:progressionContext(exercise), loadMode:exercise.loadMode || definition?.loadMode || 'total',
-      repUnit:definition?.repUnit || exercise.repUnit || 'reps', sets
+      repUnit, sets
     }];
   })).sort((a,b) => a.date.localeCompare(b.date));
 }
