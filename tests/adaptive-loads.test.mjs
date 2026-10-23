@@ -134,3 +134,13 @@ test('gym limits cannot bypass the approved plate change sizes even for an expli
  input.state.logs={'2027-01-01':{id:'2027-01-01',date:'2027-01-01',gymId:input.gym.id,status:'completed',exercises:[C.clone(input.exercise)]}};
  const before=C.clone(input),prior=C.progression(input.state,input.exercise,'2027-01-04',input.gym);assert.equal(prior.weight,90);assert.deepEqual(input,before);
 });
+
+
+test('prior plate-loaded progress holds when the allowed jump would fall below the target rep range',()=>{
+ for(const [reps,rir,expected]of [[12,1,100],[16,5,120]]){
+  const input=sample({name:'EZ-Bar Curl',weight:100,reps,rir,profile:{kind:'plates',plates:[10,25,35,45],sides:2}});
+  for(const row of input.exercise.sets)Object.assign(row,{w:100,r:reps,rir,done:true});
+  input.state.logs={'2027-01-01':{id:'2027-01-01',date:'2027-01-01',gymId:input.gym.id,status:'completed',exercises:[C.clone(input.exercise)]}};
+  assert.equal(C.progression(input.state,input.exercise,'2027-01-04',input.gym).weight,expected);
+ }
+});
