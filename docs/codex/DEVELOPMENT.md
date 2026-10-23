@@ -3282,3 +3282,51 @@ cross-tab changes, recovery and real denial. Static checks passed 33 modules / 5
 offline entries / 162 originals / 113 WebP / 35 retained pairs. Full regression
 and private publication receipts follow separately. No browser/CUA or new phone
 acceptance is claimed; this does not prove Auth will never time out again.
+
+
+Connected-timeout correction — private preview 48 receipt:
+Full npm test passed all 71 files, zero failed/skipped/cancelled, in
+350045.551425 ms. All new negative and positive outage/admission cases passed
+alongside preserved history, nutrition, progression, rest, cache/update and push
+checks. No runtime changed after this run; static checks also passed as above.
+No browser/CUA or physical-phone acceptance is inferred.
+
+Runtime source 68ee9d9b7aa46653f4e355fc96e73dd2a113d6a7; exact pushed Sites
+source f40d0debcaab3abaff0fba113c8ae23b3eb37abb. Archive 186 files / 170 client,
+158396429 bytes, SHA-256
+ce51ed345c248d77add93e74eecc6269f32bf43b8ed41b529ac223c3e0ba788c.
+All members matched the clean pushed checkout. Only app.mjs, beta-entry.mjs and
+six expected private build/cache metadata members differ from preview 47. All
+124 protected media/font assets, media bindings, all other existing client
+modules, server/migrations and remaining members are byte-identical. No file
+addition/removal, private export, account data or runtime secret in the package.
+The workout-voice fixed source gate remains false.
+
+Saved version:
+appgprj_6ad593d6f15481918ded32373b877b03~appgver_9f27cae9241881919b057c7a715d863a.
+Deployment appgdep_6adaadd9a3a081919e97491aa0f238d2 succeeded at
+2026-10-23 00:44:20.299103 UTC, unchanged runtime revision 6.
+URL https://menei-private-beta.crispcrown515.chatgpt.site.
+Native saved provenance confirms exact pushed source, 186 files and normalized
+tar size 160696320, SHA-256
+1efd2f1c1ce489fea4769531d1760e3986ab1f4dd64e9b66c2ee706744833f67.
+Uploaded gzip and saved tar are distinct representations, not equal archive bytes.
+
+Fresh audience remains one owner; zero additional users/editors/groups/external
+visitors/automations. The expired earlier source credential was discarded and a
+fresh one obtained before push; credential and raw publication response were
+cleared from session storage afterward. No public GitHub push/merge, live-app or
+backend mutation, account migration, sharing change, new secret, paid AI search,
+seat/usage reset, media change or data reset occurred. Supabase operations were
+read-only health and aggregate log checks; no Auth setting/policy was altered.
+The isolated push sender remains v3 and was not invoked for a new notification.
+
+Owner check: /update.html → Load latest version, build 68ee9d9b7aa4. Existing
+valid sessions can reopen normally when the service is available. If a temporary
+failure repeats, Retry connection rechecks stored Auth and admission without
+blind password resubmission. Eligible previously admitted accounts can explicitly
+open existing saved device data with cloud/AI/push setup paused, then retry from
+Home. Rejected sessions remain blocked; no fallback for new/unadmitted identities.
+This repairs client recovery, not the underlying provider's ability to guarantee
+availability. Connected recovery, actual offline reopening and the exact one-hour
+workout reminder still require their respective phone acceptance.

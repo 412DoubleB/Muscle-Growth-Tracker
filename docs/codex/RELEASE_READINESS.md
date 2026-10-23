@@ -2,7 +2,7 @@
 
 This is the current release checklist, not authorization to publish. Historical
 setup and handoff reports remain evidence for their original stages. The latest
-private implementation is preview 47, build `103544ed83dc`, with isolated push
+private implementation is preview 48, build `68ee9d9b7aa4`, with isolated push
 sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 ## Verified and accepted at the reported scope
@@ -14,11 +14,11 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
   current mascot animation provisionally. Deferred illustration work stays open.
 - Owner confirmed immediate notification display and the two-minute closed-app
   push test. Exact one-hour workout reminder delivery is still a separate check.
-- Preview 46 passed all 70 test files in one full regression run
-  (282007.092984 ms), after the four focused files passed. Speech is explicitly
-  disabled; rest sounds/timers, progression, account isolation and preserved
-  storage checks pass. Older preview 45 results remain in DEVELOPMENT.md as
-  historical evidence, not the current regression result.
+- Preview 48 passed all 71 test files in one full regression run
+  (350045.551425 ms), after focused admission/account tests passed. This includes
+  explicit local continuation during service timeouts with cloud/AI paused and
+  denial/recovery/account-change protection. Speech remains disabled. Older
+  preview results remain in DEVELOPMENT.md as historical evidence.
 - Preview 47 fixes obsolete private app-file cache cleanup. Its six affected
   update/offline/package/push test files passed (8974.054945 ms), plus a VM check
   of the packaged worker with all 53 cached shell entries. The active offline
@@ -30,13 +30,17 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 ## Next device checks
 
-1. On an upcoming uncompleted lifting/running day, save a usual workout start
+1. Recheck connected reopening after the reported Auth 504. Load the latest
+   private build; if the service still times out, verify Retry connection and the
+   eligible same-account Open saved data on this device path. A connected service
+   timeout was reported; physical airplane-mode reopening is still unverified.
+2. On an upcoming uncompleted lifting/running day, save a usual workout start
    time and time zone far enough ahead that the one-hour reminder is still in
    the future. Confirm sync and device push opt-in, then close the app. Check the
    notification around one hour before that start, allowing the minute scheduler
    and platform delivery delay. Do not change completed/skipped history to force
    a reminder or reset delivery slots. A start time is not an alert time.
-2. Check installed/offline reopening and a normal update on the phone without
+3. Check installed/offline reopening and a normal update on the phone without
    clearing storage. Full restore and concurrent-conflict recovery require a
    separate test account/origin; do not experiment on the owner's only history.
 
@@ -76,7 +80,7 @@ credentials now. Exercise-photo review, including the unresolved supinated
 cross-body preacher curl, remains deferred. Further mascot refinement is also
 deferred after provisional acceptance. No quote playback is requested.
 
-See DEVELOPMENT.md for the private preview 47 publication receipt. This step
-changed only obsolete app-file cache cleanup and private build metadata. No notification,
+See DEVELOPMENT.md for the private preview 48 publication receipt. This step
+changed only client outage recovery and private build metadata. No notification,
 provider request, account data, backend setting, media asset, sharing policy or
 live deployment changed. The concrete live cutover plan is in LIVE_RELEASE_PLAN.md.

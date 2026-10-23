@@ -2,7 +2,7 @@
 
 Current status: the owner confirmed immediate notification display and the
 two-minute closed-app test. Exact one-hour workout reminder delivery remains
-pending. The isolated sender is version 3 with high delivery urgency; preview 47
+pending. The isolated sender is version 3 with high delivery urgency; preview 48
 and runtime revision 6 are current. The earlier setup/diagnosis sections below
 describe their original stage, not the latest acceptance status. See
 [RELEASE_READINESS.md](RELEASE_READINESS.md) and DEVELOPMENT.md for current checks
