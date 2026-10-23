@@ -4,10 +4,24 @@
   "originalRecipes": 100,
   "app": "./app.mjs?v=8.2.0",
   "refresh": "./update.html",
-  "channel": "release-candidate",
+  "channel": "limited-beta",
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "182075eceaec44e3a6770092ab5624a9333288a3",
-  "deploymentReady": false
+  "source_commit": "01d29ad98616cd72778e1a78f88a7fec37be7ab9",
+  "deploymentReady": true,
+  "build": "20261023.2",
+  "ai_beta": {
+    "accounts": 20,
+    "attempts_per_account": 5,
+    "prior_usage_counts": true
+  },
+  "verification": {
+    "live_email_and_sync": "owner accepted",
+    "live_ai_admission": "owner accepted",
+    "live_push_provider": "accepted test delivery",
+    "live_push_device": "Android owner confirmed closed-app test arrived",
+    "iphone_push_device": "not physically tested",
+    "one_hour_workout_delivery": "not physically tested"
+  }
 }
