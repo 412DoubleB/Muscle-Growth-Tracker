@@ -29,14 +29,21 @@ export async function buildReleaseServices(frontend,output){
  await write(server+'index.js',"export {default} from './live-gateway.mjs';\n");
  await write(server+'wrangler.json',JSON.stringify({name:'menei-live-gateway',main:'index.js',compatibility_date:'2026-10-23',assets:{directory:'../client',binding:'ASSETS',run_worker_first:true}},null,2)+'\n');
  const hosting=JSON.stringify({project_id:project,d1:'GYM_AI_LIMITS'},null,2)+'\n';await write('gateway/.openai/hosting.json',hosting);await write('gateway/dist/.openai/hosting.json',hosting);
- await write('gateway/dist/client/index.html','<!doctype html><html lang="en"><meta charset="utf-8"><title>MENEI service</title><p>This is a MENEI service endpoint. <a href="https://412doubleb.github.io/Muscle-Growth-Tracker/">Open MENEI</a>.</p></html>\n');
+ // Retain the exact current private preview client. Its account/config/assets
+ // remain owner-gated by the release multiplexer even when API transport opens.
+ const previewRepo='/workspace/sites/menei-private-beta',previewCommit='f40d0debcaab3abaff0fba113c8ae23b3eb37abb';
+ const readPreview=async args=>(await exec('git',args,{cwd:previewRepo,encoding:'buffer',maxBuffer:256*1024*1024})).stdout;
+ const bound=JSON.parse((await readPreview(['show',previewCommit+':.openai/hosting.json'])).toString());
+ if(bound.project_id!==project||bound.d1!=='GYM_AI_LIMITS')throw Error('Private preview identity changed; review before packaging.');
+ const previewFiles=(await readPreview(['ls-tree','-rz','--name-only',previewCommit])).toString().split('\0').filter(n=>n.startsWith('dist/client/')&&n.length>12);
+ for(const name of previewFiles)await write('gateway/'+name,await readPreview(['show',previewCommit+':'+name]));
  await write('reminders/index.ts',await git('supabase/production/index.ts'));
  await write('reminders/reminder-handler.mjs',(await git('supabase/production/reminder-handler.mjs')).replace("'../functions/menei-push-reminders/logic.mjs'","'./logic.mjs'"));
  for(const name of ['logic.mjs','schedule.mjs','legacy.mjs'])await write('reminders/'+name,await git('supabase/functions/menei-push-reminders/'+name));
  await write('reminders/deno.json',await git('supabase/functions/menei-push-reminders/deno.json'));
  await write('push-delivery.sql',await git('supabase/production/push-delivery.sql'));
  await write('ACTIVATION_PLAN.md',await git('docs/codex/PRODUCTION_ACTIVATION.md'));
- const receipt={version:'8.2.0',sourceCommit:commit,status:'prepared-not-deployed',projectId:project,requiresLiveOwnerBinding:true,existingD1Preserved:true,files};await fs.writeFile(path.join(output,'SERVICES_MANIFEST.json'),JSON.stringify(receipt,null,2)+'\n');
+ const receipt={version:'8.2.0',sourceCommit:commit,status:'prepared-not-deployed',projectId:project,retainedPreviewSource:previewCommit,requiresLiveOwnerBinding:true,existingD1Preserved:true,files};await fs.writeFile(path.join(output,'SERVICES_MANIFEST.json'),JSON.stringify(receipt,null,2)+'\n');
  await exec('tar',['--sort=name','--mtime=@0','--owner=0','--group=0','--numeric-owner','-czf',path.join(output,'menei-8.2.0-services.tar.gz'),'-C',output,'gateway','reminders','push-delivery.sql','ACTIVATION_PLAN.md','SERVICES_MANIFEST.json'],{cwd:repo});
  const archive=await fs.readFile(path.join(output,'menei-8.2.0-services.tar.gz'));const result={...receipt,files:files.length,archiveBytes:archive.length,archiveSha256:sha256(archive)};await fs.writeFile(path.join(output,'ARCHIVE.json'),JSON.stringify(result,null,2)+'\n');return result;
 }

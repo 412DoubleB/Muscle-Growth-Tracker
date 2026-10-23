@@ -35,7 +35,9 @@ changing a native audience, changing the live backend or migrating account data.
   No automatic email matching, second owner allocation or new owner allowance.
 - Read-only preflight found one prior campaign member and no active lease.
   The screenshot email currently has NO matching original-live Auth account.
-  The owner's actual live identity therefore still needs confirmation. Do not
+  The owner confirmed the screenshot email for live use. A live account under
+  that email still needs to be created/confirmed by its owner during the staged
+  release before its UUID can be linked to existing preview usage. Do not
   invent a UUID or create an account for the owner. If a second preview member
   exists by activation, stop and review that member's allowance link too.
 - Existing live reminder function `mgt-beta-send-reminders` version 2 is active;
@@ -70,7 +72,7 @@ changing a native audience, changing the live backend or migrating account data.
    or model request without a requested device test.
 5. Push and save the exact reviewed Sites source + archive, preserving the Site
    and D1 IDs. Install the release multiplexer, retaining original preview files.
-   Add `MENEI_LIVE_API_ENABLED=true` and preserve the existing AI flag/key and
+   Add `MENEI_LIVE_API_ENABLED=true`, start with `MENEI_LIVE_PHASE=owner`, and preserve the existing AI flag/key and
    private-preview variables. The explicit public API/native audience change is
    part of the release authorization, not assumed from private preview approval.
    Verify allowed CORS/preflight, unauthorized live requests rejected, no research
@@ -82,7 +84,8 @@ changing a native audience, changing the live backend or migrating account data.
    it in the owner's Dashboard if needed. Test actual mail/callback on a permitted
    test account without sharing passwords/tokens. Do not label it verified from
    the old `authRedirectConfigured=false` client marker or a creation response.
-7. Only after service verification, enable `live-services.json`, remove the guide's
+7. Only after the owner-only production pilot and service verification, set
+   `MENEI_LIVE_PHASE=open`, enable `live-services.json`, remove the guide's
    pending-release notice, produce a fresh fully hashed frontend artifact and
    record its exact source/environment/service versions. Review the diff from
    original main. Merge/publish the existing live app only under the explicit

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {DatabaseSync} from 'node:sqlite';
-import {createLiveGateway} from '../server/live-gateway.mjs';
+import {createLiveGateway,createReleaseGateway} from '../server/live-gateway.mjs';
 import {AuthError,authenticateLiveMeneiAccount} from '../server/menei-beta-auth.mjs';
 import {enrollBetaMember,readBetaQuota} from '../server/beta-membership-budget.mjs';
 import {GYM_AI_TRIAL_ID} from '../server/gym-research-budget.mjs';
@@ -10,6 +10,18 @@ import {LiveServices,LIVE_AUTH_URL,LIVE_SERVICE_BASE} from '../live-services.mjs
 const origin='https://412doubleb.github.io',api='https://menei-private-beta.crispcrown515.chatgpt.site/api/live/';
 const liveOwner='10000000-0000-4000-8000-000000000001',previewOwner='20000000-0000-4000-8000-000000000001';
 const member='10000000-0000-4000-8000-000000000002',key='sb_publishable_synthetic_live_key';
+test('public API transport does not expose retained owner preview routes or require ChatGPT for API consumers',async()=>{
+ let previews=0,apiCalls=0;
+ const gateway=createReleaseGateway({live:{fetch:async()=>{apiCalls++;return new Response('api')}},preview:{fetch:async()=>{previews++;return new Response('private')}}}),env={MENEI_PRIVATE_SITE_OWNER_ID:'synthetic-native-owner'};
+ for(const path of ['/','/index.html','/api/preview-config','/api/beta-join','/media/original.webp']){
+  assert.equal((await gateway.fetch(new Request('https://site.invalid'+path),env)).status,403);
+  assert.equal((await gateway.fetch(new Request('https://site.invalid'+path,{headers:{'oai-authenticated-user-id':'other-native-user'}}),env)).status,403);
+ }
+ assert.equal(previews,0);
+ assert.equal(await (await gateway.fetch(new Request('https://site.invalid/',{headers:{'oai-authenticated-user-id':'synthetic-native-owner'}}),env)).text(),'private');assert.equal(previews,1);
+ assert.equal(await (await gateway.fetch(new Request(api+'status'),env)).text(),'api');assert.equal(apiCalls,1);
+ assert.equal((await gateway.fetch(new Request('https://site.invalid/',{headers:{'oai-authenticated-user-id':'synthetic-native-owner'}}),{})).status,403);
+});
 async function fixture(t){
  const sql=new DatabaseSync(':memory:');t.after(()=>sql.close());
  for(const name of ['0000_menei_gym_ai_trial.sql','0001_menei_beta_membership.sql'])sql.exec(readFileSync(new URL('../drizzle/'+name,import.meta.url),'utf8'));
@@ -18,7 +30,7 @@ async function fixture(t){
  await enrollBetaMember(db,'menei:'+previewOwner,{bootstrap:true,now:100000});
  let stamp=Date.parse('2026-10-23T12:00:00Z'),calls=0;
  const worker=createLiveGateway({now:()=>new Date(stamp),authenticate:async request=>{const id=request.headers.get('authorization')?.replace('Bearer ','');if(![liveOwner,member].includes(id))throw new AuthError('invalid_menei_account',401);return {id}},research:async()=>{calls++;return {locations:[],checked:'2026-10-23',notice:'Review estimates'}}});
- const env={GYM_AI_LIMITS:db,MENEI_LIVE_API_ENABLED:'true',MENEI_GYM_AI_ENABLED:'true',OPENAI_API_KEY:'sk-synthetic_not_a_real_key',MENEI_LIVE_PUBLISHABLE_KEY:key,MENEI_LIVE_OWNER_ID:liveOwner,MENEI_LINKED_BETA_OWNER_ID:previewOwner};
+ const env={GYM_AI_LIMITS:db,MENEI_LIVE_API_ENABLED:'true',MENEI_LIVE_PHASE:'open',MENEI_GYM_AI_ENABLED:'true',OPENAI_API_KEY:'sk-synthetic_not_a_real_key',MENEI_LIVE_PUBLISHABLE_KEY:key,MENEI_LIVE_OWNER_ID:liveOwner,MENEI_LINKED_BETA_OWNER_ID:previewOwner};
  const request=(route,{id=liveOwner,method=['join','research'].includes(route)?'POST':'GET',body=route==='join'?{}:{name:'Synthetic Gym',location:'Pittsburgh, PA',address:''},headers={}}={})=>new Request(api+route,{method,headers:{origin,Authorization:'Bearer '+id,'Content-Type':'application/json',...headers},...(['GET','HEAD','OPTIONS'].includes(method)?{}:{body:JSON.stringify(body)})});
  return {sql,db,env,worker,request,advance:()=>stamp+=100000,get calls(){return calls}};
 }
@@ -50,6 +62,12 @@ test('twentieth durable seat is the last seat; retries do not enroll again or re
  const full=await f.worker.fetch(f.request('join',{id:member}),f.env);assert.equal(full.status,403);assert.equal((await full.json()).error,'BETA_FULL');assert.equal(f.sql.prepare('SELECT count(*) n FROM menei_beta_members').get().n,20);
  assert.equal((await f.worker.fetch(f.request('join'),f.env)).status,200);
 });
+test('initial production owner phase cannot admit another account or spend its allowance',async t=>{
+ const f=await fixture(t),env={...f.env,MENEI_LIVE_PHASE:'owner'};
+ assert.equal((await f.worker.fetch(f.request('join',{id:member}),env)).status,403);assert.equal(f.sql.prepare('SELECT count(*) n FROM menei_beta_members').get().n,1);assert.equal(f.calls,0);
+ assert.equal((await f.worker.fetch(f.request('join'),env)).status,200);
+ assert.equal((await f.worker.fetch(f.request('join'),{...env,MENEI_LIVE_PHASE:undefined})).status,503);
+});
 test('live Auth validator contacts only the original project and rejects a preview token without fetching',async()=>{
  const now=()=>Date.parse('2026-10-23T12:00:00Z'),claims={iss:LIVE_AUTH_URL+'/auth/v1',sub:member,aud:'authenticated',role:'authenticated',is_anonymous:false,exp:now()/1000+3600};
  const token=c=>[Buffer.from('{}').toString('base64url'),Buffer.from(JSON.stringify(c)).toString('base64url'),'synthetic'].join('.');
@@ -67,6 +85,11 @@ test('live client sends only gym query and account token to the fixed service af
  assert.equal((await f.client.research({name:'Gym',location:'City',address:''})).status,200);assert.equal(calls.length,2);
  assert.ok(calls.every(c=>c.url.startsWith(LIVE_SERVICE_BASE)&&c.options.credentials==='omit'&&c.options.redirect==='error'&&c.options.headers.Authorization==='Bearer synthetic-token'));
  assert.deepEqual(JSON.parse(calls[0].options.body),{});assert.deepEqual(JSON.parse(calls[1].options.body),{name:'Gym',location:'City',address:''});
+});
+test('sign-in admission is account-bound and full beta produces a waitlist state without research or cloud changes',async()=>{
+ let calls=0;const f=clientFixture(async()=>{calls++;return new Response(JSON.stringify({error:'BETA_FULL'}),{status:403})});
+ const original=JSON.stringify(f.cloud.session);assert.deepEqual(await f.client.admit(),{userId:member,joined:false,full:true});assert.equal(calls,1);assert.equal(JSON.stringify(f.cloud.session),original);
+ f.cloud.session=null;assert.equal(await f.client.admit(),null);assert.equal(f.client.admission,null);assert.equal(calls,1);
 });
 test('full beta, changed account, missing sign-in and invalid endpoint never proceed to research',async()=>{
  for(const scenario of ['full','changed','guest','other-project','bad-base']){

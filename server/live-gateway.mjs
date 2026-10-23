@@ -28,12 +28,13 @@ export function createLiveGateway({authenticate=authenticateLiveMeneiAccount,sta
    const names=(request.headers.get('access-control-request-headers')||'').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
    return ['GET','POST'].includes(method)&&names.every(n=>['authorization','content-type'].includes(n))?new Response(null,{status:204,headers}):json({error:'FORBIDDEN'},403);
   }
-  if(env.MENEI_LIVE_API_ENABLED!=='true'||env.MENEI_GYM_AI_ENABLED!=='true')return json({error:'DISABLED'},503);
+  if(env.MENEI_LIVE_API_ENABLED!=='true'||env.MENEI_GYM_AI_ENABLED!=='true'||!['owner','open'].includes(env.MENEI_LIVE_PHASE))return json({error:'DISABLED'},503);
   try{await status(env.GYM_AI_LIMITS);if(!await ownerReady(env.GYM_AI_LIMITS,env))return json({error:'BETA_UNAVAILABLE'},503)}catch{return json({error:'BETA_UNAVAILABLE'},503)}
   // Only live Auth validates requests. Legacy ownership is an operator-reviewed
   // exact UUID pair; other accounts get a distinct namespace, not a new trial.
   const inner=createPreviewWorker({...dependencies,betaStatus:status,ownerReady:db=>ownerReady(db,env),authenticate:async(req,settings,options)=>{
    const user=await authenticate(req,settings,options);
+   if(env.MENEI_LIVE_PHASE==='owner'&&user.id!==env.MENEI_LIVE_OWNER_ID)throw new AuthError('live_pilot_owner_required',403);
    return {id:user.id===env.MENEI_LIVE_OWNER_ID?env.MENEI_LINKED_BETA_OWNER_ID:'live:'+user.id};
   }});
   const target=new URL('/api/'+route,url),forwarded=new Headers(request.headers);forwarded.set('origin',url.origin);forwarded.delete('sec-fetch-site');
