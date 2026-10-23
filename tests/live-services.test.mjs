@@ -115,3 +115,17 @@ test('owner hash captured under native private access authorizes only the same p
  assert.equal(await (await gateway.fetch(new Request('https://site.invalid/',{headers:{'oai-authenticated-user-id':id}}),env)).text(),'private');
  assert.equal(privateCalls,1);
 });
+
+test('private native service transport restores body-wrapped authentication without overriding browser requests',async()=>{
+ let seen;
+ const gateway=createReleaseGateway({live:{fetch:async request=>{seen=request;return new Response('api')}}});
+ const envelope={origin,authorization:'Bearer synthetic-live-token',method:'POST',body:'{}'};
+ const transport=body=>new Request(api+'join',{method:'POST',headers:{'x-menei-live-transport':'1','Content-Type':'application/json'},body:JSON.stringify(body)});
+ await gateway.fetch(transport(envelope),{MENEI_LIVE_BRIDGE_ENABLED:'true'});
+ assert.equal(seen.headers.get('origin'),origin);assert.equal(seen.headers.get('authorization'),envelope.authorization);assert.equal(await seen.text(),'{}');
+ await gateway.fetch(new Request(api+'status',{headers:{Origin:'https://untrusted.invalid',Authorization:'Bearer browser-token','x-menei-live-transport':'1'}}),{MENEI_LIVE_BRIDGE_ENABLED:'true'});
+ assert.equal(seen.headers.get('origin'),'https://untrusted.invalid');assert.equal(seen.headers.get('authorization'),'Bearer browser-token');
+ assert.equal((await gateway.fetch(transport({...envelope,origin:'https://untrusted.invalid'}),{MENEI_LIVE_BRIDGE_ENABLED:'true'})).status,400);
+ assert.equal((await gateway.fetch(transport({...envelope,body:'x'.repeat(33000)}),{MENEI_LIVE_BRIDGE_ENABLED:'true'})).status,400);
+ await gateway.fetch(transport(envelope),{});assert.equal(seen.headers.get('authorization'),null);
+});

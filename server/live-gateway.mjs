@@ -50,7 +50,23 @@ export function createLiveGateway({authenticate=authenticateLiveMeneiAccount,sta
 // to the owner's retained preview, not to the public MENEI frontend.
 export function createReleaseGateway({live=createLiveGateway(),preview=createPreviewWorker()}={}){
  return {async fetch(request,env){
-  if(new URL(request.url).pathname.startsWith('/api/live/'))return live.fetch(request,env);
+  if(new URL(request.url).pathname.startsWith('/api/live/')){
+   // Native private hosting authenticates service access first. The MENEI JWT
+   // travels inside the HTTPS request body so dispatch can use its own login
+   // headers and request-header logs never contain an unredacted custom token.
+   if(env.MENEI_LIVE_BRIDGE_ENABLED==='true'&&request.headers.get('x-menei-live-transport')==='1'&&!request.headers.has('origin')&&!request.headers.has('authorization')){
+    try{
+     if(request.method!=='POST')throw Error();
+     const reader=request.body?.getReader();if(!reader)throw Error();let size=0,parts=[];
+     for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>81920){await reader.cancel();throw Error()}parts.push(value)}
+     const bytes=new Uint8Array(size);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length}
+     const data=JSON.parse(new TextDecoder().decode(bytes));
+     if(data.origin!==ORIGIN||!['GET','POST'].includes(data.method)||typeof data.authorization!=='string'||data.authorization.length>16391||data.method==='POST'&&(typeof data.body!=='string'||new TextEncoder().encode(data.body).length>32768))throw Error();
+     request=new Request(request.url,{method:data.method,headers:{Origin:data.origin,Authorization:data.authorization,...(data.method==='POST'?{'Content-Type':'application/json'}:{})},...(data.method==='POST'?{body:data.body}:{}),signal:request.signal});
+    }catch{return new Response(JSON.stringify({error:'INVALID_TRANSPORT'}),{status:400,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}})}
+   }
+   return live.fetch(request,env);
+  }
   const identity=request.headers.get('oai-authenticated-user-id'),owner=env.MENEI_PRIVATE_SITE_OWNER_ID;
   let allowed=typeof identity==='string'&&identity.length>0&&identity.length<=200&&typeof owner==='string'&&owner.length>0&&owner.length<=200&&identity===owner;
   const expected=env.MENEI_PRIVATE_SITE_OWNER_SHA256;
