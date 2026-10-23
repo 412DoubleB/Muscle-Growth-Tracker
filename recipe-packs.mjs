@@ -1,10 +1,10 @@
-import {clone,hash,norm,now} from './core.mjs?v=8.1.1';
-import {foodFor,FOODS,recipeMacros,convertQty} from './nutrition.mjs?v=8.1.1';
+import {clone,hash,norm,now} from './core.mjs?v=8.2.0';
+import {foodFor,FOODS,recipeMacros,convertQty} from './nutrition.mjs?v=8.2.0';
 
 export const MAX_PACK_BYTES=5*1024*1024;
 export const MAX_PACK_RECIPES=250;
 const slots=['Breakfast','Lunch','Dinner','Snack'];
-const units=['g','kg','mg','oz','lb','ml','l','tsp','tbsp','cup','each','unit'];
+const units=['g','kg','mg','oz','lb','ml','l','fl oz','tsp','tbsp','cup','each','unit'];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v);
 function textValue(v,label,max,required=true){if(v==null&&!required)return '';if(typeof v!=='string'||required&&!v.trim()||v.length>max)throw Error(`${label} must be ${required?'non-empty ':''}text of at most ${max} characters.`);return v.trim()}
 function numberValue(v,label,min,max){if(typeof v==='boolean'||v===''||v==null||!Number.isFinite(+v)||+v<min||+v>max)throw Error(`${label} must be between ${min} and ${max}.`);return +v}
