@@ -258,3 +258,23 @@ no additional claim about sound, iPhone or the exact one-hour workout trigger is
 implied. Live AI admission, email confirmation and cloud sync are owner-accepted.
 The limited-beta guide is cleared for publication under the existing release
 authorization, with the remaining platform/timing checks disclosed in metadata.
+
+## Final guide publication
+
+PR 4 merged as efe3fa64a699d9e4806aebf921356422badd2518. GitHub Pages run
+39990981008 completed build and deployment successfully. The shareable guide is
+https://412doubleb.github.io/Muscle-Growth-Tracker/start.html . Its active notice,
+all internal anchors and local links were checked. The final deployed-source
+inventory has 174 runtime files; seven reviewed files differ from rc5. The app
+identity, original public client configuration and protected media are unchanged.
+The owner confirmed live email, sync, AI admission and Android closed-app test
+delivery. Runtime environment 9 has phase open and D1 still has five attempts.
+No paid request was made by tools. Final private source backup is the verified
+local work/menei-8.2.0-final-source.bundle; it is not a browser/cloud-data backup.
+
+Production main deliberately carries the runtime overlay rather than private
+continuity documents or development server/test changes. Complete development
+source/tests are in release/8.2.0-ready. Original main package/test metadata still
+describes the historical baseline; use the complete release checkout for future
+regression work. Future publication should preserve this separation or explicitly
+review a sanitized full-source sync, never publish private operator evidence.
