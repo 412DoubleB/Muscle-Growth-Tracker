@@ -1,5 +1,5 @@
 // Only this reviewed service and the original live Auth project receive tokens.
-export const LIVE_SERVICE_BASE='https://menei-private-beta.crispcrown515.chatgpt.site/api/live/';
+export const LIVE_SERVICE_BASE='https://menei-live-api.crispcrown515.chatgpt.site/api/live/';
 export const LIVE_AUTH_URL='https://tdmwpcueqxtnqyonucam.supabase.co';
 export class LiveServices{
  constructor(cloud,{fetcher=globalThis.fetch.bind(globalThis)}={}){this.cloud=cloud;this.fetcher=fetcher;this.enabled=false;this.admission=null}
