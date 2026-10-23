@@ -1,9 +1,12 @@
-# MENEI launch invitation — send after activation
+# MENEI limited beta invitation
 
-Planned guide link: https://412doubleb.github.io/Muscle-Growth-Tracker/start.html
+Guide link: https://412doubleb.github.io/Muscle-Growth-Tracker/start.html
 
-This link is not a verified published updated guide yet. Send the text below only
-after publication and the production activation checks in PRODUCTION_ACTIVATION.md.
+The live 8.2.0 limited-beta publication receipt is recorded in
+PRODUCTION_ACTIVATION.md. Share the invitation after its final Pages deployment
+succeeds. Android/iPhone notification permissions and device testing are user
+actions; iPhone physical acceptance and exact one-hour reminder acceptance remain
+separate from the provided instructions.
 
 ## Ready-to-copy invitation
 

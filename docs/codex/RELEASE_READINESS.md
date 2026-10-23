@@ -1,9 +1,14 @@
 # Current web update readiness
 
-This is the current release checklist, not authorization to publish. Historical
-setup and handoff reports remain evidence for their original stages. The latest
-private implementation is preview 48, build `68ee9d9b7aa4`, with isolated push
-sender version 3. Live GitHub Pages and its backend remain unchanged.
+Current release: MENEI 8.2.0, limited beta at the original GitHub Pages URL.
+Live email confirmation and cloud sync are owner-accepted. Live owner AI admission
+is accepted after the API-only/private-service transport correction. The first
+20-account campaign is open; five attempts each and previous usage are preserved.
+The production reminder sender and minute scheduler are active. Provider delivery
+of a live device test is recorded; physical receipt is awaiting owner confirmation.
+No iPhone physical push or exact one-hour workout delivery is claimed. See the
+latest receipt in PRODUCTION_ACTIVATION.md for source/deployment versions. Earlier
+entries below describe their original private-preview stages.
 
 ## Verified and accepted at the reported scope
 

@@ -1,9 +1,11 @@
-# Prepared 8.2.0 production activation — not applied
+# MENEI 8.2.0 production activation record
 
 Owner request: make the update ready to publish and provide one shareable
 installation guide, with separate iPhone/Android and manual setup instructions.
-This prepares the concrete changes. It does not itself authorize publishing,
-changing a native audience, changing the live backend or migrating account data.
+The owner subsequently authorized the staged frontend and service rollout. Read
+the latest receipts below for actual deployed state; the original plan and
+intermediate candidate evidence remain historical. No account/history migration
+was performed.
 
 ## Exact release scope
 
@@ -218,3 +220,32 @@ and static checks passed. No paid lookup was made. Owner browser admission and
 real notification checks precede phase open and release invitation. Direct HTTP
 reads of hosted URLs remain blocked by this executor's network policy; provider
 deployment receipts and owner browser observations are recorded separately.
+
+## Accepted AI link and open limited beta — October 23
+
+The owner reports that the live AI gym beta card confirms a beta place. Native
+private Worker logs independently show POST /api/live/join returned 200 in owner
+phase. The API bridge uses native service access without browser login headers;
+MENEI authorization travels inside a bounded HTTPS request body, not a custom
+header that could be recorded in header logs. It is restored only inside the
+natively private Worker and verified against the unchanged live Supabase Auth
+project. Exact packaged bridge/private POST and GET integration passed, as did
+focused access-control tests. Redirects are never followed with credentials.
+
+Current private service source 6779478a550fbe226ecac50f288f5fa143ea80f7, saved
+version 52, environment 9 with MENEI_LIVE_PHASE=open. Deployment
+appgdep_6adb90f97040819195b339069dd2fbc2 succeeded. Native audience remains custom,
+with one owner. Public API-only source 9b2995d63fdb83c8be67be5abb997b75f1a34a66,
+saved version 3, environment 1; deployment
+appgdep_6adb8e2b74d08191aace2e8624ccb5dd succeeded. Existing D1 membership still
+contains one owner; the owner's five prior attempts remain used. No tool-driven
+paid model request, allowance reset or extra owner seat was made.
+
+One live push subscription and a completed test delivery slot are now recorded.
+The scheduler repeatedly returned HTTP 200, ready:true with no failures. This
+proves provider acceptance, not the phone's visible/sounding notification; owner
+physical receipt is pending. Original private-preview immediate/closed-app device
+checks were previously accepted. iPhone physical acceptance, exact production
+one-hour workout delivery, password-reset delivery and outside-team mail delivery
+remain unverified. Do not broaden these claims based on synthetic tests or a saved
+form. The limited-beta guide includes each user's device tests and troubleshooting.
