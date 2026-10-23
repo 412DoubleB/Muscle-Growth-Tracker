@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 import * as C from '../core.mjs';
-import {CloudSync} from '../cloud.mjs?v=8.1.1';
+import {CloudSync} from '../cloud.mjs?v=8.2.0';
 import {BETA_BROWSER_CONTEXT_KEY,requireBetaBrowserContext,BetaBrowserContextError,invalidateChangedTabSession} from '../beta-browser-context.mjs';
 const project='bhyrrxrpqaxiwpfxnwpa',context='a'.repeat(64);
 const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve}};

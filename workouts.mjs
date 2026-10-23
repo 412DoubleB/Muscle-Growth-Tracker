@@ -1,7 +1,7 @@
-import {withoutCompletionTiming} from './session-order.mjs?v=8.1.1';
-import {supersetGroups,autoSupersets} from './supersets.mjs?v=8.1.1';
-import * as C from './core.mjs?v=8.1.1';
-import {LEGACY_PLAN} from './legacy.mjs?v=8.1.1';
+import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
+import {supersetGroups,autoSupersets} from './supersets.mjs?v=8.2.0';
+import * as C from './core.mjs?v=8.2.0';
+import {LEGACY_PLAN} from './legacy.mjs?v=8.2.0';
 
 export const hasEntries=d=>!!d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||(d.exercises||[]).some(e=>e.sets?.some(s=>s.done||s.w!==''&&s.w!=null||s.r!==''&&s.r!=null||s.rir!==''&&s.rir!=null)));
 export function programDayProtection(state,date){

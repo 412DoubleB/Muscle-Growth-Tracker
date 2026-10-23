@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../core.mjs';
-import {CloudSync} from '../cloud.mjs?v=8.1.1';
+import {CloudSync} from '../cloud.mjs?v=8.2.0';
 import {BETA_FULL_MESSAGE,BETA_ADMISSION_CAMPAIGN,joinBetaAccount,rememberBetaAdmission,savedBetaAdmission} from '../beta-entry.mjs';
 const project='bhyrrxrpqaxiwpfxnwpa';
 let bootSequence=0;

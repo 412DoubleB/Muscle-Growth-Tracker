@@ -1,6 +1,6 @@
-import {dailyMotivation} from './motivation.mjs?v=8.1.1';
-import {workoutSchedule,workoutStartUtc} from './workout-schedule.mjs?v=8.1.1';
-export {workoutSchedule,workoutStartUtc} from './workout-schedule.mjs?v=8.1.1';
+import {dailyMotivation} from './motivation.mjs?v=8.2.0';
+import {workoutSchedule,workoutStartUtc} from './workout-schedule.mjs?v=8.2.0';
+export {workoutSchedule,workoutStartUtc} from './workout-schedule.mjs?v=8.2.0';
 export function publicKeyBytes(value){const normalized=value.replace(/-/g,'+').replace(/_/g,'/');const raw=atob(normalized+'='.repeat((4-normalized.length%4)%4));return Uint8Array.from(raw,c=>c.charCodeAt(0))}
 export async function testNotification(){if(!('Notification' in globalThis))throw Error('This browser does not support notifications.');if(await Notification.requestPermission()!=='granted')throw Error('Notifications are not permitted. Change the browser’s site permission to enable them.');const registration=await navigator.serviceWorker.ready;await registration.showNotification('MENEI',{body:'Your notifications are working on this device.',icon:'./icon-192.png',badge:'./icon-192.png',tag:'mgt-beta-test',renotify:true,silent:false,vibrate:[200,100,200],data:{url:'./'}})}
 export async function enablePush(cloud,preferences,vapid){

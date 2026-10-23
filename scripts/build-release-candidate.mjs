@@ -23,7 +23,7 @@ export async function buildReleaseCandidate(output,{revision='HEAD'}={}){
  const names=(await git(['ls-tree','-rz','--name-only',commit])).toString().split('\0').filter(runtimeFile).filter(Boolean).sort();
  const source=new Map();for(const name of names)source.set(name,await git(['show',commit+':'+name]));
  const originalVersion=source.get('core.mjs').toString().match(/export const VERSION='([^']+)';/)?.[1];
- if(originalVersion!=='8.1.1')throw Error('Review the version conversion before packaging a different source release.');
+ if(!['8.1.1',CANDIDATE_VERSION].includes(originalVersion))throw Error('Review the version conversion before packaging a different source release.');
  if(!source.get('workout-voice.mjs').includes(Buffer.from('WORKOUT_VOICE_ENABLED=false')))throw Error('Keep deferred speech disabled.');
  const config=JSON.parse(source.get('config.json'));if(config.supabase?.url!=='https://tdmwpcueqxtnqyonucam.supabase.co')throw Error('Keep the existing live account backend.');
  if(!/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.supabase?.key||'')||Object.keys(config).some(k=>/private|password|secret/i.test(k)))throw Error('Only existing public client configuration belongs in the frontend.');

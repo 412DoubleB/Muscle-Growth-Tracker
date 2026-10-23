@@ -1,7 +1,7 @@
 // Read-only views of canonical workout history. Archived/conflicting copies
 // remain available in History but never double-count toward a progress trend.
-import {completedSets, norm, iso, addDays} from './core.mjs?v=8.1.1';
-import {progressionContext} from './supersets.mjs?v=8.1.1';
+import {completedSets, norm, iso, addDays} from './core.mjs?v=8.2.0';
+import {progressionContext} from './supersets.mjs?v=8.2.0';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const round = value => Math.round(value * 10) / 10;

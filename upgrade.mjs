@@ -1,4 +1,4 @@
-import {clone,hash,importSnapshot,now,validateState,VERSION,LocalStore} from './core.mjs?v=8.1.1';
+import {clone,hash,importSnapshot,now,validateState,VERSION,LocalStore} from './core.mjs?v=8.2.0';
 
 export const LEGACY_KEYS=['MGT28v6','MGT28v5'];
 export function originalDeviceBackup(storage){

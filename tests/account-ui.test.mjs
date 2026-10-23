@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {defaultState,makeExercise,CATALOG,readRecoverySnapshots} from '../core.mjs';
-import {CloudSync} from '../cloud.mjs?v=8.1.1';
+import {CloudSync} from '../cloud.mjs?v=8.2.0';
 
 function environment(source,{scope='guest',confirmImport=true}={}){
  const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','fetch'];

@@ -1,4 +1,4 @@
-import {muscleFamilies} from './supersets.mjs?v=8.1.1';
+import {muscleFamilies} from './supersets.mjs?v=8.2.0';
 
 const pad=(n,width=2)=>String(n).padStart(width,'0');
 const primary=s=>['working','top'].includes(s.role);

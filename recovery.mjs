@@ -1,4 +1,4 @@
-import LZString from './vendor/lz-string.mjs?v=8.1.1';
+import LZString from './vendor/lz-string.mjs?v=8.2.0';
 const FORMAT='menei-device-recovery',VERSION=1,MAX_TEXT=32*1024*1024;
 const checksum=text=>{let n=2166136261;for(let i=0;i<text.length;i++){n^=text.charCodeAt(i);n=Math.imul(n,16777619)}return (n>>>0).toString(16)};
 export const isStorageQuotaError=error=>['QuotaExceededError','NS_ERROR_DOM_QUOTA_REACHED'].includes(error?.name)||[22,1014].includes(error?.code)||/quota.*exceed|exceed.*quota|storage.*full/i.test(error?.message||'');

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../core.mjs';
 import {addOriginalRecipes} from '../nutrition.mjs';
-import {CloudSync} from '../cloud.mjs?v=8.1.1';
+import {CloudSync} from '../cloud.mjs?v=8.2.0';
 
 function syntheticWorkspace(){
  const state=C.defaultState();state.training.startDate='2026-11-02';state.nutrition={...state.nutrition,diet:'Vegetarian',servings:3,mealRepeatDays:9,notes:'Current synthetic preferences',setupPromptSeen:true};

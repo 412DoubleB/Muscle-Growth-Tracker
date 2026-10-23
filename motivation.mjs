@@ -1,4 +1,4 @@
-import {iso,dateOf,daysBetween} from './core.mjs?v=8.1.1';
+import {iso,dateOf,daysBetween} from './core.mjs?v=8.2.0';
 
 const validDate=date=>/^\d{4}-\d{2}-\d{2}$/.test(date)&&iso(dateOf(date))===date;
 const positive=n=>n!==''&&n!=null&&Number.isFinite(+n)&&+n>0;

@@ -1,4 +1,4 @@
-import {supersetFor} from './supersets.mjs?v=8.1.1';
+import {supersetFor} from './supersets.mjs?v=8.2.0';
 
 const seconds=value=>Number.isFinite(+value)&&+value>0?Math.min(1800,Math.round(+value)):120;
 export const isCompletionRest=rest=>['pair','exercise'].includes(rest?.kind);

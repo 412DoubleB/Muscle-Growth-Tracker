@@ -1,12 +1,12 @@
-import {withoutCompletionTiming} from './session-order.mjs?v=8.1.1';
-import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.1.1';
-export {readRecoverySnapshots} from './recovery.mjs?v=8.1.1';
-import {splitSession,trainingStyle,runningSession} from './training.mjs?v=8.1.1';
-import {autoSupersets,progressionContext} from './supersets.mjs?v=8.1.1';
-import { LEGACY_PLAN, LEGACY_MASTERS, LEGACY_EQUIPMENT, detailedGuide } from './legacy.mjs?v=8.1.1';
-import { buildCatalog } from './catalog.mjs?v=8.1.1';
+import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
+import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.2.0';
+export {readRecoverySnapshots} from './recovery.mjs?v=8.2.0';
+import {splitSession,trainingStyle,runningSession} from './training.mjs?v=8.2.0';
+import {autoSupersets,progressionContext} from './supersets.mjs?v=8.2.0';
+import { LEGACY_PLAN, LEGACY_MASTERS, LEGACY_EQUIPMENT, detailedGuide } from './legacy.mjs?v=8.2.0';
+import { buildCatalog } from './catalog.mjs?v=8.2.0';
 
-export const VERSION='8.1.1';
+export const VERSION='8.2.0';
 export const CATALOG=buildCatalog(LEGACY_MASTERS,LEGACY_PLAN);
 export const EQUIPMENT=[...new Set([...LEGACY_EQUIPMENT,...CATALOG.flatMap(e=>e.equipmentRequirements.flat()),'Flat Bench','Cable Station','Squat Rack','Dip / Pull-up Station','Bench','Preacher Bench','Olympic Plates'])].sort();
 export const clone=v=>structuredClone(v);
