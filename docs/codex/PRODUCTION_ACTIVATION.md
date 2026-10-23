@@ -157,3 +157,23 @@ All 74 versioned release test files passed. Current prepared inputs are rc5 from
 182075eceaec44e3a6770092ab5624a9333288a3; source is the 8.2.0 release worktree.
 Public sharing and production activation remain pending, not implied by these
 test results. The production account and mail dependencies remain real.
+
+## Authorized first publication stage — October 23
+
+After explicit owner approval, the exact rc5 frontend was published through PR 2
+(https://github.com/412DoubleB/Muscle-Growth-Tracker/pull/2). Staging source is
+0f17e76ec61696e7a3eeac354dc8d4d6e6739e7d, merged main is
+0249f68c523ce2dd97f4ee01672ffb3a40c07d6a. All 174 candidate runtime files were
+rechecked against the merged Git objects. The runtime-only stage intentionally
+excludes development/private continuity documents and server inputs. The main
+repository test/package metadata still describes the old baseline; the complete
+74-file release test evidence belongs to the versioned release checkout.
+
+AI configuration remains false and the guide retains its pending-release notice.
+No service/backend/native-audience changes are authorized by this first-stage
+approval. SMTP form save is owner-confirmed; real email/callback verification and
+owner live-account creation still require the owner device. Network policy blocks
+direct github.io HTTP reads in this session, so hosted delivery is checked through
+GitHub Pages deployment receipts plus the owner device, not claimed from Git reads.
+GitHub Pages run 39981933296 tracks this publication. See the private local
+work/menei-8.2.0-staged-publication.json receipt for current provider outcome.

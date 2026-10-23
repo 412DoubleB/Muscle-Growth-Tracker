@@ -55,3 +55,10 @@ Official references, checked October 23, 2026:
 
 This document contains only setup instructions. The user-facing installation
 guide remains start.html; do not add operator credentials/settings to that guide.
+
+## Owner-reported SMTP completion
+
+On October 23 the owner generated a Google app password, entered it only in the
+official Supabase SMTP form, and reported that Save changes succeeded. No
+credential was shared with Codex. SMTP is owner-reported configured; actual
+confirmation/reset delivery and callback remain pending.
