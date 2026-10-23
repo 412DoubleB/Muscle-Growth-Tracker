@@ -11,7 +11,7 @@ const LIVE='https://412doubleb.github.io/Muscle-Growth-Tracker/';
 export const CANDIDATE_VERSION='8.2.0';
 export const PRESERVATION_BASE='fa142c3fc7c96c498b73b5943eac12ca49152dfb';
 const sha256=b=>createHash('sha256').update(b).digest('hex');
-const rootFile=n=>!n.includes('/')&&n!=='beta-report.html'&&(/\.(?:mjs|js|css|svg|png|jpe?g|webmanifest|html)$/.test(n)||['config.json','release.json','media-manifest.json','.nojekyll'].includes(n));
+const rootFile=n=>!n.includes('/')&&n!=='beta-report.html'&&(/\.(?:mjs|js|css|svg|png|jpe?g|webmanifest|html)$/.test(n)||['config.json','live-services.json','recipe-library.json','release.json','media-manifest.json','.nojekyll'].includes(n));
 const runtimeFile=n=>rootFile(n)||/^(?:media|artwork|fonts|vendor)\//.test(n);
 async function git(args){return (await exec('git',args,{cwd:repo,encoding:'buffer',maxBuffer:256*1024*1024})).stdout}
 export async function buildReleaseCandidate(output,{revision='HEAD'}={}){
@@ -39,7 +39,7 @@ export async function buildReleaseCandidate(output,{revision='HEAD'}={}){
    if(name==='update-client.mjs')text=text.replace("set('release','8.1.1')",`set('release','${CANDIDATE_VERSION}')`);
    if(name==='app.mjs')text=text.replace("'Cloud account'","'MENEI account &amp; cloud sync'");
    if(name==='setup.html')text=text.replace('Settings → Cloud account','Settings → MENEI account &amp; cloud sync');
-   if(name==='index.html')text=text.replace('<span>8.1</span>','<span>8.2</span>');
+   if(name==='index.html')text=text.replaceAll('8.1.1',CANDIDATE_VERSION).replace('<span>8.1</span>','<span>8.2</span>');
    if(name==='update.html')text=text.replaceAll('8.1.1',CANDIDATE_VERSION).replace('PRIVATE BETA ·','RELEASE CANDIDATE ·').replace('The latest version includes 100 detailed recipes, recipe uploads and your ongoing workout program.','This candidate includes updated workout guidance, superset pairing, rest timers, nutrition units and storage recovery.');
    rendered=Buffer.from(text);
   }

@@ -1,6 +1,7 @@
 // Server-only MENEI account validation. Claims decoded below can only deny a
 // request; the fixed Supabase Auth endpoint must validate every accepted token.
-const ISSUER='https://bhyrrxrpqaxiwpfxnwpa.supabase.co/auth/v1';
+const TEST_ISSUER='https://bhyrrxrpqaxiwpfxnwpa.supabase.co/auth/v1';
+const LIVE_ISSUER='https://tdmwpcueqxtnqyonucam.supabase.co/auth/v1';
 const MAX_TOKEN_LENGTH=16384,MAX_RESPONSE_BYTES=65536,MAX_TIMEOUT_MS=5000;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const record=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
@@ -11,7 +12,7 @@ export class AuthError extends Error{
 const invalid=()=>{throw new AuthError('invalid_menei_account',401)};
 const unavailable=()=>{throw new AuthError('menei_auth_unavailable',503)};
 function timestamp(now){const value=Number(typeof now==='function'?now():now);if(!Number.isFinite(value))unavailable();return value}
-function tokenClaims(request,now){
+function tokenClaims(request,now,issuer){
  const authorization=request?.headers?.get?.('authorization');
  if(typeof authorization!=='string'||authorization.length>MAX_TOKEN_LENGTH+7)invalid();
  const match=/^Bearer ([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/i.exec(authorization);if(!match)invalid();
@@ -23,7 +24,7 @@ function tokenClaims(request,now){
  }catch{invalid()}
  // These are rejection checks, never signature verification. In particular a
  // forged correct-looking token still has to pass GET /auth/v1/user below.
- if(!record(claims)||claims.iss!==ISSUER||!UUID.test(claims.sub)||claims.role!=='authenticated'||claims.is_anonymous!==false||
+ if(!record(claims)||claims.iss!==issuer||!UUID.test(claims.sub)||claims.role!=='authenticated'||claims.is_anonymous!==false||
   !(claims.aud==='authenticated'||Array.isArray(claims.aud)&&claims.aud.includes('authenticated'))||
   !Number.isSafeInteger(claims.exp)||claims.exp*1000<=now||
   claims.nbf!==undefined&&(!Number.isSafeInteger(claims.nbf)||claims.nbf*1000>now))invalid();
@@ -54,8 +55,8 @@ function account(raw,claims,now){
  return Object.freeze({id:raw.id});
 }
 
-export async function authenticateMeneiAccount(request,env,{fetcher=globalThis.fetch,timeoutMs=MAX_TIMEOUT_MS,now=Date.now}={}){
- const started=timestamp(now),{token,claims}=tokenClaims(request,started),key=env?.MENEI_TEST_PUBLISHABLE_KEY;
+async function authenticateAccount(request,key,issuer,{fetcher=globalThis.fetch,timeoutMs=MAX_TIMEOUT_MS,now=Date.now}={}){
+ const started=timestamp(now),{token,claims}=tokenClaims(request,started,issuer);
  // Explicitly exclude legacy JWT and secret/service keys. No privileged key is
  // needed for a user-token Auth lookup, and no caller controls the project URL.
  if(typeof key!=='string'||!/^sb_publishable_[A-Za-z0-9_-]{12,512}$/.test(key)||typeof fetcher!=='function')unavailable();
@@ -64,7 +65,7 @@ export async function authenticateMeneiAccount(request,env,{fetcher=globalThis.f
  const work=async()=>{
   // Workers rejects redirect:'error' before sending the request. Manual mode
   // never follows a redirect; every non-2xx response is rejected below.
-  const response=await fetcher(ISSUER+'/user',{method:'GET',headers:{apikey:key,Authorization:'Bearer '+token,Accept:'application/json'},redirect:'manual',cache:'no-store',signal:controller.signal});
+  const response=await fetcher(issuer+'/user',{method:'GET',headers:{apikey:key,Authorization:'Bearer '+token,Accept:'application/json'},redirect:'manual',cache:'no-store',signal:controller.signal});
   if(!response?.ok){cancelBody(response);if(response?.status===401||response?.status===403)invalid();unavailable()}
   const raw=await boundedJson(response,controller.signal),checked=timestamp(now);
   if(claims.exp*1000<=checked)invalid();
@@ -75,3 +76,7 @@ export async function authenticateMeneiAccount(request,env,{fetcher=globalThis.f
  catch(error){if(error instanceof AuthError)throw error;unavailable()}
  finally{clearTimeout(timer)}
 }
+
+// Separate fixed entry points: no request or environment value selects an issuer.
+export const authenticateMeneiAccount=(request,env,options)=>authenticateAccount(request,env?.MENEI_TEST_PUBLISHABLE_KEY,TEST_ISSUER,options);
+export const authenticateLiveMeneiAccount=(request,env,options)=>authenticateAccount(request,env?.MENEI_LIVE_PUBLISHABLE_KEY,LIVE_ISSUER,options);
