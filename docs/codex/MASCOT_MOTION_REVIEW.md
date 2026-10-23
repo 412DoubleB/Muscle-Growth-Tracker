@@ -45,8 +45,9 @@ future offline use. Release metadata remains 8.2.0 pending publication review.
 
 ## Validation and review boundary
 
-- Final `npm test`: 77 test files passed, zero failures. `npm run check` and
-  `git diff --check` passed (2026-10-23).
+- Initial reconstruction development run: 77 test files passed, zero failures.
+  `npm run check` and `git diff --check` passed (2026-10-23). See the later
+  committed-source packaging limitation below before treating this as current.
 - Pose tests sample bone lengths, bend direction, neutral wrists, fixed feet,
   continuous release/catch, exactly one flight, and return to the resting pose.
 - Skin tests verify shared edges, finite positive triangle areas throughout the
@@ -76,3 +77,13 @@ atlas SHA-256, and the exact baseline digest of every accepted transform at
 91 times across the sequence. Hold, release, flight and catch stills were
 inspected. The isolated private demo is updated; public app publication remains
 pending separate authorization.
+
+Hand-fix validation: focused wall-ball, pose and opening UI tests pass, and
+static/diff checks pass. The full run passed 76 of 77 test files. The remaining
+`release-candidate` packaging test also fails on the unchanged reconstruction
+baseline `358eeff`: its frozen builder requires exactly 124 artwork/font files,
+whereas the newly authorized reconstruction adds a 125th. Its shell-count
+assertion is also still pinned to the earlier 55-file release. No packager or
+unrelated app behavior was changed for this hand-only request. Reconcile this
+candidate-builder inventory before a future public release. The private demo
+uses its existing separate, verified Sites package and is unaffected.
