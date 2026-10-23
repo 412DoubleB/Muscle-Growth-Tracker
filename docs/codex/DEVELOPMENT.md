@@ -3330,3 +3330,20 @@ Home. Rejected sessions remain blocked; no fallback for new/unadmitted identitie
 This repairs client recovery, not the underlying provider's ability to guarantee
 availability. Connected recovery, actual offline reopening and the exact one-hour
 workout reminder still require their respective phone acceptance.
+
+
+## Preview 48 owner acceptance — connected and airplane-mode opening
+
+The owner reports that the app opened in airplane mode and normally while
+connected after the timeout-recovery update. Record both basic connected access
+and airplane-mode reopening as accepted; do not ask to repeat those same checks.
+Offline opening uses the retained same-account device workspace, not a new online
+Auth request. This report does not establish exact full-history comparison,
+offline edit/reconnect synchronization, installed-vs-browser launch differences,
+or that the explicit outage-continuation button was exercised during a new 504.
+The exact one-hour workout reminder remains pending independently.
+
+Updated RELEASE_READINESS.md and FEEDBACK_REBUILD.md only. No runtime changes,
+new tests, deployment, notification, backend/account mutation, sharing change,
+provider request or data reset. Private preview 48 and sender v3 remain current;
+all prior preservation and live-publication boundaries remain in force.

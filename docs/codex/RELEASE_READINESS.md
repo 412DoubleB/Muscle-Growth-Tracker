@@ -7,6 +7,11 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 ## Verified and accepted at the reported scope
 
+- Owner confirmed the updated private preview opens normally while connected
+  and also opens in airplane mode. This accepts basic connected access and
+  offline reopening; offline access uses retained device records, not online
+  authentication. Exact record comparison, offline editing/reconnect sync and
+  the explicit service-outage continuation button were not separately reported.
 - Owner confirmed phone-to-Mac edits and meal/purchase/pantry/shopping sync,
   generated meals with existing records retained, and backup preview/cancel.
   These observations do not establish a full restore or concurrent-conflict test.
@@ -30,19 +35,17 @@ sender version 3. Live GitHub Pages and its backend remain unchanged.
 
 ## Next device checks
 
-1. Recheck connected reopening after the reported Auth 504. Load the latest
-   private build; if the service still times out, verify Retry connection and the
-   eligible same-account Open saved data on this device path. A connected service
-   timeout was reported; physical airplane-mode reopening is still unverified.
-2. On an upcoming uncompleted lifting/running day, save a usual workout start
+1. On an upcoming uncompleted lifting/running day, save a usual workout start
    time and time zone far enough ahead that the one-hour reminder is still in
    the future. Confirm sync and device push opt-in, then close the app. Check the
    notification around one hour before that start, allowing the minute scheduler
    and platform delivery delay. Do not change completed/skipped history to force
    a reminder or reset delivery slots. A start time is not an alert time.
-3. Check installed/offline reopening and a normal update on the phone without
-   clearing storage. Full restore and concurrent-conflict recovery require a
-   separate test account/origin; do not experiment on the owner's only history.
+Basic online/offline opening no longer needs repeating. Full restore and
+concurrent-conflict recovery remain separate test-account/origin checks. The
+explicit service-outage continuation path can be observed if an outage recurs;
+do not force a real failure or clear data for that test. The owner's confirmation
+does not claim exact record auditing or a different installed-app mode.
 
 ## Publication preparation still to complete
 
