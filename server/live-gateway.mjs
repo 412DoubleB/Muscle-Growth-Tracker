@@ -51,8 +51,14 @@ export function createLiveGateway({authenticate=authenticateLiveMeneiAccount,sta
 export function createReleaseGateway({live=createLiveGateway(),preview=createPreviewWorker()}={}){
  return {async fetch(request,env){
   if(new URL(request.url).pathname.startsWith('/api/live/'))return live.fetch(request,env);
-  const owner=env.MENEI_PRIVATE_SITE_OWNER_ID;
-  if(typeof owner!=='string'||!owner||owner.length>200||request.headers.get('oai-authenticated-user-id')!==owner)return new Response('Private preview. Open MENEI at https://412doubleb.github.io/Muscle-Growth-Tracker/',{status:403,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+  const identity=request.headers.get('oai-authenticated-user-id'),owner=env.MENEI_PRIVATE_SITE_OWNER_ID;
+  let allowed=typeof identity==='string'&&identity.length>0&&identity.length<=200&&typeof owner==='string'&&owner.length>0&&owner.length<=200&&identity===owner;
+  const expected=env.MENEI_PRIVATE_SITE_OWNER_SHA256;
+  if(!allowed&&typeof identity==='string'&&identity.length>0&&identity.length<=200&&/^[a-f0-9]{64}$/.test(expected||'')){
+   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(identity));
+   allowed=Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('')===expected;
+  }
+  if(!allowed)return new Response('Private preview. Open MENEI at https://412doubleb.github.io/Muscle-Growth-Tracker/',{status:403,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
   return preview.fetch(request,env);
  }};
 }

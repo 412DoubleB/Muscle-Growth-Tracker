@@ -99,3 +99,19 @@ test('full beta, changed account, missing sign-in and invalid endpoint never pro
   assert.ok(calls<=1);
  }
 });
+
+test('owner hash captured under native private access authorizes only the same platform identity',async()=>{
+ const id='synthetic-native-owner';
+ const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(id));
+ const hash=Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
+ let privateCalls=0;
+ const gateway=createReleaseGateway({preview:{fetch:async()=>{privateCalls++;return new Response('private')}},live:{fetch:async()=>new Response('api')}});
+ const env={MENEI_PRIVATE_SITE_OWNER_SHA256:hash};
+ for(const identity of [null,'other-owner','',hash]){
+  const headers=identity===null?{}:{'oai-authenticated-user-id':identity};
+  assert.equal((await gateway.fetch(new Request('https://site.invalid/api/preview-config',{headers}),env)).status,403);
+ }
+ assert.equal(privateCalls,0);
+ assert.equal(await (await gateway.fetch(new Request('https://site.invalid/',{headers:{'oai-authenticated-user-id':id}}),env)).text(),'private');
+ assert.equal(privateCalls,1);
+});
