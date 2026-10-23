@@ -126,3 +126,11 @@ test('a new equipment setup cannot make a historical back-off heavier or earn a 
   const result=C.progression(input.state,input.exercise,'2027-01-04',input.gym);assert.equal(result.weight,expected);
  }
 });
+
+
+test('gym limits cannot bypass the approved plate change sizes even for an explicitly plate-configured per-hand exercise',()=>{
+ const input=sample({name:'Incline Dumbbell Curl',weight:110,reps:16,rir:5,profile:{kind:'plates',plates:[10,25,35,45],sides:2}});input.gym.dbMax=100;
+ assert.equal(next(input).weight,90);
+ input.state.logs={'2027-01-01':{id:'2027-01-01',date:'2027-01-01',gymId:input.gym.id,status:'completed',exercises:[C.clone(input.exercise)]}};
+ const before=C.clone(input),prior=C.progression(input.state,input.exercise,'2027-01-04',input.gym);assert.equal(prior.weight,90);assert.deepEqual(input,before);
+});

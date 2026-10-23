@@ -81,7 +81,7 @@ export function progression(state,exercise,date,gym){
  let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
  if(h){
   const s=h.sets,weights=s.map(x=>+x.w);weight=assistance?Math.min(...weights):Math.max(...weights);
-  const atSame=s.filter(x=>+x.w===weight),top=exercise.setType==='top'||exercise.setType==='ramp';
+  const historyLoad=weight,atSame=s.filter(x=>+x.w===weight),top=exercise.setType==='top'||exercise.setType==='ramp';
   const expected=top?1:exercise.sets.filter(x=>!['warmup','drop','backoff','ramp'].includes(x.role)).length;
   const allTop=atSame.length>=expected&&atSame.every(x=>+x.r>=hi&&usableRir(x)&&+x.rir>=1),below=atSame.some(x=>+x.r<lo),failed=atSame.some(x=>usableRir(x)&&+x.rir===0);
   target=Math.min(hi,Math.min(...atSame.map(x=>+x.r))+1);
@@ -89,7 +89,7 @@ export function progression(state,exercise,date,gym){
   else if(failed){target=Math.min(hi,Math.min(...atSame.map(x=>+x.r)));reason=assistance?'Keep the same assistance; finish clean reps with 1–2 RIR before reducing assistance.':'Hold the load; finish clean reps with 1–2 RIR before adding weight.'}
   else if(allTop){const prior=weight,budget=assistance?step:weight===0?Math.min(step,setup.unit==='kg'?2.5:5):step<=weight*(setup.compound?.25:.20)+1e-8?step:0;weight=assistance?(recommendedLoadOptions(setup,weight,setup.minimum,weight-.001).at(-1)??weight):(recommendedLoadOptions(setup,weight,weight+.001,weight+budget).at(-1)??weight);target=lo;reason=assistance?'Top of range earned: reduce assistance by one increment.':weight===prior?'Top of range earned, but no suitably small equipment increment fits. Hold the load or adjust Load setup.':'Top of range earned across the required working sets: add one increment.'}
   else reason=assistance?'Keep the same assistance and build reps. Incomplete sets or missing RIR do not earn less assistance.':'Hold the load and build reps. Incomplete sets or missing RIR do not earn a load increase.';
-  const dbLimit=+(gym?.dbMax||0)*(state.profile.units==='kg'?.45359237:1);if(meta.loadMode==='perHand'&&dbLimit&&weight>dbLimit){weight=reachableLoadOptions(setup,setup.minimum,dbLimit).at(-1)??weight;target=hi;reason='At this gym’s dumbbell limit. Build reps or swap the movement.'}
+  const dbLimit=+(gym?.dbMax||0)*(state.profile.units==='kg'?.45359237:1);if(meta.loadMode==='perHand'&&dbLimit&&weight>dbLimit){weight=historyLoad<=dbLimit?historyLoad:recommendedLoadOptions(setup,historyLoad,setup.minimum,dbLimit).at(-1)??historyLoad;target=hi;reason='At this gym’s dumbbell limit. Build reps or swap the movement.'}
  }
  const manualRoles=['warmup','ramp','backoff','drop'];
  if(assistance&&exercise.sets.some(s=>manualRoles.includes(s.role)))reason+=' Enter assistance manually for warm-up, ramp, back-off and drop sets; more assistance is easier.';
@@ -142,7 +142,7 @@ function nextLoadAdjustment(setup,load,reps,rir,lo,hi,{assistance=false,perHandL
   }
  }
  if(perHandLimit!==null&&weight>perHandLimit){
-  const available=reachableLoadOptions(setup,minimum,perHandLimit).at(-1);if(available!==undefined)weight=available;
+  const available=recommendedLoadOptions(setup,load,minimum,perHandLimit).at(-1);if(available!==undefined)weight=available;
   reason='The logged load is above this gym’s dumbbell limit. Check the available dumbbell size before the next set.';
  }
  if(assistance&&load===0&&weight===0&&increase)reason='At zero assistance. Keep the load and finish controlled reps.';
