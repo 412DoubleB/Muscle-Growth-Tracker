@@ -38,12 +38,12 @@ test('matched plate changes are doubled once and explain the exact addition to e
   assert.equal(result.weight,weight+expectedDelta);assert.match(result.loadDetail,/to each side/);assert.match(result.loadDetail,new RegExp(`\\+${expectedDelta} lb total`));
  }
  const two=next(sample({name:'Hammer Strength Incline Press',weight:300,reps:22,rir:6,profile:{kind:'plates',plates:[10],sides:2}}));
- assert.equal(two.weight,340);assert.match(two.loadDetail,/two 10 lb plates to each side/);
+ assert.equal(two.weight,320);assert.match(two.loadDetail,/one 10 lb plate to each side/);
 });
 
 test('a large available plate pair is held when it would drop the predicted next set below the rep range',()=>{
  const result=next(sample({name:'Hammer Strength Incline Press',weight:100,reps:13,rir:3,profile:{kind:'plates',plates:[10],sides:2}}));
- assert.equal(result.weight,100);assert.equal(result.change,'hold');assert.match(result.reason,/jump is too large/);
+ assert.equal(result.weight,100);assert.equal(result.change,'hold');assert.match(result.reason,/increment is too large/);
 });
 
 test('landmine changes use one loading point and never double a previously logged total',()=>{
@@ -54,9 +54,9 @@ test('landmine changes use one loading point and never double a previously logge
 test('a larger rep and effort shortfall yields a larger back-off while respecting the minimum logged load',()=>{
  const small=next(sample({reps:7,rir:2})),large=next(sample({reps:5,rir:0}));
  assert.equal(small.weight,95);assert.equal(large.weight,85);assert.equal(large.reps,9);
- const min=next(sample({name:'Barbell Bench Press',weight:55,reps:2,rir:0,profile:{kind:'plates',plates:[5,10],sides:2,minimum:45}}));
- assert.equal(min.weight,45);assert.match(min.loadDetail,/10 lb less total.*5 lb less per side/);
- const empty=next(sample({name:'Barbell Bench Press',weight:45,reps:2,rir:0,profile:{kind:'plates',plates:[5,10],sides:2,minimum:45}}));
+ const min=next(sample({name:'Barbell Bench Press',weight:65,reps:2,rir:0,profile:{kind:'plates',plates:[10],sides:2,minimum:45}}));
+ assert.equal(min.weight,45);assert.match(min.loadDetail,/20 lb less total.*10 lb less per side/);
+ const empty=next(sample({name:'Barbell Bench Press',weight:45,reps:2,rir:0,profile:{kind:'plates',plates:[10],sides:2,minimum:45}}));
  assert.equal(empty.weight,45);assert.match(empty.reason,/minimum/);
 });
 
@@ -103,13 +103,13 @@ test('imported and unit-converted off-grid loads snap to actual machine markings
  const dumbbell=next(sample({name:'Incline Dumbbell Curl',weight:52,profile:{kind:'free',step:5}}));assert.equal(dumbbell.weight,55);
 });
 
-test('plate exchanges can achieve a small increase even when the delta is not a pure plate addition',()=>{
+test('unlisted plate exchanges cannot create a smaller unapproved working-set increment',()=>{
  const result=next(sample({name:'Hammer Strength Incline Press',weight:100,reps:18,rir:6,profile:{kind:'plates',plates:[25,35],sides:2}}));
- assert.equal(result.weight,120);assert.match(result.loadDetail,/Rebalance plates to 120 lb total/);assert.doesNotMatch(result.loadDetail,/Add/);
+ assert.equal(result.weight,100);assert.equal(result.change,'hold');assert.match(result.reason,/next allowed plate increment/);
 });
 
 test('prior-workout and auxiliary suggestions also honor the configured absolute equipment grid',()=>{
- const input=sample({name:'Barbell Bench Press',weight:135,reps:5,profile:{kind:'plates',plates:[10],sides:2,minimum:45}});
+ const input=sample({name:'Barbell Bench Press',weight:125,reps:5,profile:{kind:'plates',plates:[10],sides:2,minimum:45}});
  input.state.logs={'2027-01-01':{id:'2027-01-01',date:'2027-01-01',gymId:input.gym.id,status:'completed',exercises:[C.clone(input.exercise)]}};
  input.exercise.sets=input.exercise.sets.slice(0,1);const past=input.state.logs['2027-01-01'].exercises[0];past.sets=past.sets.slice(0,1);
  const before=C.clone(input),result=C.progression(input.state,input.exercise,'2027-01-04',input.gym);

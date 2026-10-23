@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {resolveLoadSetup,normalizeLoadSetup,loadChangeOptions,reachableLoadOptions,describeLoadChange} from '../equipment-loads.mjs';
+import {resolveLoadSetup,normalizeLoadSetup,loadChangeOptions,reachableLoadOptions,recommendedLoadOptions,describeLoadChange} from '../equipment-loads.mjs';
 import * as C from '../core.mjs';
 
 function fixture(name='Machine Chest Press',unit='lb'){
@@ -51,11 +51,14 @@ test('audited one-end and central-post plate exercises are not doubled like two-
  }
 });
 
-test('explicit equipment settings win over inference while a legacy increment is never silently doubled',()=>{
+test('explicit equipment settings win while old blanket increments cannot bypass audited plate loading',()=>{
  const sample=fixture('EZ-Bar Curl');sample.exercise.increment=2.5;
- assert.equal(resolve(sample).kind,'free');assert.equal(resolve(sample).step,2.5);assert.match(resolve(sample).description,/override/);
- sample.gym.loadProfiles={[sample.exercise.exerciseId]:{lb:{kind:'plates',plates:'5, 10',sides:2,minimum:15}}};
- const setup=resolve(sample);assert.equal(setup.kind,'plates');assert.equal(setup.minimum,15);assert.equal(loadChangeOptions(setup,10)[0].delta,10);
+ assert.equal(resolve(sample).kind,'plates');assert.deepEqual(resolve(sample).plates,[10,25,35,45]);assert.match(resolve(sample).description,/Suggested/);
+ sample.exercise.increment=5;assert.equal(resolve(sample).kind,'plates');
+ sample.gym.loadProfiles={[sample.exercise.exerciseId]:{lb:{kind:'plates',plates:'10, 25',sides:2,minimum:15}}};
+ const setup=resolve(sample);assert.equal(setup.kind,'plates');assert.equal(setup.minimum,15);assert.equal(loadChangeOptions(setup,20)[0].delta,20);
+ const machine=fixture();machine.exercise.increment=7.5;assert.equal(resolve(machine).step,7.5);assert.match(resolve(machine).description,/override/);
+ const dumbbell=fixture('Dumbbell Bench Press');dumbbell.exercise.increment=2.5;assert.equal(resolve(dumbbell).step,2.5);assert.match(resolve(dumbbell).description,/override/);
  const unknown={state:sample.state,exercise:{exerciseId:'synthetic-unknown',name:'Custom station'},meta:{id:'synthetic-unknown',name:'Custom station'},gym:{loadProfiles:{'synthetic-unknown':{lb:{kind:'stack',step:10}}}}};
  assert.equal(resolve(unknown).step,10);assert.equal(resolve(unknown).configured,true);
 });
@@ -97,6 +100,45 @@ test('absolute plate loads include the configured base and only achievable symme
  assert.deepEqual(reachableLoadOptions({...setup,plates:[10,25]},45,115),[45,65,85,95,105,115]);
  assert.deepEqual(reachableLoadOptions({...setup,sides:1},45,85),[45,55,65,75,85]);
  assert.deepEqual(setup,before);
+});
+
+test('lb plate settings allow only the owner-selected sizes, while kg sizes remain unchanged',()=>{
+ assert.deepEqual(resolve(fixture('Barbell Bench Press')).plates,[10,25,35,45]);
+ for(const plates of [[2.5],[5],[10,5],[15],[20],[50]])assert.throws(()=>normalizeLoadSetup({kind:'plates',plates,sides:2},'lb'),/only 10, 25, 35 or 45 lb/);
+ assert.deepEqual(normalizeLoadSetup({kind:'plates',plates:'45, 10',sides:2},'lb').plates,[10,45]);
+ assert.deepEqual(normalizeLoadSetup({kind:'plates',plates:[1.25,2.5,5,10,15,20,25],sides:2},'kg').plates,[1.25,2.5,5,10,15,20,25]);
+});
+
+test('imported old lb plate profiles are filtered read-only and preserve their base and sides',()=>{
+ const sample=fixture('EZ-Bar Curl');sample.exercise.increment=5;
+ sample.gym.loadProfiles={[sample.exercise.exerciseId]:{lb:{kind:'plates',plates:[2.5,5,10,25],sides:2,minimum:15,unknown:'retain'},kg:{kind:'plates',plates:[1.25,2.5,5],sides:2,minimum:10}}};
+ const before=C.clone(sample),filtered=resolve(sample);
+ assert.equal(filtered.kind,'plates');assert.deepEqual(filtered.plates,[10,25]);assert.equal(filtered.minimum,15);assert.equal(filtered.sides,2);assert.equal(filtered.configured,true);assert.deepEqual(sample,before);
+ sample.gym.loadProfiles[sample.exercise.exerciseId].lb.plates='2.5, 5';sample.gym.loadProfiles[sample.exercise.exerciseId].lb.sides=1;
+ const fallbackBefore=C.clone(sample),fallback=resolve(sample);
+ assert.deepEqual(fallback.plates,[10,25,35,45]);assert.equal(fallback.minimum,15);assert.equal(fallback.sides,1);assert.equal(fallback.configured,false);assert.match(fallback.description,/Suggested/);assert.deepEqual(sample,fallbackBefore);
+ sample.state.profile.units='kg';const kgBefore=C.clone(sample),kg=resolve(sample);assert.deepEqual(kg.plates,[1.25,2.5,5]);assert.equal(kg.minimum,10);assert.equal(kg.configured,true);assert.deepEqual(sample,kgBefore);
+});
+
+test('lb working recommendations use only a single configured plate change per side in either direction',()=>{
+ const setup={unit:'lb',kind:'plates',plates:[10,25,35,45],sides:2,minimum:0},before=C.clone(setup),reference=200;
+ assert.deepEqual(recommendedLoadOptions(setup,reference,200,300),[220,250,270,290]);
+ assert.deepEqual(recommendedLoadOptions(setup,reference,100,200),[110,130,150,180]);
+ assert.ok(reachableLoadOptions(setup,200,300).includes(240),'physical grids still allow multi-plate totals');
+ for(const delta of [10,30,40,60,80,100])assert.equal(recommendedLoadOptions(setup,reference,0,400).some(weight=>weight===reference+delta||weight===reference-delta),false,String(delta));
+ assert.deepEqual(recommendedLoadOptions({...setup,plates:[10,45]},reference,100,300),[110,180,220,290]);
+ assert.deepEqual(recommendedLoadOptions({...setup,sides:1},reference,150,250),[155,165,175,190,210,225,235,245]);
+ assert.deepEqual(setup,before);
+});
+
+test('working recommendation filtering also requires physical reachability and leaves non-lb-plate setups alone',()=>{
+ const setup={unit:'lb',kind:'plates',plates:[10,25,35,45],sides:2,minimum:45};
+ assert.deepEqual(recommendedLoadOptions(setup,145,140,240),[165,195,215,235]);
+ assert.deepEqual(recommendedLoadOptions(setup,153,140,250),[],'off-grid source changes cannot invent unavailable absolute loads');
+ const kg={...setup,unit:'kg',plates:[1.25,2.5,5,10,15,20,25],minimum:20};
+ assert.deepEqual(recommendedLoadOptions(kg,45.36,40,50),reachableLoadOptions(kg,40,50));
+ const stack={kind:'stack',unit:'lb',step:10,minimum:0};assert.deepEqual(recommendedLoadOptions(stack,53,50,80),[50,60,70,80]);
+ for(const bad of [NaN,Infinity,-1,null,''])assert.deepEqual(recommendedLoadOptions(setup,bad,0,250),[]);
 });
 
 test('absolute machine grids correct imported or converted off-grid weights instead of preserving their offset',()=>{

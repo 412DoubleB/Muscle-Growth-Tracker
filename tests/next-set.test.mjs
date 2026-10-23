@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../core.mjs';
 
-function fixture({name='Romanian Deadlift',units='lb',weight=160,reps=11,rir=3}={}){
+function fixture({name='Machine Chest Press',units='lb',weight=160,reps=11,rir=3}={}){
  const state=C.defaultState();state.profile.units=units;
  const gym={id:'synthetic',increment:5,incrementKg:2.5,dbMax:200};
  const exercise=C.makeExercise(C.exerciseFor(name),{count:4,range:'6-10'});

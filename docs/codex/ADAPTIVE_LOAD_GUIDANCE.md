@@ -1,6 +1,6 @@
 # Equipment-aware next-set recommendations
 
-Status: implemented on an isolated development branch, not published. Owner phone acceptance and explicit live publication are pending. This changes frontend coaching and optional gym settings only; it does not run paid model calls or change the backend.
+Status: implemented on an isolated development branch, not published. The owner approved the private preview except for the plate-loaded correction, which now limits lb changes to 10/25/35/45 per side. The live release remains pending. This changes frontend coaching and optional gym settings only; it does not run paid model calls or change the backend.
 
 ## Result
 
@@ -17,11 +17,11 @@ Each exercise card has **Load setup**, saved for the exercise at its gym. Pounds
 - Two-sided changes are doubled exactly once: one 10/25/35/45 lb plate on each side adds 20/50/70/90 lb total. Never double a previously recorded total.
 - Landmine/Meadows rows and other clear one-point setups use one loading point. Other inferred equipment settings are explicitly suggestions and can be corrected.
 - Dumbbells continue to use the weight of one dumbbell and the existing gym maximum.
-- Saved setup wins over a legacy exercise increment. Without a saved setup, the explicit legacy increment remains a total/per-hand step, then equipment inference and existing unit-specific gym defaults apply.
+- Saved setup wins over a legacy exercise increment. Without a saved setup, stack/free-weight legacy increments remain total/per-hand steps. An old blanket increment does not override audited lb plate-loading rules; kg behavior stays unchanged.
 
-Ordinary lb defaults include 2.5 and 5 lb plates as well as 10, 25, 35 and 45, so smaller curl changes are possible when those plates exist. Users should remove unavailable sizes. The UI never claims the inferred defaults were physically verified.
+The owner limited lb plate-loaded working-set changes to exactly one 10, 25, 35 or 45 lb plate per loading point. Two matching sides therefore change by only 20, 50, 70 or 90 lb total; combinations such as +40 lb and smaller plate swaps cannot bypass this rule. Unsupported small plates in older preview settings are filtered read-only without altering stored history or loading basis. kg plate sizes and stack/free-weight behavior are unchanged. The UI does not claim that inferred equipment was physically verified.
 
-Machine sizes are `minimum + n × step`; plate sizes are `minimum + matching plate combinations`. Converted/imported off-grid history stays untouched, while a new suggestion aligns to the configured sizes. Prefer simple equal additions where possible; otherwise explain that plates need rebalancing. Plate removal never asserts that a particular plate is currently loaded.
+Machine sizes are `minimum + n × step`; plate sizes are `minimum + matching plate combinations`. Converted/imported off-grid history stays untouched, while a new suggestion aligns to the configured sizes. Working-set changes must fit both the physical grid and the approved increment list. If a large approved plate change does not fit the effort/reps estimate, hold the load rather than inventing a smaller increment. Plate removal never asserts that a particular plate is currently loaded.
 
 ## Estimation bounds
 

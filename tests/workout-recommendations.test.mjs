@@ -192,7 +192,7 @@ test('audited machine, cable and assistance history stays within its gym even un
 test('audited portable freeweight requirements may share history across gyms',()=>{
  for(const name of ['Dumbbell Bench Press','Barbell Bench Press','EZ-Bar Preacher Curl']){
   const sample=fixture({definition:C.exerciseFor(name)}),before=C.clone(sample);
-  assert.equal(C.progression(sample.state,sample.exercise,nextDate,sample.state.gyms[1]).weight,65,name);
+  assert.equal(C.progression(sample.state,sample.exercise,nextDate,sample.state.gyms[1]).weight,name==='Dumbbell Bench Press'?65:60,name);
   assert.deepEqual(sample,before);
  }
 });

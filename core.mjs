@@ -1,4 +1,4 @@
-import {resolveLoadSetup,loadChangeOptions,reachableLoadOptions,describeLoadChange} from './equipment-loads.mjs?v=8.2.0';
+import {resolveLoadSetup,loadChangeOptions,reachableLoadOptions,recommendedLoadOptions,describeLoadChange} from './equipment-loads.mjs?v=8.2.0';
 import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
 import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.2.0';
 export {readRecoverySnapshots} from './recovery.mjs?v=8.2.0';
@@ -85,9 +85,9 @@ export function progression(state,exercise,date,gym){
   const expected=top?1:exercise.sets.filter(x=>!['warmup','drop','backoff','ramp'].includes(x.role)).length;
   const allTop=atSame.length>=expected&&atSame.every(x=>+x.r>=hi&&usableRir(x)&&+x.rir>=1),below=atSame.some(x=>+x.r<lo),failed=atSame.some(x=>usableRir(x)&&+x.rir===0);
   target=Math.min(hi,Math.min(...atSame.map(x=>+x.r))+1);
-  if(below){weight=assistance?(reachableLoadOptions(setup,weight+.001,weight+step)[0]??weight):Math.min(weight,snap(weight*.95)??weight);target=lo;reason=assistance?'A working set fell below the range. Use one more increment of assistance to rebuild reps.':'A working set fell below the range. Rebuild reps with a slightly lighter load.'}
+  if(below){weight=assistance?(recommendedLoadOptions(setup,weight,weight+.001,weight+step)[0]??weight):setup.kind==='plates'&&setup.unit==='lb'?(recommendedLoadOptions(setup,weight,Math.max(setup.minimum,weight-Math.max(step,weight*.20)),weight-.001).at(-1)??weight):Math.min(weight,snap(weight*.95)??weight);target=lo;reason=assistance?'A working set fell below the range. Use one more increment of assistance to rebuild reps.':'A working set fell below the range. Rebuild reps with a slightly lighter load.'}
   else if(failed){target=Math.min(hi,Math.min(...atSame.map(x=>+x.r)));reason=assistance?'Keep the same assistance; finish clean reps with 1–2 RIR before reducing assistance.':'Hold the load; finish clean reps with 1–2 RIR before adding weight.'}
-  else if(allTop){const prior=weight,budget=assistance?step:weight===0?Math.min(step,setup.unit==='kg'?2.5:5):step<=weight*(setup.compound?.25:.20)+1e-8?step:0;weight=assistance?(reachableLoadOptions(setup,setup.minimum,weight-.001).at(-1)??weight):(reachableLoadOptions(setup,weight+.001,weight+budget).at(-1)??weight);target=lo;reason=assistance?'Top of range earned: reduce assistance by one increment.':weight===prior?'Top of range earned, but no suitably small equipment increment fits. Hold the load or adjust Load setup.':'Top of range earned across the required working sets: add one increment.'}
+  else if(allTop){const prior=weight,budget=assistance?step:weight===0?Math.min(step,setup.unit==='kg'?2.5:5):step<=weight*(setup.compound?.25:.20)+1e-8?step:0;weight=assistance?(recommendedLoadOptions(setup,weight,setup.minimum,weight-.001).at(-1)??weight):(recommendedLoadOptions(setup,weight,weight+.001,weight+budget).at(-1)??weight);target=lo;reason=assistance?'Top of range earned: reduce assistance by one increment.':weight===prior?'Top of range earned, but no suitably small equipment increment fits. Hold the load or adjust Load setup.':'Top of range earned across the required working sets: add one increment.'}
   else reason=assistance?'Keep the same assistance and build reps. Incomplete sets or missing RIR do not earn less assistance.':'Hold the load and build reps. Incomplete sets or missing RIR do not earn a load increase.';
   const dbLimit=+(gym?.dbMax||0)*(state.profile.units==='kg'?.45359237:1);if(meta.loadMode==='perHand'&&dbLimit&&weight>dbLimit){weight=reachableLoadOptions(setup,setup.minimum,dbLimit).at(-1)??weight;target=hi;reason='At this gym’s dumbbell limit. Build reps or swap the movement.'}
  }
@@ -111,7 +111,7 @@ function nextLoadAdjustment(setup,load,reps,rir,lo,hi,{assistance=false,perHandL
  const minimum=setup.minimum,step=setup.kind==='plates'?Math.min(...setup.plates)*setup.sides:setup.step;
  let weight=load,detail='',reason=assistance?'Keep the same assistance for the next set.':'Keep the same load for the next set.';
  const pick=(lower,upper,desired,roundDown=false)=>{
-  const options=reachableLoadOptions(setup,Math.max(minimum,lower),upper);
+  const options=recommendedLoadOptions(setup,load,Math.max(minimum,lower),upper);
   return roundDown?options.at(-1):options.filter(value=>value<=desired+1e-8).at(-1)??options[0];
  };
  if(increase||below){
@@ -127,10 +127,10 @@ function nextLoadAdjustment(setup,load,reps,rir,lo,hi,{assistance=false,perHandL
    const limitRoom=perHandLimit===null?budget:Math.max(0,perHandLimit-load),repRoom=load===0?Math.min(step,setup.unit==='kg'?2.5:5):Math.max(0,load*((30+reps+rir)/(30+lo+2)-1));
    if(load>=minimum){
     const room=Math.min(budget,limitRoom,repRoom);chosen=pick(load+.001,load+room,load+budget,true);
-    if(setup.kind==='plates'){const simple=loadChangeOptions(setup,room).map(option=>Math.round((load+option.delta)*100)/100).filter(value=>reachableLoadOptions(setup,value,value).length);if(simple.length)chosen=simple.at(-1)}
+    if(setup.kind==='plates'){const simple=loadChangeOptions(setup,room).map(option=>Math.round((load+option.delta)*100)/100).filter(value=>recommendedLoadOptions(setup,load,value,value).length);if(simple.length)chosen=simple.at(-1)}
    }
    if(chosen!==undefined&&load>0&&chosen-load>load*(setup.compound?.25:.20)+1e-8)chosen=undefined;
-   if(chosen===undefined)reason=perHandLimit!==null&&perHandLimit-load<step?'At this gym’s dumbbell limit or between available dumbbell sizes. Keep the available load.':'The next available jump is too large for this set. Keep the load; use smaller plates or steps before increasing.';
+   if(chosen===undefined)reason=perHandLimit!==null&&perHandLimit-load<step?'At this gym’s dumbbell limit or between available dumbbell sizes. Keep the available load.':setup.kind==='plates'&&setup.unit==='lb'?'The next allowed plate increment is too large for this set. Keep the load and build controlled reps.':'The next available jump is too large for this set. Keep the load; use smaller plates or steps before increasing.';
   }else{
    const desired=Math.max(step,load*(1-(30+reps+rir)/(30+lo+2))),budget=Math.max(step,load*(setup.compound?.20:.15));
    chosen=pick(load-budget,load-.001,load-desired);

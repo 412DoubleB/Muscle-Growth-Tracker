@@ -1,6 +1,6 @@
 // Equipment settings describe changes to the logged load. A logged barbell or
 // machine total is never multiplied by its number of loading sides.
-const DEFAULT_PLATES={lb:[2.5,5,10,25,35,45],kg:[1.25,2.5,5,10,15,20,25]};
+const DEFAULT_PLATES={lb:[10,25,35,45],kg:[1.25,2.5,5,10,15,20,25]};
 const numeric=value=>(typeof value==='number'||typeof value==='string'&&value.trim()!=='')&&Number.isFinite(+value);
 const round=value=>Math.round(value*100)/100;
 const fmt=value=>String(round(value));
@@ -22,6 +22,7 @@ export function normalizeLoadSetup(input,unit='lb'){
   const raw=Array.isArray(input.plates)?input.plates:typeof input.plates==='string'?input.plates.trim().split(/[\s,;]+/).filter(Boolean):null;
   if(!raw?.length||raw.length>12)throw Error('Enter between 1 and 12 available plate sizes.');
   plates=[...new Set(raw.map(value=>amount(value,'Each plate size')))].sort((a,b)=>a-b);
+  if(unit==='lb'&&plates.some(value=>!DEFAULT_PLATES.lb.includes(value)))throw Error('Plate-loaded lb recommendations use only 10, 25, 35 or 45 lb plates at each loading point.');
   if(!numeric(input.sides)||![1,2].includes(+input.sides))throw Error('Choose one loading point or two matching sides.');
   sides=+input.sides;
  }
@@ -53,12 +54,23 @@ export function resolveLoadSetup(state,exercise={},gym={},meta=exercise){
  const step=positive(gymStep)?+gymStep:fallback;
  let configured=false,legacy=false,profile;
  const saved=Object.hasOwn(gym?.loadProfiles||{},key)?gym.loadProfiles[key]?.[unit]:null;
- if(saved)try{profile=normalizeLoadSetup(saved,unit);configured=true}catch{/* Imported invalid settings cannot break workout rendering. */}
+ if(saved)try{
+  if(unit==='lb'&&saved.kind==='plates'){
+   // Older previews allowed small plates. Apply the owner's corrected policy
+   // read-only, preserving the stored original profile and its loading basis.
+   const raw=Array.isArray(saved.plates)?saved.plates:typeof saved.plates==='string'?saved.plates.trim().split(/[\s,;]+/).filter(Boolean):[];
+   const supported=raw.filter(value=>numeric(value)&&DEFAULT_PLATES.lb.includes(+value)).map(Number);
+   profile=normalizeLoadSetup({...saved,plates:supported.length?supported:DEFAULT_PLATES.lb},unit);
+   configured=supported.length>0;
+  }else{profile=normalizeLoadSetup(saved,unit);configured=true}
+ }catch{/* Imported invalid settings cannot break workout rendering. */}
  if(!profile){
-  // Legacy exercise.increment is already a TOTAL/per-hand increment. Keep that
-  // explicit choice until a gym-specific setup is saved; do not double it.
-  legacy=positive(exercise.increment);
-  const inferred=legacy?{kind:'free',sides:1}:inferredSetup(meta,exercise);
+  // A former blanket increment cannot turn audited plate equipment into a free
+  // 5 lb adjustment. Keep it only for stack/free setups, where it is already a
+  // TOTAL/per-hand increment and must not be doubled.
+  const audited=inferredSetup(meta,exercise);
+  legacy=(unit==='kg'||audited.kind!=='plates')&&positive(exercise.increment);
+  const inferred=legacy?{kind:'free',sides:1}:audited;
   profile={...inferred,step:legacy?+exercise.increment:step,plates:DEFAULT_PLATES[unit].slice(),minimum:0};
  }
  const basis=profile.kind==='plates'?`${profile.sides===2?'two matching sides':'one loading point'}; plate sizes ${profile.plates.map(fmt).join(', ')} ${unit}`:`${fmt(profile.step)} ${unit}${perHand?' per hand':''} ${profile.kind==='stack'?'stack':'load'} steps`;
@@ -130,6 +142,18 @@ export function reachableLoadOptions(setup,lower,upper){
  const loads=[];
  for(let total=Math.max(0,Math.ceil((lo-base)/unit));total<cells;total++)if(dp[total]<=32)loads.push((base+total*unit)/100);
  return loads;
+}
+
+// Working-set recommendations use a single allowed plate change at each
+// loading point. The broader absolute grid remains available for advanced-set
+// calculations; being physically loadable does not make a combination an
+// approved working-set increment (for example, +40 lb from two 10 lb pairs).
+export function recommendedLoadOptions(setup,reference,lower,upper){
+ const options=reachableLoadOptions(setup,lower,upper);
+ if(setup?.kind!=='plates'||setup.unit==='kg')return options;
+ if(!numeric(reference)||+reference<0||!Array.isArray(setup.plates)||![1,2].includes(setup.sides))return [];
+ const changes=new Set(setup.plates.filter(value=>numeric(value)&&DEFAULT_PLATES.lb.includes(+value)).map(value=>+value*setup.sides));
+ return options.filter(weight=>[...changes].some(change=>Math.abs(Math.abs(weight-+reference)-change)<1e-6));
 }
 
 export function describeLoadChange(setup,delta,{decrease=false}={}){
