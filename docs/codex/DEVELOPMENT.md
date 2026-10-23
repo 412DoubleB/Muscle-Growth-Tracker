@@ -3418,3 +3418,92 @@ deployment-ready: production AI/Auth integration, one-hour reminder acceptance
 and final release/terms review remain. No live push, deployment, backend/audience
 change, provider request, credential change or saved-user-data mutation occurred.
 Private preview 48 remains the current published private version.
+
+
+## Production preparation and launch guide — October 23, 2026
+
+Owner requested a publish-ready update plus one shareable Apple/Android install
+guide and separate manual setup sections. start.html and USER_SETUP.md now cover
+Home-screen installation, one MENEI account/cloud sync, email confirmation, profile
+and units, gym/program, nutrition/allergens, start time/time zone, platform-specific
+permissions/sounds, local vs closed-app tests, rest audio, optional calendar file
+import, backups/updates and troubleshooting. iOS Home-screen installation is
+required for Web Push; no ChatGPT/OpenAI/provider account is required from testers.
+The public start.html invitation is NOT published and must not be sent yet.
+
+Prepared original-live Auth gateway with strict fixed-project verification and
+exact-origin CORS; automatic signed-in enrollment preserves the existing D1
+campaign, owner usage and 20/5/100 caps. New account IDs have a distinct namespace.
+The existing owner membership needs an explicit live-account link, never a new
+owner allowance or silent history migration. A production owner phase denies
+other accounts before admission/reservation. A release multiplexer retains the
+private preview behind the native authenticated Site owner while allowing API
+transport without ChatGPT. Public native transport is available but not enabled.
+
+Prepared live reminder replacement reuses the existing sender URL, cron, Vault
+config and VAPID pair. Creation-only service-role delivery SQL adds one ledger
+and two invoker functions; no original tables/policies/data are altered. Local
+WASM Postgres verified compilation, grants/RLS, wrong-lease/slot rejection, replay
+suppression, independent test/workout slots, failed retry, original legacy slot
+and synthetic zero/unknown workout fields. No remote SQL mutation or push ran.
+
+The development source at 5df68f870f99b60c3889fbc72e4717135b7f90ba passed all 74
+test files (238068.059587 ms). A separate local release worktree is now at
+/workspace/releases/menei-8.2.0 on release/8.2.0-ready, with package/core/UI/import/
+cache/updater version 8.2.0. Versioned test imports agree with runtime imports.
+A stale literal version assertion was replaced by an exact current VERSION badge
+check and current-version preview string; no assertion was removed or disabled.
+All 74 versioned release test files passed (236270.738791 ms), with zero failures,
+skips or cancellations. Final runtime source is commit
+182075eceaec44e3a6770092ab5624a9333288a3. Root static checks pass: 34 modules,
+55 offline entries, 162 original identities, 113 WebP assets, 35 movement pairs.
+No browser/physical-device or hosted acceptance is inferred.
+
+Final prepared archives (rc5; deploymentReady=false / services not deployed):
+- /workspace/work/menei-8.2.0-20261023-rc5/menei-8.2.0-candidate.tar.gz
+  158298354 bytes; SHA-256
+  6f3a8784346dedb0db4fb0b93b134c62a2f6bd151d46ece7d569664504fe84b6.
+- /workspace/work/menei-8.2.0-services-20261023-rc5/menei-8.2.0-services.tar.gz
+  158297957 bytes; SHA-256
+  1b8c0751a582dbd4a0b2ba3ab565fde4c9e0abea6ecf603a419bd0242ba8bb3a.
+
+All 174 frontend and 191 service-input hashes, both archives, 84 generated syntax
+checks and guide links/anchors were verified. Frontend runtime matches the
+versioned branch; service module bytes match the independently executed rc3
+packaged gateway/reminder tests. All 170 current private-preview client files
+remain exact. Activation flags remain off and the guide carries a pending notice.
+The bounded credential scan found only one known synthetic secret-key rejection
+fixture, not a usable credential. No tracked secret environment file or other
+matching provider/server/private-key material was found; no general audit claim.
+
+Read-only live preflight: GitHub main remains
+fa142c3fc7c96c498b73b5943eac12ca49152dfb. Native reminder version 2 source and
+metadata are captured locally at /workspace/work/menei-live-reminder-pre-8.2.0
+with 700 directory/600 file permissions and hashes; no runtime secret read.
+Native bundle digest is fa82e691a8fe28c8d7fbf950dcf9a83fd77d00cd55b1f08194efc532edab4cc5.
+The existing public VAPID key matches the app; original minutely cron is active.
+Sites remains private version 48, one owner, zero external visitors; public mode
+is available and requiresConnectedApps=false. No audience/environment/deployment
+change was made. D1 has one existing member and no active campaign lease.
+
+Owner confirmed the screenshot email is intended for live use, but no original
+live Auth account exists under it. Its eventual owner-created/confirmed live UUID
+will need an explicit allowance link. Never create accounts/passwords for the
+owner or move preview history by inference. Owner reports the live URL saved in
+both Auth redirect settings. A screenshot and explicit reply confirm Custom SMTP
+is OFF. The owner has Gmail and no domain/business sender. See EMAIL_SETUP.md for
+the owner-only next steps. No SMTP/password configuration is complete; outside
+tester email delivery is a real launch dependency, not a passed check.
+
+Next: finish owner mail setup; obtain explicit authorization for the concrete
+staged production rollout; stage the corrected live frontend, have owner create/
+confirm the live account, link only the service allowance, verify owner production
+AI/push/mail/callback and upcoming one-hour delivery, then open the approved beta
+and publish/share the final guide. Apple physical push acceptance remains a
+separate check. Use PRODUCTION_ACTIVATION.md and EMAIL_SETUP.md, not an old
+frontend-only archive. No live push, merge, publication, provider model request,
+new key, account migration, history reset or server mutation occurred this turn.
+
+Future production work should continue in the versioned release worktree. The
+original feature checkout remains the 8.1.1 development source used by the current
+private preview; do not accidentally publish that checkout as the 8.2.0 release.

@@ -92,3 +92,9 @@ https://412doubleb.github.io/Muscle-Growth-Tracker/start.html . Do not describe 
 as published/available until activation and hosted verification. Both platform
 sections separate notification permission, media/rest sounds, optional calendar
 import and backups. Ordinary testers configure no provider/cloud keys.
+
+
+Current prepared versioned release: rc5, source 182075eceaec44e3a6770092ab5624a9333288a3.
+All 74 versioned test files pass. SMTP is confirmed off; EMAIL_SETUP.md and
+PRODUCTION_ACTIVATION.md describe the remaining operator/account/activation work.
+No public launch is claimed. Exact package receipts are in DEVELOPMENT.md.

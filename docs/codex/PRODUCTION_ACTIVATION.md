@@ -148,3 +148,12 @@ Reference: https://supabase.com/docs/guides/auth/auth-smtp .
 This is an operator dependency. It does not add a service account or download for
 MENEI users. If a mail provider is not configured, public signup is not ready; do
 not advertise the full release or send the launch invitation.
+
+
+The owner subsequently supplied a screenshot and explicit confirmation: Custom
+SMTP is OFF. They use Gmail and have no business domain/email. See EMAIL_SETUP.md
+for the owner-only configuration path; no credential/configuration is complete.
+All 74 versioned release test files passed. Current prepared inputs are rc5 from
+182075eceaec44e3a6770092ab5624a9333288a3; source is the 8.2.0 release worktree.
+Public sharing and production activation remain pending, not implied by these
+test results. The production account and mail dependencies remain real.

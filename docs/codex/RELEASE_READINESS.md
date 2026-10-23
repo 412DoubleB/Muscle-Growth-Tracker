@@ -105,3 +105,20 @@ notification tests, audio/mute, optional calendar and backup/update sections.
 Home-screen installation is necessary for iOS push. Production-account binding
 and one-hour delivery remain distinct from local/package validation. The planned
 public start.html link must not be sent as an available updated guide yet.
+
+
+## Current launch-preparation receipt
+
+The current versioned candidate is rc5, source 182075eceaec44e3a6770092ab5624a9333288a3,
+in /workspace/releases/menei-8.2.0 (release/8.2.0-ready). All 74 test files pass;
+all 174 frontend/191 service-input hashes, both archives and 84 generated syntax
+checks pass. See DEVELOPMENT.md for exact receipts; rc1–rc4 are earlier inputs.
+The final guide, release branch and prepared original-project AI/push integrations
+are complete locally. No live publication, native audience change or backend
+mutation has been made. Code readiness is not hosted/email/device acceptance.
+
+Launch is still blocked by unconfigured Custom SMTP (owner screenshot/reply),
+owner live-account confirmation/allowance linking and controlled production
+activation/verification. The owner reports Auth redirect URLs already correct.
+They use Gmail without a business domain; EMAIL_SETUP.md is the next owner-only
+step. Do not invite outside testers or disable email confirmation to bypass mail.
