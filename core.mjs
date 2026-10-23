@@ -1,3 +1,4 @@
+import {resolveLoadSetup,loadChangeOptions,reachableLoadOptions,describeLoadChange} from './equipment-loads.mjs?v=8.2.0';
 import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
 import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.2.0';
 export {readRecoverySnapshots} from './recovery.mjs?v=8.2.0';
@@ -51,7 +52,7 @@ export function makeExercise(e,{type='straight',count=e.sets||3,range=e.range||'
 export function rangeOf(s){let [lo,hi]=String(s).split('-').map(Number);if(!Number.isFinite(lo)||lo<1)return[8,12];return[lo,Number.isFinite(hi)?hi:lo]}
 const usableNumber=value=>(typeof value==='number'||typeof value==='string'&&value.trim()!=='')&&Number.isFinite(+value);
 const usableRir=set=>usableNumber(set.rir)&&+set.rir>=0&&+set.rir<=10;
-function loadIncrement(state,exercise,gym){const fallback=state.profile.units==='kg'?2.5:5,gymValue=state.profile.units==='kg'?gym?.incrementKg:gym?.increment;return +[exercise.increment,gymValue,fallback].find(value=>usableNumber(value)&&+value>0)}
+function loadIncrement(state,exercise,gym){const setup=resolveLoadSetup(state,exercise,gym,recommendationMeta(state,exercise));return setup.kind==='plates'?Math.min(...setup.plates)*setup.sides:setup.step}
 const portableEquipment=new Set(['Bodyweight','Dumbbells','Barbell','Olympic Plates','EZ Bar','Kettlebells','Trap Bar / Hex Bar','Safety Squat Bar','Bench','Flat Bench','Adjustable Bench','Decline Bench','Preacher Bench','Chest-Supported Row Bench','Squat Rack','Squat Rack / Power Rack','Half Rack','Bench-Press Rack','Step / Plyo Box','Hip Thrust Pad','Dip Station','Pull-up Bar','Dip Belt / Weighted Vest','Ab Wheel']);
 function recommendationMeta(state,exercise){return exerciseFor(exercise.exerciseId||exercise.name)||state.customExercises?.find(e=>e.id===exercise.exerciseId||!exercise.exerciseId&&norm(e.name)===norm(exercise.name))||exercise}
 function portableHistory(state,exercise){
@@ -75,7 +76,8 @@ export function lastHistory(state,exercise,date,gymId){
 }
 export function progression(state,exercise,date,gym){
  const [lo,hi]=rangeOf(exercise.range),h=lastHistory(state,exercise,date,gym?.id),meta=recommendationMeta(state,exercise),assistance=meta.loadMode==='assistance';
- const step=loadIncrement(state,exercise,gym),snap=w=>Math.max(0,Math.round(w/step)*step);
+ const setup=resolveLoadSetup(state,exercise,gym,meta),step=loadIncrement(state,exercise,gym);
+ const snap=w=>{const options=reachableLoadOptions(setup,setup.minimum,Math.max(setup.minimum,w+step));return options.reduce((best,value)=>best===null||Math.abs(value-w)<Math.abs(best-w)-1e-8?value:best,null)};
  let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
  if(h){
   const s=h.sets,weights=s.map(x=>+x.w);weight=assistance?Math.min(...weights):Math.max(...weights);
@@ -83,11 +85,11 @@ export function progression(state,exercise,date,gym){
   const expected=top?1:exercise.sets.filter(x=>!['warmup','drop','backoff','ramp'].includes(x.role)).length;
   const allTop=atSame.length>=expected&&atSame.every(x=>+x.r>=hi&&usableRir(x)&&+x.rir>=1),below=atSame.some(x=>+x.r<lo),failed=atSame.some(x=>usableRir(x)&&+x.rir===0);
   target=Math.min(hi,Math.min(...atSame.map(x=>+x.r))+1);
-  if(below){weight=assistance?weight+step:snap(weight*.95);target=lo;reason=assistance?'A working set fell below the range. Use one more increment of assistance to rebuild reps.':'A working set fell below the range. Rebuild reps with a slightly lighter load.'}
+  if(below){weight=assistance?(reachableLoadOptions(setup,weight+.001,weight+step)[0]??weight):Math.min(weight,snap(weight*.95)??weight);target=lo;reason=assistance?'A working set fell below the range. Use one more increment of assistance to rebuild reps.':'A working set fell below the range. Rebuild reps with a slightly lighter load.'}
   else if(failed){target=Math.min(hi,Math.min(...atSame.map(x=>+x.r)));reason=assistance?'Keep the same assistance; finish clean reps with 1–2 RIR before reducing assistance.':'Hold the load; finish clean reps with 1–2 RIR before adding weight.'}
-  else if(allTop){weight=assistance?Math.max(0,weight-step):weight+step;target=lo;reason=assistance?'Top of range earned: reduce assistance by one increment.':'Top of range earned across the required working sets: add one increment.'}
+  else if(allTop){const prior=weight,budget=assistance?step:weight===0?Math.min(step,setup.unit==='kg'?2.5:5):step<=weight*(setup.compound?.25:.20)+1e-8?step:0;weight=assistance?(reachableLoadOptions(setup,setup.minimum,weight-.001).at(-1)??weight):(reachableLoadOptions(setup,weight+.001,weight+budget).at(-1)??weight);target=lo;reason=assistance?'Top of range earned: reduce assistance by one increment.':weight===prior?'Top of range earned, but no suitably small equipment increment fits. Hold the load or adjust Load setup.':'Top of range earned across the required working sets: add one increment.'}
   else reason=assistance?'Keep the same assistance and build reps. Incomplete sets or missing RIR do not earn less assistance.':'Hold the load and build reps. Incomplete sets or missing RIR do not earn a load increase.';
-  const dbLimit=+(gym?.dbMax||0)*(state.profile.units==='kg'?.45359237:1);if(meta.loadMode==='perHand'&&dbLimit&&weight>dbLimit){weight=Math.round(dbLimit*100)/100;target=hi;reason='At this gym’s dumbbell limit. Build reps or swap the movement.'}
+  const dbLimit=+(gym?.dbMax||0)*(state.profile.units==='kg'?.45359237:1);if(meta.loadMode==='perHand'&&dbLimit&&weight>dbLimit){weight=reachableLoadOptions(setup,setup.minimum,dbLimit).at(-1)??weight;target=hi;reason='At this gym’s dumbbell limit. Build reps or swap the movement.'}
  }
  const manualRoles=['warmup','ramp','backoff','drop'];
  if(assistance&&exercise.sets.some(s=>manualRoles.includes(s.role)))reason+=' Enter assistance manually for warm-up, ramp, back-off and drop sets; more assistance is easier.';
@@ -102,25 +104,77 @@ export function progression(state,exercise,date,gym){
 
 // Current-workout guidance is separate from next-workout progression. It reads
 // checked working/top sets and never changes recorded or future set values.
+// This is a bounded coaching estimate, not a measured maximum. Both completed
+// reps and RIR affect it, and an equipment option must fit before load is added.
+function nextLoadAdjustment(setup,load,reps,rir,lo,hi,{assistance=false,perHandLimit=null}={}){
+ const repSurplus=Math.max(0,reps-hi),rirSurplus=Math.max(0,rir-2),increase=repSurplus>0&&rirSurplus>0,below=reps<lo;
+ const minimum=setup.minimum,step=setup.kind==='plates'?Math.min(...setup.plates)*setup.sides:setup.step;
+ let weight=load,detail='',reason=assistance?'Keep the same assistance for the next set.':'Keep the same load for the next set.';
+ const pick=(lower,upper,desired,roundDown=false)=>{
+  const options=reachableLoadOptions(setup,Math.max(minimum,lower),upper);
+  return roundDown?options.at(-1):options.filter(value=>value<=desired+1e-8).at(-1)??options[0];
+ };
+ if(increase||below){
+  const direction=assistance?(increase?-1:1):(increase?1:-1);
+  let chosen;
+  if(assistance){
+   // Counterweight is not lifted resistance. Without bodyweight and machine
+   // leverage, scale by effort/reps rather than applying a strength formula.
+   const severity=increase?repSurplus+rirSurplus:lo-reps+Math.max(0,2-rir),budget=step*Math.min(2,Math.max(1,Math.ceil(severity/3)));
+   chosen=direction>0?pick(load+.001,load+budget,load+budget,true):pick(load-budget,load-.001,load-budget);
+  }else if(increase){
+   const budget=Math.min(Math.max(step,load*(reps+rir-hi-2)/(30+hi+2)),Math.max(step,load*(setup.compound?.15:.10)));
+   const limitRoom=perHandLimit===null?budget:Math.max(0,perHandLimit-load),repRoom=load===0?Math.min(step,setup.unit==='kg'?2.5:5):Math.max(0,load*((30+reps+rir)/(30+lo+2)-1));
+   if(load>=minimum){
+    const room=Math.min(budget,limitRoom,repRoom);chosen=pick(load+.001,load+room,load+budget,true);
+    if(setup.kind==='plates'){const simple=loadChangeOptions(setup,room).map(option=>Math.round((load+option.delta)*100)/100).filter(value=>reachableLoadOptions(setup,value,value).length);if(simple.length)chosen=simple.at(-1)}
+   }
+   if(chosen!==undefined&&load>0&&chosen-load>load*(setup.compound?.25:.20)+1e-8)chosen=undefined;
+   if(chosen===undefined)reason=perHandLimit!==null&&perHandLimit-load<step?'At this gym’s dumbbell limit or between available dumbbell sizes. Keep the available load.':'The next available jump is too large for this set. Keep the load; use smaller plates or steps before increasing.';
+  }else{
+   const desired=Math.max(step,load*(1-(30+reps+rir)/(30+lo+2))),budget=Math.max(step,load*(setup.compound?.20:.15));
+   chosen=pick(load-budget,load-.001,load-desired);
+   if(chosen===undefined)reason='At the minimum available load, or no matching equipment size is available. Check Load setup before changing the movement or reps.';
+  }
+  if(chosen!==undefined){
+   weight=chosen;
+   reason=increase?`${repSurplus} rep${repSurplus===1?'':'s'} above the range and ${rirSurplus} extra RIR above 2: ${assistance?'reduce assistance':'increase the load'} for the next set.`:`${lo-reps} rep${lo-reps===1?'':'s'} below the range${rir<2?` and ${2-rir} RIR below target`:''}: ${assistance?'add assistance':'back off the load'} for the next set.`;
+  }
+ }
+ if(perHandLimit!==null&&weight>perHandLimit){
+  const available=reachableLoadOptions(setup,minimum,perHandLimit).at(-1);if(available!==undefined)weight=available;
+  reason='The logged load is above this gym’s dumbbell limit. Check the available dumbbell size before the next set.';
+ }
+ if(assistance&&load===0&&weight===0&&increase)reason='At zero assistance. Keep the load and finish controlled reps.';
+ const change=weight===load?'hold':(assistance?weight<load:weight>load)?'increase':'decrease';
+ if(change!=='hold'){
+  const delta=Math.round(Math.abs(weight-load)*100)/100;
+  const simpleAddition=setup.kind!=='plates'||weight<load||loadChangeOptions(setup,delta+.000001).some(option=>Math.abs(option.delta-delta)<1e-8);
+  detail=simpleAddition?describeLoadChange(setup,delta,{decrease:weight<load}):`Rebalance plates to ${weight} ${setup.unit} total (${delta} ${setup.unit} more total).`;
+  if(!reachableLoadOptions(setup,load,load).length)detail+=' Adjusted to a configured equipment weight; the logged load was between its available sizes.';
+ }
+ let targetReps=Math.min(hi,Math.max(lo,reps));
+ if(change!=='hold'){
+  // Estimate reps at 2 RIR for the actual achievable load. Never infer lifted
+  // resistance from an assistance counterweight or an explicit zero load.
+  targetReps=assistance||load===0||weight===0?lo:Math.min(hi,Math.max(lo,Math.floor(load/weight*(30+reps+rir)-32+1e-8)));
+ }
+ return {weight,reps:targetReps,change,reason,loadDetail:detail,repSurplus,rirSurplus,targetRir:2,setup};
+}
+
 export function nextSetRecommendation(state,exercise,gym){
  const primary=set=>['working','top'].includes(set.role),sets=exercise.sets||[];
  let sourceIndex=-1;for(let i=0;i<sets.length;i++)if(sets[i].done&&primary(sets[i]))sourceIndex=i;
  if(sourceIndex<0)return null;
  const source=sets[sourceIndex],targetIndex=sourceIndex+1,target=sets[targetIndex];
- if(!target||target.done||!primary(target)||!completedSets({sets:[source]}).length||!usableRir(source))return null;
- const [lo,hi]=rangeOf(exercise.range);if(hi<lo)return null;
+ if(!target||target.done||!primary(target)||!completedSets({sets:[source]}).length||!usableRir(source)||!Number.isInteger(+source.r))return null;
+ const [lo,hi]=rangeOf(exercise.range);if(hi<lo||!Number.isFinite(hi))return null;
  const meta=recommendationMeta(state,exercise);if(meta.repUnit&&meta.repUnit!=='reps')return null;
- const assistance=meta.loadMode==='assistance',step=loadIncrement(state,exercise,gym),load=+source.w;
- let weight=load,reason=assistance?'Keep the same assistance for the next set.':'Keep the same load for the next set.';
- if(+source.r>hi&&+source.rir>2){weight=assistance?Math.max(0,load-step):load+step;reason=assistance?'Above the rep range with more than 2 RIR: reduce assistance by one increment.':'Above the rep range with more than 2 RIR: increase by one increment.'}
- else if(+source.r<lo){weight=assistance?load+step:Math.max(0,load-step);reason=assistance?'Below the rep range: use one more increment of assistance for the next set.':'Below the rep range: back off by one increment for the next set.'}
- const limit=usableNumber(gym?.dbMax)&&+gym.dbMax>0?+gym.dbMax*(state.profile.units==='kg'?.45359237:1):null;
- if(meta.loadMode==='perHand'&&limit!==null&&weight>limit){weight=Math.round(limit*100)/100;reason='At this gym’s dumbbell limit. Use the available load and keep reps controlled.'}
- if(!Number.isFinite(weight))return null;
- const change=weight===load?'hold':(assistance?weight<load:weight>load)?'increase':'decrease';
- if(assistance&&load===0&&weight===0&&+source.r>hi&&+source.rir>2)reason='At zero assistance. Keep the load and finish controlled reps.';
- if(!assistance&&load===0&&weight===0&&+source.r<lo)reason='At zero added load. Adjust reps or the movement manually before the next set.';
- return {sourceIndex,targetIndex,weight,reps:change==='hold'?Math.min(hi,Math.max(lo,+source.r)):lo,assistance,change,reason,sourceReps:+source.r,sourceRir:+source.rir};
+ const assistance=meta.loadMode==='assistance',setup=resolveLoadSetup(state,exercise,gym,meta),load=+source.w;
+ const perHandLimit=meta.loadMode==='perHand'&&usableNumber(gym?.dbMax)&&+gym.dbMax>0?+gym.dbMax*(state.profile.units==='kg'?.45359237:1):null;
+ const result=nextLoadAdjustment(setup,load,+source.r,+source.rir,lo,hi,{assistance,perHandLimit});
+ if(!Number.isFinite(result.weight))return null;
+ return {sourceIndex,targetIndex,...result,assistance,sourceReps:+source.r,sourceRir:+source.rir};
 }
 
 function historyDates(state){const last=new Map();for(const l of Object.values(state.logs)){if(l.deleted)continue;for(const e of l.exercises||[]){const id=e.exerciseId||exerciseFor(e.name)?.id;if(id&&completedSets(e).length&&(!last.has(id)||last.get(id)<l.date))last.set(id,l.date)}}for(const p of Object.values(state.plan)){if(p.deleted)continue;for(const e of p.exercises||[]){const id=e.exerciseId;if(id&&(!last.has(id)||last.get(id)<p.date))last.set(id,p.date)}}return last}

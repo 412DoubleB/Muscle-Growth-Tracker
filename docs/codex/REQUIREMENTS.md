@@ -108,3 +108,8 @@ protected image process and private continuity evidence boundaries still apply.
   account/download. Home-screen installation is required for iOS Web Push.
 - Give the public guide link only after the update/services are activated and
   verified. Keep production operator tasks separate from end-user instructions.
+
+
+## Equipment-aware recommendations
+
+The latest owner request replaces the single-increment current-set adjustment with bounded changes using excess reps and extra RIR, exercise type, machine-specific 5/10 lb steps and explicitly paired plate loading. Save equipment settings independently for each exercise, gym and unit; log total plate resistance once. Next-set rep targets should reflect the achievable load. Keep the strict over-range/over-2-RIR increase gate, entered/completed set protection, assistance direction, per-hand limits and advanced-set distinctions. See [ADAPTIVE_LOAD_GUIDANCE.md](ADAPTIVE_LOAD_GUIDANCE.md) for implementation, examples and pending release status.

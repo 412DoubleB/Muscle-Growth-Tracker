@@ -94,10 +94,10 @@ test('checking an over-range set updates same-workout guidance immediately and a
  try{
   await open(env,'live-increase');const before=env.state,otherRows=new Map([...env.rows].filter(([key])=>key!=='MGT_BETA_V8:guest'));
   assert.doesNotMatch(env.html,/Next set 2: 165/);await env.change(1,0,'done',true);
-  assert.match(env.html,/Next set 2: 165 lb × 6/);assert.match(env.html,/Use suggestion for set 2/);assert.match(env.html,/checked set 1: 11 reps · 3 RIR/);
+  assert.match(env.html,/Next set 2: 165 lb × 10/);assert.match(env.html,/Use suggestion for set 2/);assert.match(env.html,/checked set 1: 11 reps · 3 RIR/);
   const checked=env.state;for(let j=1;j<4;j++)assert.deepEqual(checked.logs[date].exercises[1].sets[j],before.logs[date].exercises[1].sets[j]);
   await env.click('apply-loads',{index:'1'});const after=env.state;
-  assert.equal(after.logs[date].exercises[1].sets[1].w,165);assert.equal(after.logs[date].exercises[1].sets[1].r,6);assert.equal(after.logs[date].exercises[1].sets[1].done,false);
+  assert.equal(after.logs[date].exercises[1].sets[1].w,165);assert.equal(after.logs[date].exercises[1].sets[1].r,10);assert.equal(after.logs[date].exercises[1].sets[1].done,false);
   assert.deepEqual(after.logs[date].exercises[1].sets[0],checked.logs[date].exercises[1].sets[0]);for(let j=2;j<4;j++)assert.deepEqual(after.logs[date].exercises[1].sets[j],before.logs[date].exercises[1].sets[j]);
   assert.match(env.html,/Set 2 load entered/);for(const [key,log]of Object.entries(before.logs))if(key!==date)assert.deepEqual(after.logs[key],log);
   const voiceKey='MGT_BETA_WORKOUT_VOICE:guest';assert.equal(env.rows.has(voiceKey),false);
@@ -110,7 +110,7 @@ test('editing checked-set RIR or reps refreshes guidance without changing other 
  try{
   await open(env,'live-edits');await env.change(1,0,'done',true);const untouched=C.clone(env.state.logs[date].exercises[1].sets.slice(1));
   await env.change(1,0,'rir',2);assert.match(env.elements.get('loadGuidance-1').innerHTML,/Next set 2: 160 lb × 10/);
-  await env.change(1,0,'r',5);assert.match(env.elements.get('loadGuidance-1').innerHTML,/Next set 2: 155 lb × 6/);assert.match(env.elements.get('loadGuidance-1').innerHTML,/back off by one increment/);
+  await env.change(1,0,'r',5);assert.match(env.elements.get('loadGuidance-1').innerHTML,/Next set 2: 155 lb × 6/);assert.match(env.elements.get('loadGuidance-1').innerHTML,/back off the load/);
   assert.deepEqual(env.state.logs[date].exercises[1].sets.slice(1),untouched);
   await env.click('apply-loads',{index:'1'});assert.equal(env.state.logs[date].exercises[1].sets[1].w,155);
   await env.change(1,0,'done',false);assert.doesNotMatch(env.html,/Next set 2:/);assert.equal(env.state.logs[date].exercises[1].sets[1].w,155,'an explicitly applied value stays entered when a source set is unchecked');

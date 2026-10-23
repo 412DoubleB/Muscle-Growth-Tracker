@@ -13,7 +13,7 @@ const next=sample=>C.nextSetRecommendation(sample.state,sample.exercise,sample.g
 
 test('a checked current set above the rep range with more than two RIR suggests one increment for only the next set',()=>{
  const sample=fixture(),before=C.clone(sample),result=next(sample);
- assert.equal(result.sourceIndex,0);assert.equal(result.targetIndex,1);assert.equal(result.weight,165);assert.equal(result.reps,6);assert.equal(result.change,'increase');assert.deepEqual(sample,before);
+ assert.equal(result.sourceIndex,0);assert.equal(result.targetIndex,1);assert.equal(result.weight,165);assert.equal(result.reps,10);assert.equal(result.change,'increase');assert.deepEqual(sample,before);
 });
 
 test('rep and effort thresholds are strict; missing the lower rep bound suggests one easier increment',()=>{
@@ -31,7 +31,7 @@ test('unchecked, incomplete and invalid source sets cannot drive a next-set sugg
 
 test('the most recently checked working set in set order determines the immediately following working set',()=>{
  const sample=fixture();Object.assign(sample.exercise.sets[1],{w:165,r:5,rir:1,done:true});const before=C.clone(sample),result=next(sample);
- assert.equal(result.sourceIndex,1);assert.equal(result.targetIndex,2);assert.equal(result.weight,160);assert.deepEqual(sample,before);
+ assert.equal(result.sourceIndex,1);assert.equal(result.targetIndex,2);assert.equal(result.weight,155);assert.deepEqual(sample,before);
  sample.exercise.sets[1].rir='';assert.equal(next(sample),null,'do not fall back to an older checked set when the latest lacks effort data');
 });
 
@@ -51,7 +51,7 @@ test('assistance reverses difficulty changes and never produces negative counter
 });
 
 test('unit-specific increments, exercise overrides and dumbbell limits constrain next-set loads',()=>{
- const kg=fixture({units:'kg',weight:60});assert.equal(next(kg).weight,62.5);kg.exercise.increment=1.25;assert.equal(next(kg).weight,61.25);
+ const kg=fixture({units:'kg',weight:60});assert.equal(next(kg).weight,62.5);kg.exercise.increment=1.25;assert.equal(next(kg).weight,62.5,'the capacity estimate may use two available 1.25 kg steps');
  kg.exercise.increment=-5;assert.equal(next(kg).weight,62.5);
  const db=fixture({name:'Dumbbell Bench Press',weight:100});db.gym.dbMax=100;const result=next(db);assert.equal(result.weight,100);assert.equal(result.change,'hold');assert.match(result.reason,/limit/i);
 });
