@@ -177,3 +177,44 @@ direct github.io HTTP reads in this session, so hosted delivery is checked throu
 GitHub Pages deployment receipts plus the owner device, not claimed from Git reads.
 GitHub Pages run 39981933296 tracks this publication. See the private local
 work/menei-8.2.0-staged-publication.json receipt for current provider outcome.
+
+## Service rollout receipt — October 23
+
+The owner explicitly approved service activation after confirming their live email
+and cloud sync. Live reminder sender version 3 is deployed at the original slug,
+with migration 20261023160936 and the original minute cron job 1 active. Native
+permission checks and rollback-only lease/deduplication assertions passed. The
+actual scheduler returned ready:true, zero failures and zero sends (no live push
+subscriptions). Physical live-origin notification acceptance remains pending.
+
+Automatic approval review rejected changing the original preview host's native
+audience to public. That change was not applied. The safer implementation keeps
+the original Site natively custom/owner-private and adds an API-only transport
+Site, appgprj_6adb8996cdf48191930e235637773a9a, at
+https://menei-live-api.crispcrown515.chatgpt.site . It has no frontend or assets
+and forwards only the four pinned /api/live routes. A server-only native service
+access credential is transferred directly between native tools in session memory;
+it is stored as a Sites secret, never source, files or output. The original
+service still verifies live MENEI tokens and owns the existing D1/key/counters.
+No second AI campaign or allocation was created. The API bridge forwards no
+cookies or platform identity, refuses arbitrary paths/queries/redirects and does
+not forward Set-Cookie/Location. Controlled route/CORS/header tests passed.
+
+A one-time operator check under original native owner-only access captured a
+SHA-256 binding of the platform Site identity after the owner opened the check.
+The retained preview gate accepts that binding; raw platform identity was not
+logged or committed. Temporary operator code was removed from deployment 50.
+Original Site: commit 57d5d0c823eef5e5dc4cbd1a92cf7cffc1938770, environment 7.
+API-only Site: commit b4f6be4bc7e095e8fdea49b880c2bbec29ee78cb, environment 1,
+version 1. Both native deployments succeeded. Gateway remains phase owner.
+The owner's existing five attempts are exhausted and stay exhausted. New beta
+accounts will receive five each within the existing 20/100 caps after opening.
+
+PR 3 connects the frontend to the pinned API-only origin and changes the service
+worker build bytes to refresh the shell. Source fd9162b84c92be8b6a9e5b81784a331d1f3bfa93,
+merged main b57de56772217ca7b32ebdb46335ec3c464c0fd8. Version remains 8.2.0; the
+installation guide stays pending. Focused account/gym/live-service/update checks
+and static checks passed. No paid lookup was made. Owner browser admission and
+real notification checks precede phase open and release invitation. Direct HTTP
+reads of hosted URLs remain blocked by this executor's network policy; provider
+deployment receipts and owner browser observations are recorded separately.
