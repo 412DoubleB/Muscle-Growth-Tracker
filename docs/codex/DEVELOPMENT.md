@@ -3347,3 +3347,51 @@ Updated RELEASE_READINESS.md and FEEDBACK_REBUILD.md only. No runtime changes,
 new tests, deployment, notification, backend/account mutation, sharing change,
 provider request or data reset. Private preview 48 and sender v3 remain current;
 all prior preservation and live-publication boundaries remain in force.
+
+
+## Local 8.2.0 candidate preparation — no publication
+
+After owner acceptance of connected and airplane-mode opening, prepared a
+tracked-Git frontend packager, draft release notes and a preservation-aware
+recovery procedure. The candidate targets the existing GitHub project URL and
+original public client configuration/account backend. Version 8.2.0 is proposed
+in the staged artifact only; root runtime/private preview 48 remains 8.1.1.
+The source builder never pushes, deploys, updates a service or reads browser data.
+
+It selects only tracked frontend files and original media/fonts/vendor assets,
+excludes beta-report, preview-only outputs, backend/scripts/tests/docs and env
+files, preserves manifest identity/config/media bindings and all 124 protected
+assets, and emits per-file/archive hashes with deploymentReady=false. Import,
+stylesheet, core version, cache and updater queries agree on 8.2.0. Candidate
+wording says MENEI account & cloud sync to clarify one-account onboarding.
+No IP agreement or deferred speech/wearable/photo work was activated.
+
+Production Worker/D1/Auth integration for AI, exact one-hour live push and final
+release/terms review remain prerequisites. A static archive cannot enable the
+private backend services at the live URL. Existing beta seats/usage must be
+preserved during that later integration. Users need only a MENEI account, email
+confirmation as configured, profile/gym setup and notification permission for
+reminders; Home-screen install is optional. They do not configure provider keys
+or create separate cloud/ChatGPT/OpenAI accounts.
+
+Recovery review found a genuine downgrade limitation: executing the exact
+original 8.1.1 LocalStore.snapshot against a synthetic compressed recovery envelope
+fails at unshift. The test verifies neither the primary state nor recovery bytes
+were overwritten by that failure. A blind original-code rollback is therefore
+not a verified recovery plan. Preserve current recovery/sync-base readers and
+use a validated forward correction; retain original source as evidence only.
+Read-only git ls-remote confirms public main is still the original preservation
+checkpoint fa142c3fc7c96c498b73b5943eac12ca49152dfb. No public push/merge occurred.
+
+The three candidate/release/update test files passed (10961.882015 ms). Tests
+exercise a real staged archive, hashes, all protected assets, live config/PWA
+identity, runtime version/import resolution, zero/unknown field preservation,
+new snapshot readback, the exact old-reader limitation, GitHub subpath shell,
+notification links and standalone updater destination. The original validation
+attempt could not spawn a nested Node syntax checker (EPERM); generated-file
+syntax checks run separately through the executor on the final retained artifact.
+No test was disabled; package/import/preservation assertions remain strict.
+The unchanged runtime baseline retains its earlier 71-file passing run; this is
+not claimed as a new full 72-file suite. Root static checks and final artifact
+verification results follow with the retained package receipt. No browser/device
+or production-backend acceptance is inferred from these checks.

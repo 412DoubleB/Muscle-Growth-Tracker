@@ -66,6 +66,10 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Ingredient reuse and prepared-leftover expiry/reservation; do not allocate stock twice or add groceries for reserved prepared meals. Already-deducted cooking ingredients stay off shopping lists. Marking leftovers eaten must validate available stock and other reservations, deduct once and preserve the consumption record when unmarked.
 
 ## History, sync and notifications
+- Launch uses one MENEI account for both app access and cloud sync. Do not require
+  a separate cloud/Supabase, ChatGPT or OpenAI account, API key or additional AI
+  download. Notification permission and optional Home-screen installation are
+  device choices; production backend integration is owner-side setup.
 - Copy legacy MGT28v6, or MGT28v5 only when v6 is absent; keep original bytes/keys and raw snapshot. Repeated migration/import must be idempotent.
 - Existing V8 data wins; conflicts retain both versions. Shared legacy data goes to the guest workspace before explicit import into a signed-in account. Never silently mix accounts.
 - JSON backup/export, recovery copies, preserve zero loads, unknown fields, unit conversions and entered history. File imports show a read-only summary before explicit merge, reject stale/account-changed reviews and snapshot the current workspace before applying. Cancel does not import. New beta origins do not inherit live browser storage.

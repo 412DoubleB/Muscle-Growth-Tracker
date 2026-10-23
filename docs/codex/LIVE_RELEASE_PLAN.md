@@ -31,16 +31,27 @@ claim a static update enables the tested backend services.
 
 ## Concrete publication steps remaining
 
-1. Finish the scheduled one-hour reminder and installed/offline device checks
-   in RELEASE_READINESS.md; preserve prior acceptance and unresolved results.
+1. Connected and airplane-mode reopening are owner-accepted. The exact scheduled
+   one-hour workout reminder remains pending; preserve those separate results.
 2. Review the production service scope above before claiming AI and one-hour push
    as live features. A frontend-only maintenance update and a full service-backed
    release have different prerequisites; neither is silently selected here.
-3. Prepare the chosen release version, exact artifact, release notes and rollback
-   reference from a clean reviewed source. Recheck project-path/offline behavior
-   and preservation; exclude private exports, credentials and preview-only files.
+3. A local 8.2.0 frontend candidate and reviewed packaging/check scripts are now
+   prepared; see RELEASE_8_2_0.md. Keep deploymentReady=false until the production
+   integration is ready. See RELEASE_RECOVERY.md: a blind downgrade to original
+   8.1.1 is incompatible with compressed recovery copies. The live main ref was
+   read-only verified at fa142c3fc7c96c498b73b5943eac12ca49152dfb on 2026-10-23.
+   Capture the actual final artifact/backend receipt before publication.
 4. Present that concrete release and required backend changes for explicit owner
    authorization before any GitHub main merge, live backend change or publication.
 
 This plan does not request new credentials, reset data or expand access. Current
 private and live accounts, AI usage limits and all protected media stay intact.
+
+
+The intended user setup is one MENEI account, which also handles cloud sync.
+Email confirmation and profile/gym setup are normal onboarding, not separate
+service accounts. Notification permission is needed for reminders; Home-screen
+installation is optional. No ChatGPT/OpenAI account, API key or extra AI app is
+required. Live AI/reminder integration and first-20 allowance continuity remain
+owner-side deployment work; do not shift that setup to testers.
