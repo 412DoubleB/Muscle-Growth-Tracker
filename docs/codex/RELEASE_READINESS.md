@@ -49,21 +49,26 @@ does not claim exact record auditing or a different installed-app mode.
 
 ## Publication preparation still to complete
 
-- An unpublished 8.2.0 frontend candidate is retained at
-  `/workspace/work/menei-8.2.0-20261023-rc1`, from commit `833ed102a4bc`.
-  All 170 file hashes and archive hash/size were verified; 34 generated modules
-  passed syntax checks. Live URL/config/PWA identity and 124 protected assets are
-  preserved. See RELEASE_8_2_0.md and RELEASE_RECOVERY.md. This candidate remains
-  `deploymentReady=false` until the production integration and final review below.
-  Original 8.1.1 cannot safely be assumed to read compressed recovery snapshots;
-  use the documented preservation-aware correction plan.
+- Updated rc2 frontend is retained at
+  `/workspace/work/menei-8.2.0-20261023-rc2`; prepared production services at
+  `/workspace/work/menei-8.2.0-services-20261023-rc2`, both from `4582bab9d2e6`.
+  All 174 frontend and 191 service-input hashes plus both archive hashes and
+  generated syntax were independently verified. All 170 original private-preview
+  client files remain byte-identical. The actual packaged gateway imports resolve
+  and deny anonymous private-preview routes while permitting public API preflight.
+  No hosted service/audience change was made. The frontend remains
+  `deploymentReady=false` and its AI activation flag is false. See
+  PRODUCTION_ACTIVATION.md for the exact staged change, account dependency and
+  remaining physical/hosted checks. See RELEASE_RECOVERY.md for the original
+  reader's compressed-snapshot downgrade limitation.
 - Keep deferred spoken workout cues disabled in the launch artifact. Preview
   46 uses a fixed false source gate; no speech instance is constructed, no voice
   receipt is written and no speech is requested. Accepted rest timers/chimes are
   unchanged. Retaining the helper for later work does not make speech accepted.
-- Explicitly reconcile deployment scope: Sites hosts the beta's Worker/D1 AI
-  services and isolated Auth; GitHub Pages alone cannot run that backend. Current
-  push is an isolated owner pilot. Copying static files must not be represented
+- Activate and verify the prepared production integration: Sites hosts the beta's Worker/D1 AI
+  services and isolated Auth; GitHub Pages alone cannot run that backend. The currently published
+  tested push is an isolated owner pilot; the prepared production sender retains
+  original live keys/subscriptions and needs live schema/deployment verification. Copying static files must not be represented
   as enabling AI or push for live users. No audience/backend cutover is approved
   by this checklist.
 - Keep the approved AI campaign limits: first 20 MENEI accounts, five attempts
@@ -93,3 +98,10 @@ See DEVELOPMENT.md for the private preview 48 publication receipt. This step
 changed only client outage recovery and private build metadata. No notification,
 provider request, account data, backend setting, media asset, sharing policy or
 live deployment changed. The concrete live cutover plan is in LIVE_RELEASE_PLAN.md.
+
+The completed setup guide has separate iPhone/Android installation, account/sync,
+profile/units, gym/program, nutrition/allergens, start-time/time-zone, permissions,
+notification tests, audio/mute, optional calendar and backup/update sections.
+Home-screen installation is necessary for iOS push. Production-account binding
+and one-hour delivery remain distinct from local/package validation. The planned
+public start.html link must not be sent as an available updated guide yet.

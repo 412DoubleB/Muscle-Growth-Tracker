@@ -1,7 +1,7 @@
 // Prepared production gateway; not enabled by a frontend publication.
 // Reuses the existing campaign/D1 and provider secret without resetting usage.
 import {createPreviewWorker} from '../scripts/preview-config-worker.mjs';
-import {authenticateLiveMeneiAccount} from './menei-beta-auth.mjs';
+import {authenticateLiveMeneiAccount,AuthError} from './menei-beta-auth.mjs';
 import {readBetaStatus,BETA_CAMPAIGN_ID} from './beta-membership-budget.mjs';
 const ORIGIN='https://412doubleb.github.io';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

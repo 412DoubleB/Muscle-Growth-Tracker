@@ -96,3 +96,15 @@ status and selected completed-pair timer behavior. First batch adds Home startup
 workout duration estimates, stronger decorative visibility, measurement/food-unit
 preferences and a first-use health notice. Live publication/backend approval,
 protected image process and private continuity evidence boundaries still apply.
+
+
+## Launch installation and manual setup handoff
+- Before launch, prepare one shareable guide with separate Apple/iPhone and
+  Android installation instructions, including Home-screen app installation.
+- Separate each manual action: account/email/sync, profile/units, gym/equipment
+  and program, nutrition/allergens, workout start/time-zone, device permissions,
+  closed-app tests, rest sound/mute, optional calendar import and backups/updates.
+- One MENEI account includes cloud. No tester cloud/provider keys or ChatGPT/AI
+  account/download. Home-screen installation is required for iOS Web Push.
+- Give the public guide link only after the update/services are activated and
+  verified. Keep production operator tasks separate from end-user instructions.

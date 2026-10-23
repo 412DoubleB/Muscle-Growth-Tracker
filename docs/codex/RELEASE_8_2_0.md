@@ -11,8 +11,10 @@ existing app URL, not a replacement account system or a second fitness app.
    That same account provides cloud sync. No separate Supabase/cloud account.
 2. Review the welcome/health notice and set up profile, nutrition preferences,
    gym inventory and workout schedule. Existing users keep their saved records.
-3. Allow browser notifications to receive workout reminders. Add to Home screen
-   is optional; users can use the browser directly.
+3. Allow notifications on each device for workout reminders. Home-screen
+   installation is required for iPhone/iPad closed-app push on supported systems;
+   it is optional for ordinary browser use/Android. See start.html for separate
+   Apple/Android installation and manual setup instructions.
 
 AI gym search runs inside MENEI, with no ChatGPT/OpenAI account, personal API key
 or extra AI download. The approved beta allows the first 20 confirmed accounts,
@@ -73,3 +75,20 @@ reminder acceptance, final health/privacy/terms scope and owner authorization.
 
 See RELEASE_RECOVERY.md before planning any source rollback. The original live
 snapshot reader is incompatible with the newer compressed recovery format.
+
+
+## Prepared production service inputs
+
+The rc2 frontend and service archives are prepared from commit `4582bab9d2e6`.
+Live account verification, original campaign allowance linking, exact-origin CORS,
+owner-only production testing and retained owner-preview protection are implemented
+in reviewed source. The new reminder handler reuses the existing live sender URL,
+Vault configuration and device subscriptions, with a separate service-only delivery
+ledger. These changes are prepared, not activated. See PRODUCTION_ACTIVATION.md.
+
+`start.html` and USER_SETUP.md contain the installation/permission instructions and
+ready-to-copy launch invitation. The planned public guide link is
+https://412doubleb.github.io/Muscle-Growth-Tracker/start.html . Do not describe it
+as published/available until activation and hosted verification. Both platform
+sections separate notification permission, media/rest sounds, optional calendar
+import and backups. Ordinary testers configure no provider/cloud keys.

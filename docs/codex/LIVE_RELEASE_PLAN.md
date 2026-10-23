@@ -55,3 +55,24 @@ service accounts. Notification permission is needed for reminders; Home-screen
 installation is optional. No ChatGPT/OpenAI account, API key or extra AI app is
 required. Live AI/reminder integration and first-20 allowance continuity remain
 owner-side deployment work; do not shift that setup to testers.
+
+
+## October 23 production preparation
+
+The concrete service/permission rollout is now in PRODUCTION_ACTIVATION.md; the
+user-facing instructions and invitation are in start.html and USER_SETUP.md.
+A new rc2 frontend and separate service archive retain original live identities,
+the existing D1 campaign and the current owner-preview client. A local Postgres
+run verified the proposed service-only reminder ledger/leases and preservation.
+Neither the service archive nor a frontend package has been deployed. The prior
+owner-private preview 48 is unchanged.
+
+The owner confirmed the screenshot email is the intended live MENEI email, but
+read-only Auth metadata finds no account under it in the original live project.
+Creating/confirming that account is an owner action, not a reason to transfer
+private-preview records automatically or allocate a new AI owner seat. A staged
+release can first publish the corrected frontend with AI disabled and the guide
+marked pending, allow the owner to confirm their live account, then link only the
+service allowance and verify owner-only production before opening the campaign.
+This staged publication still needs explicit release authorization. Do not call
+the first frontend stage a completed full release or send the invitation then.
