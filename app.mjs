@@ -7,7 +7,7 @@ import {CloudSync} from './cloud.mjs?v=8.2.0';
 import {testNotification,enablePush,disablePush,calendarFile,workoutSchedule,requestPushTest} from './notifications.mjs?v=8.2.0';
 import * as W from './workouts.mjs?v=8.2.0';
 import {trainingStreak,dailyMotivation,streakMilestone} from './motivation.mjs?v=8.2.0';
-import {applyWallBallFrame,wallBallSvg,WALL_BALL_DURATION} from './wall-ball.mjs?v=8.2.0';
+import {applyWallBallFrame,wallBallSvg,disposeWallBallScene,WALL_BALL_DURATION} from './wall-ball.mjs?v=8.2.0';
 import * as S from './supersets.mjs?v=8.2.0';
 import * as T from './session-order.mjs?v=8.2.0';
 import {restAfterCompletion,isCompletionRest,restPreferences,saveRestPreferences,RestTimer,RestAudio} from './rest-timers.mjs?v=8.2.0';
@@ -388,6 +388,7 @@ function workoutTimingHtml(log){const t=W.estimateWorkoutDuration(log);const sch
 function dailyMotivationHtml(){return `<section class="dailyMotivation" aria-labelledby="dailyMotivationTitle"><div id="dailyMotivationTitle" class="eyebrow">Daily motivation</div><blockquote class="dailyQuote">${h(dailyMotivation())}</blockquote><div class="row wrap">${button(restOptions().sound?'Mute sound':'Unmute sound','timer-sound',`aria-pressed="${!restOptions().sound}"`,'small ghost')}</div><p class="tiny">The daily quote stays on screen. Mute silences rest-timer chimes.</p></section>`}
 function finishOpening(){
  if(openingPhase==='finished')return;openingPhase='finished';openingRun++;clearTimeout(openingTimer);window.cancelAnimationFrame?.(openingFrame);openingDeadline=0;
+ disposeWallBallScene($);
  const scene=$('openingScene'),returnFocus=document.activeElement?.id==='skipLaunch';if(scene?.open)scene.close();
  if(returnFocus)$('replayOpening')?.focus();
 }
@@ -409,12 +410,12 @@ function showOpening(){
  <img class="openingEmblem" src="./brand-emblem.svg" alt="" width="1536" height="852"></div>
  <div class="openingAthlete" aria-hidden="true">${wallBallSvg()}
  <img id="openingUpper" src="./artwork/greek-athlete-gold.webp" alt="" width="1024" height="1536" hidden>
- <img id="openingAtlas" src="./artwork/greek-wall-ball-rig.png" alt="" width="1536" height="1024" hidden><img id="openingHands" src="./artwork/greek-wall-ball-hands.png" alt="" width="1774" height="887" hidden></div>
+ <img id="openingAtlas" src="./artwork/greek-wall-ball-reconstructed.png" alt="" width="1536" height="1024" hidden></div>
  <div class="openingMotivation"><div id="openingTitle" class="eyebrow">Daily motivation</div><p class="dailyQuote">${h(dailyMotivation())}</p></div>${button('Skip opening','skip-launch','id="skipLaunch"','small ghost')}</div>`;
  scene.showModal();$('skipLaunch')?.focus();
  // The separate scene survives Home redraws; all art files must be ready before the clock starts.
  // Each replay owns its callbacks so a late image event from a skipped run cannot start a new run.
- const run=++openingRun,ready=new Set(),ids=['openingUpper','openingAtlas','openingHands'];
+ const run=++openingRun,ready=new Set(),ids=['openingUpper','openingAtlas'];
  openingTimer=setTimeout(finishOpening,5000);
  for(const id of ids){const image=$(id),loaded=()=>{if(run!==openingRun||openingPhase!=='loading')return;ready.add(id);if(ready.size===ids.length)playOpening()};
   image?.addEventListener('load',loaded,{once:true});image?.addEventListener('error',()=>{if(run===openingRun)finishOpening()},{once:true});
