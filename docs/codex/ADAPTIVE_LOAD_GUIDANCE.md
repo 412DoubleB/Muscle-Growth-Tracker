@@ -1,6 +1,6 @@
 # Equipment-aware next-set recommendations
 
-Status: implemented on an isolated development branch, not published. The owner approved the private preview except for the plate-loaded correction, which now limits lb changes to 10/25/35/45 per side. The live release remains pending. This changes frontend coaching and optional gym settings only; it does not run paid model calls or change the backend.
+Status: published to live MENEI as version 8.2.0, build 20261023.4, through PR #6. The owner approved the private sample preview, requested the final 10/25/35/45 lb per-side plate restriction, then explicitly approved live publication. GitHub Pages deployment succeeded for merge commit 73ef3721cd7f2715e4c73d65d1dab6e6f3987360. All 80 test files and static checks passed, together with the final plate regressions and nine preview checks. This changes frontend coaching and optional gym settings only; no paid model requests, backend changes or credential changes were made. Physical-device acceptance of the newly installed live build is separate from the owner’s sample-preview acceptance.
 
 ## Result
 
