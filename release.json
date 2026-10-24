@@ -26,8 +26,8 @@
     "opening_animation": "Owner approved reconstructed animation and corrected far-hand thumb in private preview",
     "load_guidance": "Owner approved sample preview; plate-loaded lb changes restricted to 10/25/35/45 per side",
     "rest_day_streak": "Automatic scheduled recovery; all 81 regression test files and static checks passed; physical-device check pending",
-    "personalized_training": "Private sample preview deployed; final regression checks running; owner acceptance pending",
-    "accessible_exercises": "43 additive options; original 197 preserved; bands record named resistance; owner acceptance pending",
+    "personalized_training": "Owner-only sample preview deployed; all 89 test files and static checks passed; owner acceptance pending",
+    "accessible_exercises": "43 additive options; original 197 preserved; band-only entries protected; numeric band loads never inferred; all 89 test files passed",
     "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending"
   }
 }
