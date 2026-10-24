@@ -22,6 +22,10 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Do not hide missing media or claim generic guide panels are approved exercise pairs.
 
 ## Programs, sessions and running
+- Display the retained paired-muscle split as **The MENEI Split**. Keep internal key `split`, Chest + Biceps / Back + Triceps / Legs / Shoulders + Abs, all muscle slots and saved records unchanged.
+- Offer optional warm-up and cool-down guidance matched to the actual session muscles, with explicitly selected light-band variations and equipment-free alternatives. Guidance is separate from logged working sets, completion, streaks and load progression; running phases already included in run time are not counted again.
+- Offer smart in-app adult starting plans informed by linked published trainer and professional guidance. Personalize by age, experience, goals, schedule, saved gym inventory and editable choices. Age suggests an emphasis, not a load or ability limit. Keep source credits honest: original MENEI adaptations are not licensed, copied, endorsed or live AI-generated programs. No new AI calls or paid-usage budget is authorized by this local implementation.
+- Smart-plan previews remain read-only until Save, protect entered workouts, and reject stale account or program/equipment inputs before snapshotting or writing. Current smart-plan choices reopen in their own editor, including one- and two-set starting plans.
 | Choice | Required behavior |
 | --- | --- |
 | Splits | Full Body; Upper / Lower; Push / Pull / Legs; Bro / Body Part; retained paired/body-part and saved custom rotations |
