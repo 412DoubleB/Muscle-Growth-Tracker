@@ -10,7 +10,7 @@
   "source_release": "8.2.0",
   "source_commit": "f4603ed60ff48073bda45302595a1abb97378fa7",
   "deploymentReady": true,
-  "build": "20261024.3",
+  "build": "20261024.4",
   "ai_beta": {
     "accounts": 20,
     "attempts_per_account": 5,
@@ -28,6 +28,7 @@
     "rest_day_streak": "Automatic scheduled recovery; all 81 regression test files and static checks passed; physical-device check pending",
     "personalized_training": "Owner approved publication; all 89 test files and static checks passed; physical device acceptance pending",
     "accessible_exercises": "43 additive options; original 197 preserved; band-only entries protected; numeric band loads never inferred; all 89 test files passed",
-    "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending"
+    "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending",
+    "optional_day_warmup": "Add warm-up routine is an optional reviewed choice on the daily workout screen; saved guidance is separate from working sets and follows current muscles. Regression validation in progress."
   }
 }
