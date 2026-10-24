@@ -6,6 +6,7 @@ import {splitSession,trainingStyle,runningSession} from './training.mjs?v=8.2.0'
 import {autoSupersets,progressionContext} from './supersets.mjs?v=8.2.0';
 import { LEGACY_PLAN, LEGACY_MASTERS, LEGACY_EQUIPMENT, detailedGuide } from './legacy.mjs?v=8.2.0';
 import { buildCatalog } from './catalog.mjs?v=8.2.0';
+import {eligibleForProgramming,accessiblePriority} from './accessible-programming.mjs?v=8.2.0';
 
 export const VERSION='8.2.0';
 export const CATALOG=buildCatalog(LEGACY_MASTERS,LEGACY_PLAN);
@@ -25,7 +26,7 @@ export const norm=s=>String(s??'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export const now=()=>new Date().toISOString();
 export const touch=v=>({...v,updatedAt:now()});
 export function exerciseFor(name){return CATALOG.find(e=>e.id===name||norm(e.name)===norm(name)||e.aliases?.some(a=>norm(a)===norm(name)))}
-export function guideFor(e){const g=detailedGuide(e.name,e.equipmentLabel||'',e.group);const special=/lean.away|cable rear.delt|dumbbell calf raise/i.test(e.name);return {...g,setup:!special&&g.setup.length>(e.setup?.length||0)?g.setup:e.setup||g.setup,cues:!special&&g.cues.length>(e.cues?.length||0)?g.cues:e.cues||g.cues,mistakes:!special&&g.mistakes.length>(e.mistakes?.length||0)?g.mistakes:e.mistakes||g.mistakes}}
+export function guideFor(e){if(e.independentGuide===true)return {setup:(e.setup||[]).slice(),cues:(e.cues||[]).slice(),mistakes:(e.mistakes||[]).slice()};const g=detailedGuide(e.name,e.equipmentLabel||'',e.group);const special=/lean.away|cable rear.delt|dumbbell calf raise/i.test(e.name);return {...g,setup:!special&&g.setup.length>(e.setup?.length||0)?g.setup:e.setup||g.setup,cues:!special&&g.cues.length>(e.cues?.length||0)?g.cues:e.cues||g.cues,mistakes:!special&&g.mistakes.length>(e.mistakes?.length||0)?g.mistakes:e.mistakes||g.mistakes}}
 const stationInventory=['Dumbbells','Barbell','Olympic Plates','EZ Bar','Bench','Adjustable Bench','Decline Bench','Dual Cable / Functional Trainer','Single Cable Column','Cable Station','Lat Pulldown','Landmine','T-Bar Row','Preacher Bench','Dip Station','Rope Attachment','Straight Bar Attachment','V-Bar Attachment','D-Handles','Row Handles'];
 export function defaultState(){const t=now();return {schemaVersion:8,id:uid(),createdAt:t,updatedAt:t,ownerId:null,profile:{name:'',gender:'Male',skinTone:'medium',age:'',weight:'',heightFt:'',heightIn:'',goalWeight:'',units:'lb',updatedAt:t},training:{mode:'original',frequency:4,experience:'Intermediate',split:'seven',supersetMode:'off',trainingStyle:'hypertrophy',restSeconds:120,runningQuality:false,sets:3,range:'8-10',targetRir:2,minRepeatDays:14,excludePullups:true,runEvery:2,saunaMinutes:20,restWeekdays:[0],startDate:iso(),defaultGym:'crunch',updatedAt:t},nutrition:{calories:2400,protein:200,carbs:220,fat:75,servings:1,horizon:1,goal:'muscle',mealRepeatDays:2,mealCategories:[],breakfastCategories:[],snackCategories:[],allergens:[],exclude:'',diet:'Any',notes:'',updatedAt:t},gyms:[{id:'crunch',name:'Crunch Pleasant Hills',inventory:LEGACY_EQUIPMENT.slice(),dbMax:120,increment:5,notes:'Equipment estimate: review against your gym.',updatedAt:t},{id:'station',name:'Fire Station',inventory:stationInventory,dbMax:100,increment:5,notes:'Station equipment from the project: dumbbells to 100 lb, bar/plates, benches, dual cables, pulldown, landmine, T-bar, EZ bar, preacher bench, dips.',updatedAt:t}],gymSchedules:[{id:'fire-shift',gymId:'station',type:'interval',every:4,start:'2026-10-04',durationDays:1,priority:10,weekdays:[],updatedAt:t}],plan:{},logs:{},recipes:[],meals:{},pantry:[],leftovers:[],shoppingChecks:{},reminders:{enabled:false,time:'12:00',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,workout:true,meals:false,updatedAt:t},avoided:[],customExercises:[],routines:[],legacySnapshots:[],conflicts:[],resolvedConflicts:[]}}
 
@@ -48,13 +49,14 @@ export function missingEquipment(e,g){const inv=normalizedInventory(g||{inventor
 export const supports=(e,g)=>!!e&&missingEquipment(e,g).length===0;
 export function scheduledGym(state,date){let rules=state.gymSchedules.filter(r=>!r.deleted&&(!r.start||date>=r.start)&&(!r.end||date<=r.end)).sort((a,b)=>(b.priority||0)-(a.priority||0));for(const r of rules){const delta=daysBetween(date,r.start||date);const every=Math.max(1,+r.every||1)*(r.type==='weeks'?7:1);const matches=['interval','weeks'].includes(r.type)?delta>=0&&delta%every<(+r.durationDays||1):r.type==='weekly'&&(r.weekdays||[]).map(Number).includes(dateOf(date).getDay());if(matches){const gym=state.gyms.find(g=>g.id===r.gymId&&!g.deleted);if(gym)return gym}}return state.gyms.find(g=>g.id===state.training.defaultGym&&!g.deleted)||state.gyms.find(g=>!g.deleted)}
 export function setsFor(e,type='straight',count=e.sets||3){return Array.from({length:count},(_,i)=>({id:uid(),role:type==='top'?(i===0?'top':'backoff'):type==='drop'?(i===0?'working':'drop'):type==='ramp'?(i===count-1?'working':'ramp'):'working',w:'',r:'',rir:'',done:false,rest:type==='drop'&&i>0?15:120}))}
-export function makeExercise(e,{type='straight',count=e.sets||3,range=e.range||'8-12'}={}){return {id:uid(),exerciseId:e.id,name:e.name,range,setType:type,loadMode:e.loadMode||'total',sets:setsFor(e,type,count),notes:''}}
+export function makeExercise(e,{type='straight',count=e.sets||3,range=e.range||'8-12'}={}){return {id:uid(),exerciseId:e.id,name:e.name,range,setType:type,loadMode:e.loadMode||'total',...(e.manualProgression===true?{manualProgression:true,repUnit:e.repUnit||'reps'}:{}),sets:setsFor(e,type,count),notes:''}}
 export function rangeOf(s){let [lo,hi]=String(s).split('-').map(Number);if(!Number.isFinite(lo)||lo<1)return[8,12];return[lo,Number.isFinite(hi)?hi:lo]}
 const usableNumber=value=>(typeof value==='number'||typeof value==='string'&&value.trim()!=='')&&Number.isFinite(+value);
 const usableRir=set=>usableNumber(set.rir)&&+set.rir>=0&&+set.rir<=10;
 function loadIncrement(state,exercise,gym){const setup=resolveLoadSetup(state,exercise,gym,recommendationMeta(state,exercise));return setup.kind==='plates'?Math.min(...setup.plates)*setup.sides:setup.step}
 const portableEquipment=new Set(['Bodyweight','Dumbbells','Barbell','Olympic Plates','EZ Bar','Kettlebells','Trap Bar / Hex Bar','Safety Squat Bar','Bench','Flat Bench','Adjustable Bench','Decline Bench','Preacher Bench','Chest-Supported Row Bench','Squat Rack','Squat Rack / Power Rack','Half Rack','Bench-Press Rack','Step / Plyo Box','Hip Thrust Pad','Dip Station','Pull-up Bar','Dip Belt / Weighted Vest','Ab Wheel']);
 function recommendationMeta(state,exercise){return exerciseFor(exercise.exerciseId||exercise.name)||state.customExercises?.find(e=>e.id===exercise.exerciseId||!exercise.exerciseId&&norm(e.name)===norm(exercise.name))||exercise}
+export function usesManualProgression(exercise,definition=exercise){return definition?.manualProgression===true||exercise?.manualProgression===true||definition?.loadMode==='band'||exercise?.loadMode==='band'}
 function portableHistory(state,exercise){
  const meta=recommendationMeta(state,exercise);
  if(meta.loadMode==='assistance'||exercise.loadMode==='assistance')return false;
@@ -75,7 +77,13 @@ export function lastHistory(state,exercise,date,gymId){
  return active.sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt).localeCompare(String(a.updatedAt))).flatMap(l=>(l.exercises||[]).filter(e=>(e.exerciseId===id||(!id&&norm(e.name)===norm(exercise.name)))&&progressionContext(e)===progressionContext(exercise)&&(l.gymId===gymId||portableHistory(state,exercise)&&portableHistory(state,e))).map(e=>({log:l,exercise:e,sets:completedSets(e)}))).find(x=>x.sets.length)
 }
 export function progression(state,exercise,date,gym){
- const [lo,hi]=rangeOf(exercise.range),h=lastHistory(state,exercise,date,gym?.id),meta=recommendationMeta(state,exercise),assistance=meta.loadMode==='assistance';
+ const [lo,hi]=rangeOf(exercise.range),meta=recommendationMeta(state,exercise);
+ if(usesManualProgression(exercise,meta)){
+  const repUnit=meta.repUnit||exercise.repUnit||'reps',band=meta.loadMode==='band'||exercise.loadMode==='band';
+  const reason=band?'Keep the band brand, level and setup consistent. Build controlled repetitions within the range first; when all working sets are comfortable at the top, choose a suitable firmer band and record the new setting. Band tension is not converted to pounds or kilograms.':repUnit==='seconds'?'Build a comfortable hold within the seconds range before trying a harder variation. Keep the position controlled; no added weight is suggested.':repUnit==='metres'?'Build a comfortable distance within the metres range while keeping the movement controlled; no added weight is suggested.':'Build controlled repetitions within the range before trying a harder variation. Use support as needed; no added weight is suggested.';
+  return {manual:true,loadMode:band?'band':meta.loadMode||exercise.loadMode,weight:null,reps:lo,range:[lo,hi],reason,rows:(exercise.sets||[]).map(set=>({w:null,r:lo,role:set.role})),previous:null};
+ }
+ const h=lastHistory(state,exercise,date,gym?.id),assistance=meta.loadMode==='assistance';
  const setup=resolveLoadSetup(state,exercise,gym,meta),step=loadIncrement(state,exercise,gym);
  const snap=w=>{const options=reachableLoadOptions(setup,setup.minimum,Math.max(setup.minimum,w+step));return options.reduce((best,value)=>best===null||Math.abs(value-w)<Math.abs(best-w)-1e-8?value:best,null)};
  let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
@@ -163,13 +171,14 @@ function nextLoadAdjustment(setup,load,reps,rir,lo,hi,{assistance=false,perHandL
 }
 
 export function nextSetRecommendation(state,exercise,gym){
+ const meta=recommendationMeta(state,exercise);if(usesManualProgression(exercise,meta))return null;
  const primary=set=>['working','top'].includes(set.role),sets=exercise.sets||[];
  let sourceIndex=-1;for(let i=0;i<sets.length;i++)if(sets[i].done&&primary(sets[i]))sourceIndex=i;
  if(sourceIndex<0)return null;
  const source=sets[sourceIndex],targetIndex=sourceIndex+1,target=sets[targetIndex];
  if(!target||target.done||!primary(target)||!completedSets({sets:[source]}).length||!usableRir(source)||!Number.isInteger(+source.r))return null;
  const [lo,hi]=rangeOf(exercise.range);if(hi<lo||!Number.isFinite(hi))return null;
- const meta=recommendationMeta(state,exercise);if(meta.repUnit&&meta.repUnit!=='reps')return null;
+ if(meta.repUnit&&meta.repUnit!=='reps')return null;
  const assistance=meta.loadMode==='assistance',setup=resolveLoadSetup(state,exercise,gym,meta),load=+source.w;
  const perHandLimit=meta.loadMode==='perHand'&&usableNumber(gym?.dbMax)&&+gym.dbMax>0?+gym.dbMax*(state.profile.units==='kg'?.45359237:1):null;
  const result=nextLoadAdjustment(setup,load,+source.r,+source.rir,lo,hi,{assistance,perHandLimit});
@@ -181,10 +190,13 @@ function historyDates(state){const last=new Map();for(const l of Object.values(s
 function subgroup(e){if(e.group==='Legs'&&['quads','hamstrings','calves'].includes(e.subgroup))return e.subgroup;const n=(e.name+' '+e.primary+' '+e.movement).toLowerCase();if(e.group!=='Legs')return e.group;if(/calf|tibialis/.test(n))return 'calves';if(/romanian|deadlift|leg curl|hamstring|hip thrust|glute drive|hinge|nordic|glute-ham/.test(n))return 'hamstrings';return 'quads'}
 function matchesGroup(e,group){if(['anterior-delt','lateral-delt','rear-delt'].includes(group))return e.group==='Shoulders'&&e.subgroup===group.split('-')[0];return subgroup(e)===group}
 function matchesEquipmentPreference(exercise,preference){
- if(!['machines','free','bodyweight'].includes(preference))return true;
+ if(!['machines','free','bodyweight','bands','calisthenics'].includes(preference))return true;
  const raw=exercise.equipmentRequirements||exercise.equipment||[],equipment=(Array.isArray(raw)?raw:[raw]).flatMap(clause=>Array.isArray(clause)?clause:[clause]).filter(item=>typeof item==='string'&&item.trim());
  const bodyweight=exercise.loadMode==='bodyweight',free=exercise.loadMode==='perHand'||equipment.some(item=>/^(?:Dumbbells|Kettlebells|Barbell|EZ Bar|Safety Squat Bar|Trap Bar \/ Hex Bar|Landmine|Battle Ropes|Sled \/ Prowler)$/.test(item));
- return preference==='bodyweight'?bodyweight:preference==='free'?!bodyweight&&free:!bodyweight&&!free&&equipment.length>0;
+ const band=exercise.loadMode==='band'||exercise.modalities?.includes('bands');
+ if(preference==='bands')return band;
+ if(preference==='calisthenics')return bodyweight||exercise.modalities?.includes('calisthenics');
+ return preference==='bodyweight'?bodyweight:preference==='free'?!bodyweight&&!band&&free:!bodyweight&&!band&&!free&&equipment.length>0;
 }
 function programCadence(training,anchor){
  const frequency=Math.max(1,Math.min(7,+training.frequency||4)),weekSlots=[0,2,4,6,1,3,5].filter(day=>!(training.restWeekdays||[]).includes((dateOf(anchor).getDay()+day)%7)).slice(0,frequency).sort((a,b)=>a-b);
@@ -217,16 +229,16 @@ export function generateProgram(state,{start=state.training.startDate||iso(),day
  for(let i=0;i<Math.max(1,Math.min(366,+days||28));i++){
   const date=addDays(start,i),gym=scheduledGym(state,date),l=layout(date),notes=[],selected=[],used=new Set();if(!gym)throw Error('Create at least one gym before generating a plan.');
   if(protectedDay(state.logs[date])){warnings.push(date+': existing workout preserved.');for(const e of state.logs[date].exercises||[])if(e.exerciseId)last.set(e.exerciseId,date);continue}
-  for(const group of l.groups){const candidates=[...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!state.avoided.includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&matchesGroup(e,group)&&supports(e,gym)&&!used.has(e.id));
-   candidates.sort((a,b)=>{const score=e=>{const recent=last.get(e.id),gap=recent?daysBetween(date,recent):9999;return (gap<(+t.minRepeatDays||0)?100000:0)+(recent?1000-Math.max(-1000,gap):0)+(matchesEquipmentPreference(e,t.equipmentPreference)?0:50000)+(e.compound?-50:0)+(t.experience==='Beginner'&&/pendlay|meadows|nordic|safety bar|kettlebell swing/i.test(e.name)?100:0)+(hash(e.id+date)%97)};return score(a)-score(b)});
+  for(const group of l.groups){const candidates=[...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&eligibleForProgramming(e,t)&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!state.avoided.includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&matchesGroup(e,group)&&supports(e,gym)&&!used.has(e.id));
+   candidates.sort((a,b)=>{const score=e=>{const recent=last.get(e.id),gap=recent?daysBetween(date,recent):9999;return (gap<(+t.minRepeatDays||0)?100000:0)+(recent?1000-Math.max(-1000,gap):0)+(matchesEquipmentPreference(e,t.equipmentPreference)?0:50000)+accessiblePriority(e,t)+(e.compound?-50:0)+(t.experience==='Beginner'&&/pendlay|meadows|nordic|safety bar|kettlebell swing/i.test(e.name)?100:0)+(hash(e.id+date)%97)};return score(a)-score(b)});
    const e=candidates[0];if(!e){notes.push('No '+group+' exercise matches the gym inventory.');continue}
    if(last.has(e.id)&&daysBetween(date,last.get(e.id))<(+t.minRepeatDays||0))notes.push(e.name+': repeated because this gym has limited alternatives.');
-   const preset=trainingStyle(t.trainingStyle),count=Math.max(1,Math.min(6,+t.sets||preset.sets)),chosen=makeExercise(e,{count:t.experience==='Beginner'?Math.min(3,count):count,range:t.range||preset.range});chosen.targetRir=t.experience==='Beginner'?3:preset.rir;chosen.sets.forEach(s=>s.rest=+t.restSeconds||preset.rest);chosen.trainingStyle=t.trainingStyle||'hypertrophy';selected.push(chosen);used.add(e.id);last.set(e.id,date);
+   const preset=trainingStyle(t.trainingStyle),count=Math.max(1,Math.min(6,+t.sets||preset.sets)),chosen=makeExercise(e,{count:t.experience==='Beginner'?Math.min(3,count):count,range:t.accessibleProgramming===true&&e.repUnit&&e.repUnit!=='reps'?e.range:t.range||preset.range});if(t.accessibleProgramming===true&&e.loadMode==='bodyweight'&&e.repUnit&&e.repUnit!=='reps')chosen.manualProgression=true;chosen.targetRir=t.experience==='Beginner'?3:preset.rir;chosen.sets.forEach(s=>s.rest=+t.restSeconds||preset.rest);chosen.trainingStyle=t.trainingStyle||'hypertrophy';selected.push(chosen);used.add(e.id);last.set(e.id,date);
   }
   if(selected.some(e=>!matchesEquipmentPreference(exerciseFor(e.exerciseId)||state.customExercises?.find(x=>x.id===e.exerciseId)||e,t.equipmentPreference)))notes.push('The equipment preference uses a mix of compatible saved equipment where preferred options or rotation alternatives are limited.');
   const run=runningSession({...t,runningQuality:t.runningQuality&&!qualityWeeks.has(l.week)},{date,dayIndex:l.offset,legDay:l.legs,legsTomorrow:legsAt(addDays(date,1)),recentLegs:legsAt(addDays(date,-1)),week:l.week});if(run?.blocks?.length)qualityWeeks.add(l.week);
   if(run&&l.lift)notes.push(run.guidance);if(t.experience==='Beginner'&&+t.sets>3)notes.push('Beginner volume capped at 3 working sets; adjust after reviewing recovery.');
-  let day={id:date,date,title:l.lift?l.title:run?run.type:'Recovery',gymId:gym.id,kind:l.lift?'strength':run?'run':'rest',run,sauna:l.lift&&+t.saunaMinutes>0?{minutes:+t.saunaMinutes,done:false}:null,exercises:selected,plannedExerciseCount:l.groups.length,notes,split:t.split,trainingStyle:t.trainingStyle||'hypertrophy',sessionNumber:l.index+1,updatedAt:now(),generatorVersion:VERSION};if(selected.length<l.groups.length)notes.push('Session has '+selected.length+' of '+l.groups.length+' planned exercises because the confirmed equipment or exclusions do not support every slot.');if(t.supersetMode==='supersets'&&l.lift)day=autoSupersets(day,e=>exerciseFor(e.exerciseId)||state.customExercises?.find(x=>x.id===e.exerciseId),+t.restSeconds||120);if(l.lift&&selected.length<6){day.needsEquipmentReview=true;day.notes.push('At least 6 exercises are required for a generated lifting session. Review the gym inventory or exclusions before using this incomplete workout.')}generated.push(day);warnings.push(...day.notes.map(n=>date+': '+n));
+  let day={id:date,date,title:l.lift?l.title:run?run.type:'Recovery',gymId:gym.id,kind:l.lift?'strength':run?'run':'rest',run,sauna:l.lift&&+t.saunaMinutes>0?{minutes:+t.saunaMinutes,done:false}:null,exercises:selected,plannedExerciseCount:l.groups.length,notes,split:t.split,trainingStyle:t.trainingStyle||'hypertrophy',sessionNumber:l.index+1,updatedAt:now(),generatorVersion:VERSION};if(t.accessibleProgramming===true)Object.assign(day,{accessibleProgramming:true,movementLevel:t.movementLevel,allowFloorWork:t.allowFloorWork});if(selected.length<l.groups.length)notes.push('Session has '+selected.length+' of '+l.groups.length+' planned exercises because the confirmed equipment or exclusions do not support every slot.');if(t.supersetMode==='supersets'&&l.lift)day=autoSupersets(day,e=>exerciseFor(e.exerciseId)||state.customExercises?.find(x=>x.id===e.exerciseId),+t.restSeconds||120);if(l.lift&&selected.length<6){day.needsEquipmentReview=true;day.notes.push('At least 6 exercises are required for a generated lifting session. Review the gym inventory or exclusions before using this incomplete workout.')}generated.push(day);warnings.push(...day.notes.map(n=>date+': '+n));
  }
  if(t.runningQuality&&t.trainingStyle==='endurance'&&days>=14&&!generated.some(d=>d.run?.blocks?.length))warnings.push('No interval session fit the lower-body recovery windows in this preview; runs remain easy.');
  return {days:generated,warnings};

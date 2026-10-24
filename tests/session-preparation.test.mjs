@@ -30,7 +30,9 @@ test('bands require explicit opt-in, need no face or door anchor and have equipm
  assert.ok(bands.warmup.some(step=>step.id==='band-pull-apart'));assert.ok(!bands.warmup.some(step=>step.id==='shoulder-blade-reaches'));
  assert.ok(bands.notes.some(note=>/no door or face-level anchor/.test(note)));
  assert.ok(prepare(workout,{bands:'true'}).warmup.every(step=>!step.equipment.includes('band')));
- const hips=sessionPreparation({kind:'strength',exercises:[{name:'Synthetic hip exercise',group:'Legs',subgroup:'abductors',sets:[]}]},{bands:true});assert.ok(hips.warmup.some(step=>step.id==='band-side-steps'));
+ const hipDay={kind:'strength',exercises:[{name:'Synthetic hip exercise',group:'Legs',subgroup:'abductors',sets:[]}]};
+ const hips=sessionPreparation(hipDay,{bands:true});assert.ok(hips.warmup.some(step=>step.id==='side-weight-shifts'));assert.ok(!hips.warmup.some(step=>step.id==='band-side-steps'));
+ const loop=sessionPreparation(hipDay,{bands:true,loopBandAvailable:true});assert.ok(loop.warmup.some(step=>step.id==='band-side-steps'));
 });
 
 test('unknown custom names receive general preparation rather than fabricated anatomy or equipment',()=>{

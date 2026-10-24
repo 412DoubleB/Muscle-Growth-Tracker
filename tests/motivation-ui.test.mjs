@@ -27,17 +27,17 @@ test('opening survives Home redraws, waits for art, runs 4.5 seconds, closes aut
   assert.match(env.html,/Training streak/);assert.match(env.html,/>3<span> days in a row/);assert.match(env.html,/2 completed training days/);assert.ok(env.html.indexOf('Daily motivation')<env.html.indexOf('meneiHero'));assert.match(env.html,/<blockquote class="dailyQuote">[^<]+/);
   assert.equal(scene.open,true);assert.equal(scene.classes.has('playing'),false);assert.match(scene.innerHTML,/openingWord">MENEI/);assert.match(scene.innerHTML,/openingEmblem/);assert.match(scene.innerHTML,/openingUpper/);assert.match(scene.innerHTML,/Daily motivation/);
   const content=scene.innerHTML;assert.match(content,/openingWreathLeft/);assert.match(content,/openingWreathRight/);assert.match(content,/rigNearFore/);assert.match(content,/rigFarFore/);assert.match(content,/rigBall/);assert.match(content,/greek-wall-ball-reconstructed.png/);assert.match(content,/rigBodySkin/);assert.match(content,/rigSkin239/);assert.doesNotMatch(content,/greek-wall-ball-hands.png|rigNearJoint|rigFarJoint/);assert.doesNotMatch(content,/openingThrow|openingOriginal/);
-  env.element('openingUpper').events.get('load')();assert.equal(scene.classes.has('playing'),false);env.element('openingAtlas').events.get('load')();assert.equal(scene.classes.has('playing'),true);const armBefore=env.element('rigNearFore').transform;t.mock.timers.tick(500);env.frame();assert.notEqual(env.element('rigNearFore').transform,armBefore);
+  assert.equal(env.element('openingUpper').events.has('load'),false,'The original image is a placeholder, not an animation dependency');t.mock.timers.tick(5500);assert.equal(scene.open,true,'A cold load may take longer than the old five-second cutoff');env.element('openingAtlas').events.get('load')();assert.equal(env.element('openingUpper').hidden,true);assert.equal(scene.classes.has('playing'),true);const armBefore=env.element('rigNearFore').transform;t.mock.timers.tick(500);env.frame();assert.notEqual(env.element('rigNearFore').transform,armBefore);
   await env.click('view',{view:'nutrition'});await env.click('view',{view:'today'});assert.equal(scene.innerHTML,content);assert.equal(scene.open,true);assert.deepEqual([...env.rows],before);
   env.fireTimer(4500);assert.equal(scene.open,false);assert.equal(env.frameCount,0);await env.click('view',{view:'today'});assert.equal(scene.open,false);
-  await env.click('replay-opening');assert.equal(scene.open,true);await env.click('skip-launch');assert.equal(scene.open,false);env.element('openingUpper').events.get('load')();assert.equal(scene.open,false);
+  await env.click('replay-opening');assert.equal(scene.open,true);await env.click('skip-launch');assert.equal(scene.open,false);env.element('openingAtlas').events.get('load')();assert.equal(scene.open,false);
   await env.click('streak-details');assert.match(env.element('modalBody').innerHTML,/Scheduled rest days automatically add a day/);assert.match(env.element('modalBody').innerHTML,/do not need to mark them complete/);assert.deepEqual([...env.rows],before);assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);
  }finally{env.restore()}
 });
-test('late artwork from a skipped opening cannot start its replacement before all new images are ready',async t=>{
+test('late artwork from a skipped opening cannot start its replacement before its own atlas is ready',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({loaded:false});try{
   await import('../app.mjs?motivation-ui=stale-atlas');const stale=env.element('openingAtlas').events.get('load');await env.click('skip-launch');await env.click('replay-opening');
-  stale();env.element('openingUpper').events.get('load')();assert.equal(env.element('openingScene').classes.has('playing'),false);
+  stale();assert.equal(env.element('openingScene').classes.has('playing'),false);
   env.element('openingAtlas').events.get('load')();assert.equal(env.element('openingScene').classes.has('playing'),true);env.fireTimer(4500);assert.equal(env.element('openingScene').open,false);
  }finally{env.restore()}
 });
@@ -48,9 +48,9 @@ test('reduced motion skips launch while keeping daily motivation and all records
 });
 test('failed artwork and expired background launch dismiss without trapping the app',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({loaded:false});try{
-  await import('../app.mjs?motivation-ui=launch-fallback');env.fireTimer(5000);assert.equal(env.element('openingScene').open,false);
-  await env.click('replay-opening');env.element('openingUpper').events.get('error')();assert.equal(env.element('openingScene').open,false);
-  await env.click('replay-opening');env.element('openingUpper').events.get('load')();env.element('openingAtlas').events.get('load')();t.mock.timers.tick(4501);await env.event('visibilitychange',{});assert.equal(env.element('openingScene').open,false);assert.match(env.html,/Daily motivation/);
+  await import('../app.mjs?motivation-ui=launch-fallback');env.fireTimer(15000);assert.equal(env.element('openingScene').open,false);
+  await env.click('replay-opening');env.element('openingAtlas').events.get('error')();assert.equal(env.element('openingScene').open,false);
+  await env.click('replay-opening');env.element('openingAtlas').events.get('load')();t.mock.timers.tick(4501);await env.event('visibilitychange',{});assert.equal(env.element('openingScene').open,false);assert.match(env.html,/Daily motivation/);
  }finally{env.restore()}
 });
 test('completing a genuine workout celebrates a new milestone once per date and preserves other history and checked values',async t=>{
@@ -73,5 +73,14 @@ test('strength and hypertrophy program previews accept the fixed 60-second rest 
    await env.submit({start:date,days:28,frequency:4,experience:'Intermediate',split:'upper-lower',trainingStyle:focus,sets,range,restSeconds:60,defaultGym:'crunch',minRepeatDays:14,runEvery:2,saunaMinutes:20,restWeekdays:[0]});assert.match(env.element('modalBody').innerHTML,/data-action="apply-program"/);await env.click('close-modal');
   }
   await env.submit({start:date,days:28,frequency:4,experience:'Intermediate',split:'upper-lower',trainingStyle:'strength',sets:1,range:'8-10',restSeconds:60,defaultGym:'crunch'});assert.match(env.element('toast').textContent,/For Strength/);assert.deepEqual(env.state.plan,before.plan);assert.deepEqual(env.state.logs,before.logs);
+ }finally{env.restore()}
+});
+
+test('iPhone cold launch waits for atlas decode, starts a full clock afterward, and ignores a late decode from a skipped run',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({loaded:false});let decode;
+ try{
+  env.element('openingAtlas').decode=()=>new Promise(resolve=>{decode=resolve});await import('../app.mjs?motivation-ui=decode');const scene=env.element('openingScene'),before=[...env.rows];
+  env.element('openingAtlas').events.get('load')();t.mock.timers.tick(6000);assert.equal(scene.open,true);assert.equal(scene.classes.has('playing'),false);decode();await new Promise(resolve=>setImmediate(resolve));assert.equal(scene.classes.has('playing'),true);env.fireTimer(4500);assert.equal(scene.open,false);
+  await env.click('replay-opening');env.element('openingAtlas').events.get('load')();const staleDecode=decode;await env.click('skip-launch');await env.click('replay-opening');staleDecode();await new Promise(resolve=>setImmediate(resolve));assert.equal(scene.classes.has('playing'),false);assert.deepEqual([...env.rows],before);
  }finally{env.restore()}
 });

@@ -61,7 +61,7 @@ test('smart-plan preview honors editable user choices and only applies after rev
   assert.deepEqual(after.logs,before.logs);for(const key of ['meals','pantry','legacySnapshots','profile','gyms','recipes'])assert.deepEqual(after[key],before[key],key);assert.equal(env.rows.get('MGT28v6'),env.legacyRaw);assert.deepEqual(trainingStreak(after,date),streak);
   assert.match(env.html,/data-action="smart-plan"[^>]*>Change preferences/);await env.click('smart-plan');
   for(const [name,value] of [['frequency',4],['split','split'],['sets',3],['range','10-15'],['approach','build']])assert.match(env.modal,new RegExp(`name="${name}"[\\s\\S]*?<option value="${value}" selected`));
-  const planned=Object.values(after.plan).filter(day=>day.date>=date&&day.kind==='strength');assert.ok(planned.length>0);for(const day of planned){assert.ok(day.exercises.length>=6&&day.exercises.length<=9);for(const exercise of day.exercises){assert.equal(exercise.range,'10-15');assert.equal(exercise.setTemplates.length,3)}}assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);
+  const planned=Object.values(after.plan).filter(day=>day.date>=date&&day.kind==='strength');assert.ok(planned.length>0);for(const day of planned){assert.ok(day.exercises.length>=6&&day.exercises.length<=9);for(const exercise of day.exercises){const meta=C.exerciseFor(exercise.exerciseId);assert.equal(exercise.range,meta.repUnit&&meta.repUnit!=='reps'?meta.range:'10-15');assert.equal(exercise.setTemplates.length,3)}}assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);
  }finally{env.restore()}
 });
 

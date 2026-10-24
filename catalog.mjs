@@ -4,6 +4,8 @@
  * equipment is CNF: every outer clause must be satisfied, any inner item suffices.
  * All original spellings are retained in aliases for history/media matching.
  */
+import {appendAccessibleExercises} from './accessible-exercises.mjs?v=8.2.0';
+
 export const normalizeExerciseName = value => String(value ?? '')
   .normalize('NFKC').replace(/[’‘]/g, "'").toLowerCase()
   .replace(/[^\p{L}\p{N}]+/gu, ' ').trim().replace(/\s+/g, ' ');
@@ -485,7 +487,7 @@ export function buildCatalog(legacyMasters = [], legacyPlan = []) {
     const target = registry.get(normalizeExerciseName(group[0]));
     if (target) group.forEach(name => target.aliasSet.add(name));
   }
-  return [...registry.values()].map(({source, aliasSet}) => {
+  const original = [...registry.values()].map(({source, aliasSet}) => {
     const name = source.name;
     const info = anatomy(name, source.group);
     const composite = COMPOSITES[name];
@@ -520,5 +522,6 @@ export function buildCatalog(legacyMasters = [], legacyPlan = []) {
         ? info.subgroup === 'quads' ? ['legs1'] : ['hamstrings','glutes'].includes(info.subgroup) ? ['legs2'] : ['legs_accessory']
         : [info.group.toLowerCase().replace(/ /g,'_')]
     };
-  }).sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  });
+  return appendAccessibleExercises(original).sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 }

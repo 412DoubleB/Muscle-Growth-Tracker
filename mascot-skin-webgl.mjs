@@ -1,5 +1,8 @@
 // Optional body-only acceleration. The SVG skin remains the complete fallback.
 import {BODY_SKIN_VERTICES,BODY_SKIN_TRIANGLES,bodySkinVertices} from './mascot-skin.mjs?v=8.2.0';
+// This is an ordinary HTML canvas. Nesting it in SVG foreignObject can report
+// successful GPU draws while WebKit never composites the lower body.
+export const MASCOT_SKIN_BOUNDS=Object.freeze({x:0,y:784,width:1024,height:752});
 const states=new WeakMap();
 const vertexSource=`attribute vec2 a_position;
 attribute vec2 a_uv;

@@ -56,3 +56,42 @@ test('far-hand chirality changes only the palm drawing, preserving its wrist and
  assert.ok(svg.indexOf('id="rigFarPalmCorrection"')<svg.indexOf('id="rigBall"'),'Corrected palm remains behind globe');
  assert.equal(createHash('sha256').update(await readFile(new URL('../artwork/greek-wall-ball-reconstructed.png',import.meta.url))).digest('hex'),'07d8b6cfd2d156ffa19a74fd28ccee435961f8a8ec9a9a733bda9f6487efac26','Do not regenerate any accepted artwork');
 });
+
+test('lower-body GPU canvas stays outside SVG with the original back-to-front paint order',()=>{
+ const html=wallBallSvg(),stack=[];let canvasFound=false;
+ assert.doesNotMatch(html,/<foreignObject\b/i,'WebKit can draw WebGL successfully without painting a foreignObject canvas');
+ for(const match of html.matchAll(/<(\/?)(svg|canvas|div)\b[^>]*>/g)){
+  if(match[1]){assert.equal(stack.pop(),match[2]);continue}
+  if(/id="rigSkinCanvas"/.test(match[0])){canvasFound=true;assert.ok(!stack.includes('svg'),'GPU surface must be a normal HTML layer');assert.deepEqual(stack,['div','div'])}
+  stack.push(match[2]);
+ }
+ assert.equal(canvasFound,true);assert.deepEqual(stack,[]);
+ const back=html.indexOf('class="openingRig openingRigBack"'),skin=html.indexOf('id="rigBodySkin"'),canvas=html.indexOf('id="rigSkinSurface"'),front=html.indexOf('class="openingRig openingRigFront"');
+ assert.ok(back<skin&&skin<canvas&&canvas<front);
+ assert.ok(html.indexOf('id="rigFarUpper"')<skin);
+ assert.ok(front<html.indexOf('id="rigTorso"'));
+ assert.deepEqual([...html.matchAll(/viewBox="([^"]+)"/g)].map(m=>m[1]),['0 -330 1024 1930','0 -330 1024 1930']);
+});
+
+test('HTML body layer maps to the same world coordinates as both SVG layers at every phone size and pose',async()=>{
+ const {wallBallSkinPlacement,WALL_BALL_VIEWBOX:v}=await import('../wall-ball.mjs');
+ const {MASCOT_SKIN_BOUNDS:b}=await import('../mascot-skin-webgl.mjs');
+ const {bodySkinVertices}=await import('../mascot-skin.mjs');
+ const place=wallBallSkinPlacement();
+ for(const stageWidth of [80,126,180,199,207,320]){
+  const stageHeight=stageWidth*v.height/v.width,scale=stageWidth/v.width;
+  for(let t=0;t<=4500;t+=50)for(const p of bodySkinVertices(wallBallPose(t))){
+   assert.ok(p.x>=b.x-1e-8&&p.x<=b.x+b.width+1e-8,'No clipping at a side of the body canvas');
+   assert.ok(p.y>=b.y-1e-8&&p.y<=b.y+b.height+1e-8,'No clipping at top/bottom of the body canvas');
+   const canvasX=stageWidth*(place.left/100+(p.x-b.x)/b.width*place.width/100);
+   const canvasY=stageHeight*(place.top/100+(p.y-b.y)/b.height*place.height/100);
+   assert.ok(Math.abs(canvasX-(p.x-v.x)*scale)<1e-8);
+   assert.ok(Math.abs(canvasY-(p.y-v.y)*scale)<1e-8);
+  }
+ }
+ const css=await readFile(new URL('../styles.css',import.meta.url),'utf8');
+ assert.match(css,/\.openingRigStage\{[^}]*aspect-ratio:1024\/1930/);
+ assert.match(css,/\.openingRigBack\{z-index:0\}/);
+ assert.match(css,/\.openingSkinSurface\{[^}]*z-index:1/);
+ assert.match(css,/\.openingRigFront\{z-index:2\}/);
+});

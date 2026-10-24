@@ -1,5 +1,7 @@
 import * as C from './core.mjs?v=8.2.0';
 import {SPLITS} from './training.mjs?v=8.2.0';
+import {resolveMovementOptions} from './accessible-programming.mjs?v=8.2.0';
+import {ACCESSIBLE_SOURCES} from './accessible-exercises.mjs?v=8.2.0';
 
 // These are original MENEI adaptations. Source links describe the guidance,
 // not a license, endorsement, or reproduction of a trainer's published plan.
@@ -21,7 +23,7 @@ export const PLAN_APPROACHES=[
 
 const EXPERIENCES=['Beginner','Returning','Intermediate','Advanced'];
 const GOALS=['general','muscle','strength','endurance'];
-const PREFERENCES=['any','machines','free','bodyweight'];
+const PREFERENCES=['any','machines','free','bodyweight','bands','calisthenics'];
 const numeric=value=>(typeof value==='number'||typeof value==='string'&&value.trim()!=='')&&Number.isFinite(+value);
 function integer(value,min,max,label){if(!numeric(value)||!Number.isInteger(+value)||+value<min||+value>max)throw Error(`${label} must be a whole number from ${min} to ${max}.`);return +value}
 function oneOf(value,allowed,label){if(!allowed.includes(value))throw Error(`Choose a valid ${label}.`);return value}
@@ -59,17 +61,19 @@ export function buildPersonalizedProgram(state,options={}){
  if(beginner&&sets>3)throw Error('Beginner and returning plans support up to 3 working sets per exercise. Choose 1, 2 or 3 sets, or update your experience level.');
  const range=automatic(options.range)?goal==='endurance'?'15-20':experiencedStrength?'3-5':approachId==='balance65'?'10-15':'8-12':repRange(options.range);
  const equipmentPreference=oneOf(options.equipmentPreference??'any',PREFERENCES,'equipment preference');
+ const movement=resolveMovementOptions({movementLevel:options.movementLevel??'auto',floorWork:options.floorWork??'auto',experience});
  const runEvery=integer(options.runEvery??0,0,4,'Running frequency');if(![0,2,3,4].includes(runEvery))throw Error('Choose no runs, or runs about every 2, 3 or 4 days.');
  const supersetMode=oneOf(options.supersetMode??state.training.supersetMode??'off',['off','supersets'],'workout format');
  const defaultGym=options.defaultGym??state.training.defaultGym??state.gyms.find(g=>!g.deleted)?.id;
  if(typeof defaultGym!=='string'||!state.gyms.some(g=>!g.deleted&&g.id===defaultGym))throw Error('Choose an available default gym before building the smart plan.');
  const minRepeatDays=integer(options.minRepeatDays??state.training.minRepeatDays??14,0,42,'Minimum days before repeating');
  const excludePullups=options.excludePullups??state.training.excludePullups??true;if(typeof excludePullups!=='boolean')throw Error('Choose whether to exclude pull-ups and chin-ups.');
- const training=C.touch({...state.training,mode:'automatic',startDate:start,frequency,split,sets,range,experience:experience==='Returning'?'Beginner':experience,trainingStyle:goal==='endurance'?'endurance':experiencedStrength?'strength':'hypertrophy',restSeconds:60,runEvery,runningQuality:false,restWeekdays,supersetMode,defaultGym,minRepeatDays,excludePullups,equipmentPreference,planApproach:approachId,planAge:age,planGoal:goal,planExperience:experience});
+ const training=C.touch({...state.training,mode:'automatic',startDate:start,frequency,split,sets,range,experience:experience==='Returning'?'Beginner':experience,trainingStyle:goal==='endurance'?'endurance':experiencedStrength?'strength':'hypertrophy',restSeconds:60,runEvery,runningQuality:false,restWeekdays,supersetMode,defaultGym,minRepeatDays,excludePullups,equipmentPreference,accessibleProgramming:true,...movement,planApproach:approachId,planAge:age,planGoal:goal,planExperience:experience});
  const reasons=[
   requestedApproach==='auto'?`The suggested approach uses age ${age} and your ${experience.toLowerCase()} experience; you can choose a different approach.`:`You chose ${approach.label}; age does not restrict that choice.`,
   'Your goal, experience and selected schedule set the starting workload. Age alone never determines a lifting weight.',
-  'Use completed sets and your reps in reserve to guide progression. The plan leaves loads blank for you to choose and record.',
+  'Use completed sets and your reps in reserve to guide progression. The plan leaves loads blank for you to choose and record. Bands and bodyweight variations use recorded setup, repetitions and control rather than guessed weight increases.',
+  `Movement options: ${movement.movementLevel}. ${movement.allowFloorWork?'Floor exercises are allowed when compatible with your choices.':'Floor exercises are excluded.'} This follows your support and experience choices, not an age restriction.`,
   'MENEI uses original adaptations informed by the linked sources; this is not an exact published trainer program.'
  ];
  if(beginner&&goal==='strength')reasons.push('A beginner or returning strength plan starts with controlled moderate-rep practice before heavier low-rep work.');
@@ -81,8 +85,9 @@ export function buildPersonalizedProgram(state,options={}){
  if(runEvery)reasons.push('Runs use easy conversational effort, the selected cadence and the program’s existing lower-body recovery rules. Intervals are not enabled by this plan.');
  const copy=C.clone({...state,training}),generated=C.generateProgram(copy,{start,days});
  for(const day of generated.days)Object.assign(day,{planApproach:approachId,planAge:age,planGoal:goal,planExperience:experience});
- const sourceIds=new Set([...approach.sourceIds,...(equipmentPreference==='bodyweight'?['ace-bodyweight']:[])]);
- const summary={approachId,age,ageBand:age>=65?'65+':age>=50?'50-64':'18-49',label:approach.label,experience,goal,frequency,split,sets,range,equipmentPreference,restSeconds:60,reasons,sources:PLAN_SOURCES.filter(source=>sourceIds.has(source.id))};
+ const sourceIds=new Set([...approach.sourceIds,...(['bodyweight','calisthenics'].includes(equipmentPreference)?['ace-bodyweight']:[])]);
+ const additionalSources=ACCESSIBLE_SOURCES.filter(source=>equipmentPreference==='bands'?['ace-bands','nhs-strength'].includes(source.id):movement.movementLevel==='supported'?['nhs-strength','nhs-sitting'].includes(source.id):source.id==='nhs-strength');
+ const summary={approachId,age,ageBand:age>=65?'65+':age>=50?'50-64':'18-49',label:approach.label,experience,goal,frequency,split,sets,range,equipmentPreference,...movement,restSeconds:60,reasons,sources:[...PLAN_SOURCES.filter(source=>sourceIds.has(source.id)),...additionalSources]};
  const incomplete=generated.days.filter(day=>day.kind==='strength'&&(day.exercises.length<6||day.exercises.length>9));
  return {...generated,training,start,summary,invalid:incomplete.length>0};
 }

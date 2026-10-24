@@ -62,7 +62,7 @@ test('equipment preferences bias compatible choices without inventing equipment 
  const free=buildPersonalizedProgram(state,options({equipmentPreference:'free',days:1}));
  assert.notDeepEqual(machine.days[0].exercises.map(e=>e.exerciseId),free.days[0].exercises.map(e=>e.exerciseId));
  assert.ok(machine.days[0].exercises.filter(e=>/Machine|Press|Curl|Extension|Squat/.test(e.name)&&!C.exerciseFor(e.exerciseId).equipmentRequirements.flat().some(x=>['Barbell','Dumbbells','EZ Bar','Kettlebells'].includes(x))).length>=4);
- const bodyweight=buildPersonalizedProgram(state,options({equipmentPreference:'bodyweight',days:1}));assert.equal(bodyweight.days[0].exercises.length,6);assert.equal(bodyweight.invalid,false);assert.ok(bodyweight.days[0].exercises.some(e=>e.loadMode==='bodyweight'));assert.match(bodyweight.days[0].notes.join(' '),/mix of compatible saved equipment/);
+ const bodyweight=buildPersonalizedProgram(state,options({equipmentPreference:'bodyweight',days:1}));assert.equal(bodyweight.days[0].exercises.length,6);assert.equal(bodyweight.invalid,false);assert.ok(bodyweight.days[0].exercises.some(e=>e.loadMode==='bodyweight'));assert.ok(bodyweight.days[0].exercises.every(e=>e.loadMode==='bodyweight'),'The expanded bodyweight catalog can fill this full-body session without other resistance equipment');
  state.gyms=[state.gyms[1]];state.training.defaultGym='station';
  const limited=buildPersonalizedProgram(state,options({equipmentPreference:'machines',defaultGym:'station',days:7}));for(const day of lifts(limited))for(const e of day.exercises)assert.ok(C.supports(C.exerciseFor(e.exerciseId),state.gyms[0]));assert.ok(lifts(limited).some(day=>day.notes.some(note=>/equipment preference/.test(note))));
 });
