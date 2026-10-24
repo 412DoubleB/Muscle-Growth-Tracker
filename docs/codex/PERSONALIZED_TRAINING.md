@@ -2,6 +2,8 @@
 
 Status: development candidate; live publication requires separate owner approval. The owner requested muscle-specific warm-up/cool-down options, bands, age-aware trainer-style plans, and the display name The MENEI Split.
 
+Owner-only sample review: https://menei-private-beta.crispcrown515.chatgpt.site/training-options-review.html?review=83a1b400963f . It uses fictional data and the exact reviewed runtime modules, with no account/storage or model requests. The original private Site Worker, assets and environment configuration were preserved; the sample review was added as static files only.
+
 ## What changes
 
 Home offers optional Warm-up and Cool-down guides. They resolve the day's actual catalog/custom muscle metadata, include comfortable dynamic preparation and light rehearsal before lifting, and gentle stretches after gradual cool-down. Light band options appear only when the user explicitly selects that they have a band; turning the option off restores equipment-free suggestions. Unknown custom anatomy receives general guidance. Rest-day mobility stays optional.
@@ -35,4 +37,4 @@ MENEI retains its owner-selected 60-second set rests and three-minute exercise/p
 
 No API credentials, paid model requests, schema migrations, storage identities, backend mutations or notifications are needed. Optional training/day metadata records the chosen approach, age, goal, experience and equipment preference through the existing record/merge contracts. Preparation toggles are dialog-local; they do not move training.updatedAt and invalidate historical rest-day inference.
 
-Focused coverage: 8 preparation checks, 11 personalized-planning checks and 6 UI integration checks. Independent generator comparison matches pre-change output across 210 dates when no equipment preference is selected. Broader test and package results are recorded in the external release review. Browser/physical-device acceptance is separate from these synthetic tests.
+Validation on 2026-10-24: all 84 regression test files passed; static checks passed for 41 JavaScript files, 63 offline shell entries and protected media. Focused coverage: 8 preparation checks, 11 personalized-planning checks and 6 UI integration checks. Independent generator comparison matches pre-change output across 210 dates when no equipment preference is selected. The sample page also passed a synthetic-DOM check for startup, muscle/band selection, age-aware generation and memory-only application. Browser/physical-device acceptance is separate from these synthetic tests.
