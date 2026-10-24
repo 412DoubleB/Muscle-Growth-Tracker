@@ -16,7 +16,7 @@ test('carrying a warm-up copies only independent preparation intent and leaves r
  const previous=day(date,{warmupRoutine:routine(),customMetadata:{old:true}}),next=day(date,{title:'Replacement',unknown:{new:0}}),before=C.clone({previous,next});next.exercises=[C.makeExercise(C.exerciseFor('Wall Push-Up'))];before.next=C.clone(next);
  const result=W.carryWarmupRoutine(previous,next);assert.deepEqual(result,{...next,warmupRoutine:previous.warmupRoutine});assert.deepEqual(result.exercises,next.exercises);assert.equal(Object.hasOwn(result,'customMetadata'),false);assert.notEqual(result,next);assert.notEqual(result.exercises,next.exercises);assert.notEqual(result.warmupRoutine,previous.warmupRoutine);
  result.warmupRoutine.unknown.retain=99;assert.deepEqual({previous,next},before);
- for(const value of [undefined,null,false,[],{}, {enabled:false}])assert.deepEqual(W.carryWarmupRoutine({...previous,warmupRoutine:value},next),next);
+ for(const value of [undefined,null,false,[],{}, {enabled:'false'}])assert.deepEqual(W.carryWarmupRoutine({...previous,warmupRoutine:value},next),next);
  assert.deepEqual(W.carryWarmupRoutine({...previous,deleted:true},next),next,'A deleted day must not revive preparation choices');
 });
 
@@ -42,4 +42,16 @@ test('future regeneration carries per-date warm-up choices from unstarted logs a
 test('date swaps retain each workout warm-up intent and unknown preparation metadata',()=>{
  const state=fixture(),target='2027-01-05';state.logs[date]=day(date,{warmupRoutine:routine({label:'selected'})});state.plan[target]=C.packPlanDay(day(target,{title:'Displaced workout',warmupRoutine:routine({bands:false,label:'displaced',custom:{preserve:['detail']}})}));const before=C.clone(state);
  const result=W.editSession(state,date,{choice:'keep',date:target,gymId});assert.equal(result.date,target);assert.deepEqual(result.state.logs[target].warmupRoutine,before.logs[date].warmupRoutine);assert.deepEqual(result.state.logs[date].warmupRoutine,before.plan[target].warmupRoutine);assert.equal(result.state.logs[date].title,'Displaced workout');assert.deepEqual(state,before);
+});
+
+test('an explicitly removed warm-up stays removed through prepared-plan replacement and future regeneration',()=>{
+ const state=fixture(),other='2027-01-05',logged='2027-01-06',planned='2027-01-08';
+ state.logs[date]=day(date,{warmupRoutine:routine({enabled:false,label:'removed today'})});
+ state.plan[other]=C.packPlanDay(day(other,{title:'Previously prepared plan',warmupRoutine:routine({enabled:true,label:'source plan'})}));
+ state.logs[logged]=day(logged,{warmupRoutine:routine({enabled:false,label:'removed from log',custom:{retain:false}})});
+ state.plan[planned]=C.packPlanDay(day(planned,{warmupRoutine:routine({enabled:false,label:'removed from plan',custom:{retain:['detail']}})}));
+ const before=C.clone(state),replacement=W.editSession(state,date,{choice:'plan:'+other,date,gymId});
+ assert.deepEqual(replacement.state.logs[date].warmupRoutine,before.logs[date].warmupRoutine);assert.equal(replacement.state.logs[date].warmupRoutine.enabled,false);assert.equal(replacement.state.logs[date].title,'Previously prepared plan');
+ const regenerated=W.editSession(state,date,{choice:'keep',date,gymId,adjust:'regenerate'});
+ assert.deepEqual(regenerated.state.logs[logged].warmupRoutine,before.logs[logged].warmupRoutine);assert.deepEqual(regenerated.state.logs[planned].warmupRoutine,before.plan[planned].warmupRoutine);assert.equal(regenerated.state.logs[logged].warmupRoutine.enabled,false);assert.equal(regenerated.state.logs[planned].warmupRoutine.enabled,false);assert.deepEqual(state,before);
 });

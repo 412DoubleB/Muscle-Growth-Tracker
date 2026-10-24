@@ -129,3 +129,10 @@ test('a warm-up preview cannot add to a different day or modify a completed work
   await env.click('close-modal');await env.click('open-date',{date:'2027-01-01'});await env.click('session-warmup');assert.doesNotMatch(env.modal,/data-action="add-session-warmup"/);await env.click('add-session-warmup');assert.deepEqual([...env.rows],before);
  }finally{env.restore()}
 });
+
+test('Escape or a closed warm-up preview cannot later save its abandoned draft',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
+  await start(env,'cancelled-warmup');const before=[...env.rows];await env.click('session-warmup');env.element('modal').events.get('cancel')();env.element('modal').open=false;await env.click('add-session-warmup');assert.match(env.element('toast').textContent,/Open the warm-up routine preview/);assert.deepEqual([...env.rows],before);
+  await env.click('session-warmup');env.element('modal').open=false;await env.click('add-session-warmup');assert.deepEqual([...env.rows],before);
+ }finally{env.restore()}
+});

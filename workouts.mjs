@@ -8,7 +8,7 @@ export const hasEntries=d=>!!d&&!d.deleted&&(d.status==='completed'||d.status===
 // choice when replacing an unstarted workout; never copy its old exercise rows.
 export function carryWarmupRoutine(previous,next){
   const result=C.clone(next),routine=previous&&!previous.deleted?previous.warmupRoutine:null;
-  if(routine&&typeof routine==='object'&&!Array.isArray(routine)&&routine.enabled===true)result.warmupRoutine=C.clone(routine);
+  if(routine&&typeof routine==='object'&&!Array.isArray(routine)&&typeof routine.enabled==='boolean')result.warmupRoutine=C.clone(routine);
   return result;
 }
 export function programDayProtection(state,date){
