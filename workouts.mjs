@@ -1,12 +1,12 @@
 import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
-import {supersetGroups,autoSupersets} from './supersets.mjs?v=8.2.0';
+import {supersetGroups,autoSupersets,entered} from './supersets.mjs?v=8.2.0';
 import * as C from './core.mjs?v=8.2.0';
 import {LEGACY_PLAN} from './legacy.mjs?v=8.2.0';
 
-export const hasEntries=d=>!!d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||(d.exercises||[]).some(e=>e.sets?.some(s=>s.done||s.w!==''&&s.w!=null||s.r!==''&&s.r!=null||s.rir!==''&&s.rir!=null)));
+export const hasEntries=d=>!!d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||(d.exercises||[]).some(entered));
 export function programDayProtection(state,date){
   const records=[state.logs[date],C.expandPlanDay(state.plan[date])].filter(d=>d&&!d.deleted);
-  if(records.some(d=>(d.exercises||[]).some(e=>e.sets?.some(s=>s.done||['w','r','rir'].some(k=>s[k]!==''&&s[k]!=null)))))return 'Gym entries are already saved, including any load, reps, RIR or checked set.';
+  if(records.some(d=>(d.exercises||[]).some(entered)))return 'Gym entries are already saved, including any load, band setting, reps, RIR or checked set.';
   if(records.some(d=>d.status==='completed'||d.status==='skipped'))return 'This workout is completed or skipped.';
   if(records.some(d=>d.run?.done||d.sauna?.done))return 'Completed running or sauna entries stay preserved too.';
   return '';
