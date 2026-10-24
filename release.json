@@ -8,7 +8,7 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "f4603ed60ff48073bda45302595a1abb97378fa7",
+  "source_commit": "83dfee05070b894591996efdfe39da23cc748bf6",
   "deploymentReady": true,
   "build": "20261024.4",
   "ai_beta": {
@@ -29,6 +29,6 @@
     "personalized_training": "Owner approved publication; all 89 test files and static checks passed; physical device acceptance pending",
     "accessible_exercises": "43 additive options; original 197 preserved; band-only entries protected; numeric band loads never inferred; all 89 test files passed",
     "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending",
-    "optional_day_warmup": "Add warm-up routine is an optional reviewed choice on the daily workout screen; saved guidance is separate from working sets and follows current muscles. Regression validation in progress."
+    "optional_day_warmup": "Optional Add warm-up routine on the daily workout screen; reviewed guidance saves with the day and follows current muscles. All 90 test files, 10 training UI cases, 6 routine-preservation cases and static checks passed."
   }
 }
