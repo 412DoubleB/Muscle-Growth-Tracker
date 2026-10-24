@@ -24,3 +24,7 @@ The approved artwork, corrected hand, motion geometry and MENEI/wreath-to-M anim
 ## Release boundary
 
 No backend, auth, push, AI quota, API credential, storage schema/key, PWA identity or live publication is changed. Review a private sample preview and obtain the owner's explicit live-publication instruction before a public release. Validation results and preview receipts are kept outside this public source tree.
+
+## Validation
+
+All 89 test files pass with the complete test suite; static checks pass with 43 JavaScript files, 65 offline shell entries and protected artwork checks. Private sample-page smoke checks pass without app storage or API access. The initial full run exposed a library test that assumed a fixed page position; it now follows the actual pagination control while retaining exact equipment/media assertions. Band-only entry preservation has four dedicated regression cases. Physical iPhone animation acceptance remains pending.
