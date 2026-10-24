@@ -1,6 +1,6 @@
 # Accessible training and iPhone opening candidate
 
-This is unpublished development following the personalized-training preview. It does not change live MENEI or its services.
+This update was approved and published to live MENEI as version 8.2.0 build 20261024.3 through PR 8. Pages deployment 40136133018 succeeded for merge 6150b44434620d1b53d6d8ffc4e127c0ddcb2f4b. The live runtime matches the approved candidate; only release readiness/provenance metadata changed after approval. Existing services are unchanged. Physical iPhone verification remains pending.
 
 ## Exercise and plan additions
 
@@ -23,7 +23,7 @@ The approved artwork, corrected hand, motion geometry and MENEI/wreath-to-M anim
 
 ## Release boundary
 
-No backend, auth, push, AI quota, API credential, storage schema/key, PWA identity or live publication is changed. Review a private sample preview and obtain the owner's explicit live-publication instruction before a public release. Validation results and preview receipts are kept outside this public source tree.
+No backend, auth, push, AI quota, API credential, storage schema/key or PWA identity changes were made. The owner explicitly approved live publication of both the training additions and iPhone opening correction. Validation results and preview/publication receipts are kept outside this public source tree.
 
 ## Validation
 
