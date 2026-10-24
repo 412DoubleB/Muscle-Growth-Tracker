@@ -2,9 +2,18 @@
 // app artwork and the MENEI/wreath identity remain separate and unchanged.
 import {mascotPose,MASCOT_DURATION,MASCOT_RELEASE,MASCOT_CATCH,MASCOT_SETTLED} from './mascot-motion.mjs?v=8.2.0';
 import {BODY_SKIN_VERTICES,BODY_SKIN_TRIANGLES,bodySkinTransforms} from './mascot-skin.mjs?v=8.2.0';
-import {renderMascotSkin,disposeMascotSkin} from './mascot-skin-webgl.mjs?v=8.2.0';
+import {renderMascotSkin,disposeMascotSkin,MASCOT_SKIN_BOUNDS} from './mascot-skin-webgl.mjs?v=8.2.0';
 export const WALL_BALL_DURATION=MASCOT_DURATION,RELEASE=MASCOT_RELEASE,CATCH=MASCOT_CATCH,SETTLED=MASCOT_SETTLED;
 export const WALL_BALL_ASSET='./artwork/greek-wall-ball-reconstructed.png';
+export const WALL_BALL_VIEWBOX=Object.freeze({x:0,y:-330,width:1024,height:1930});
+// Matching vector viewports bracket a real HTML canvas. This keeps the original
+// SVG fallback and paint order without WebKit's foreignObject compositing gap.
+export const wallBallSkinPlacement=()=>({
+ left:100*(MASCOT_SKIN_BOUNDS.x-WALL_BALL_VIEWBOX.x)/WALL_BALL_VIEWBOX.width,
+ top:100*(MASCOT_SKIN_BOUNDS.y-WALL_BALL_VIEWBOX.y)/WALL_BALL_VIEWBOX.height,
+ width:100*MASCOT_SKIN_BOUNDS.width/WALL_BALL_VIEWBOX.width,
+ height:100*MASCOT_SKIN_BOUNDS.height/WALL_BALL_VIEWBOX.height
+});
 export const wallBallPose=milliseconds=>mascotPose(milliseconds);
 const num=n=>Number(n.toFixed(5));
 const transform=(a,b,sourceA,sourceB)=>{
@@ -58,7 +67,8 @@ export function wallBallSvg(milliseconds=0,asset=WALL_BALL_ASSET){
  // Preserve the wrist collar too; the blend begins on the palm side of it.
  const wristBand=`x1="${num(FAR_HAND_WRIST.x+10*handUx)}" y1="${num(FAR_HAND_WRIST.y+10*handUy)}" x2="${num(FAR_HAND_WRIST.x+18*handUx)}" y2="${num(FAR_HAND_WRIST.y+18*handUy)}" gradientUnits="userSpaceOnUse"`;
  const farFore=`<g id="rigFarFore" transform="${tr.rigFarFore}"><g clip-path="url(#rigFarForeClip)" mask="url(#rigFarForeMask)"><g mask="url(#rigFarWristKeep)"><use href="#rigAtlasImage"/></g></g><g id="rigFarPalmCorrection" transform="${matrix(FAR_HAND_REFLECTION)}"><g clip-path="url(#rigFarForeClip)" mask="url(#rigFarWristReveal)"><use href="#rigAtlasImage"/></g></g></g>`;
- return `<svg class="openingRig" viewBox="0 -330 1024 1930" aria-hidden="true"><defs>
+ const skin=wallBallSkinPlacement();
+ return `<div class="openingRigStage" aria-hidden="true"><svg class="openingRig openingRigBack" viewBox="0 -330 1024 1930" aria-hidden="true"><defs>
  <filter id="rigAtlasAlpha" x="0" y="0" width="1536" height="1024" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncA type="linear" slope="1.02"/></feComponentTransfer></filter>
  <image id="rigAtlasImage" href="${asset}" width="1536" height="1024" filter="url(#rigAtlasAlpha)"/>
  ${bodyDefs}<clipPath id="rigTorsoClip"><rect x="0" y="0" width="512" height="280"/></clipPath><clipPath id="rigNearUpperClip"><rect x="512" y="0" width="512" height="512"/></clipPath><clipPath id="rigNearForeClip"><rect x="1024" y="0" width="512" height="512"/></clipPath><clipPath id="rigFarUpperClip"><rect x="0" y="533" width="512" height="491"/></clipPath><clipPath id="rigFarForeClip"><rect x="512" y="512" width="512" height="512"/></clipPath><clipPath id="rigBallClip"><rect x="1024" y="512" width="512" height="512"/></clipPath>
@@ -70,8 +80,8 @@ export function wallBallSvg(milliseconds=0,asset=WALL_BALL_ASSET){
  <mask id="rigFarWristKeep" maskUnits="userSpaceOnUse" x="512" y="512" width="512" height="512"><rect x="512" y="512" width="512" height="512" fill="url(#rigFarWristKeepGradient)"/></mask><mask id="rigFarWristReveal" maskUnits="userSpaceOnUse" x="512" y="512" width="512" height="512"><rect x="512" y="512" width="512" height="512" fill="url(#rigFarWristRevealGradient)"/></mask></defs>
  ${part('rigFarUpper','rigFarUpperClip',false,'rigFarUpperMask')}
  <g id="rigBodySkin">${BODY_SKIN_TRIANGLES.map((_,i)=>part(`rigSkin${i}`,`rigSkinClip${i}`)).join('')}</g>
- <foreignObject id="rigSkinSurface" x="0" y="784" width="1024" height="752" display="none"><canvas xmlns="http://www.w3.org/1999/xhtml" id="rigSkinCanvas" width="512" height="376" style="display:block;width:100%;height:100%"></canvas></foreignObject>
- ${part('rigTorso','rigTorsoClip',true)}${part('rigNearUpper','rigNearUpperClip',false,'rigNearUpperMask')}
+ </svg><div id="rigSkinSurface" class="openingSkinSurface" style="display:none;left:${skin.left}%;top:${skin.top}%;width:${skin.width}%;height:${skin.height}%"><canvas id="rigSkinCanvas" width="512" height="376"></canvas></div>
+ <svg class="openingRig openingRigFront" viewBox="0 -330 1024 1930" aria-hidden="true">${part('rigTorso','rigTorsoClip',true)}${part('rigNearUpper','rigNearUpperClip',false,'rigNearUpperMask')}
  ${farFore}${part('rigBall','rigBallClip')}${part('rigNearFore','rigNearForeClip',false,'rigNearForeMask')}
- <path id="rigWall" d="M 946 -190 V 160" stroke="#FFB81C" stroke-width="5" opacity="${p.wallContact?'.65':'0'}"/></svg>`;
+ <path id="rigWall" d="M 946 -190 V 160" stroke="#FFB81C" stroke-width="5" opacity="${p.wallContact?'.65':'0'}"/></svg></div>`;
 }

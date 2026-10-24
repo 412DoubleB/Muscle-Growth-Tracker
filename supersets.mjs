@@ -1,6 +1,6 @@
 // Pairing changes session structure only; each exercise keeps its own sets and history.
 const copy=value=>structuredClone(value);
-export const entered=exercise=>(exercise.sets||[]).some(s=>s.done||['w','r','rir'].some(k=>s[k]!==''&&s[k]!=null));
+export const entered=exercise=>(exercise.sets||[]).some(s=>s.done||['w','r','rir'].some(k=>s[k]!==''&&s[k]!=null)||typeof s.band==='string'&&s.band.trim()!=='');
 export const progressionContext=e=>e.progressionContext||(e.supersetId?'superset':'straight');
 export function supersetGroups(day){
   const groups=new Map();
