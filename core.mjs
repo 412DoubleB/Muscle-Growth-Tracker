@@ -180,12 +180,30 @@ export function nextSetRecommendation(state,exercise,gym){
 function historyDates(state){const last=new Map();for(const l of Object.values(state.logs)){if(l.deleted)continue;for(const e of l.exercises||[]){const id=e.exerciseId||exerciseFor(e.name)?.id;if(id&&completedSets(e).length&&(!last.has(id)||last.get(id)<l.date))last.set(id,l.date)}}for(const p of Object.values(state.plan)){if(p.deleted)continue;for(const e of p.exercises||[]){const id=e.exerciseId;if(id&&(!last.has(id)||last.get(id)<p.date))last.set(id,p.date)}}return last}
 function subgroup(e){if(e.group==='Legs'&&['quads','hamstrings','calves'].includes(e.subgroup))return e.subgroup;const n=(e.name+' '+e.primary+' '+e.movement).toLowerCase();if(e.group!=='Legs')return e.group;if(/calf|tibialis/.test(n))return 'calves';if(/romanian|deadlift|leg curl|hamstring|hip thrust|glute drive|hinge|nordic|glute-ham/.test(n))return 'hamstrings';return 'quads'}
 function matchesGroup(e,group){if(['anterior-delt','lateral-delt','rear-delt'].includes(group))return e.group==='Shoulders'&&e.subgroup===group.split('-')[0];return subgroup(e)===group}
+function programCadence(training,anchor){
+ const frequency=Math.max(1,Math.min(7,+training.frequency||4)),weekSlots=[0,2,4,6,1,3,5].filter(day=>!(training.restWeekdays||[]).includes((dateOf(anchor).getDay()+day)%7)).slice(0,frequency).sort((a,b)=>a-b);
+ return {frequency,weekSlots,at(date){const offset=daysBetween(date,anchor),slot=((offset%7)+7)%7,week=Math.floor(offset/7),index=week*weekSlots.length+weekSlots.filter(x=>x<=slot).length-1,legacy=training.split==='legacy'?LEGACY_PLAN[((offset%28)+28)%28]:null;return {offset,index,week,lift:legacy?!!legacy[2]:weekSlots.includes(slot),legacy}}};
+}
+// Project only the current program's cadence. Callers decide whether its dates
+// are authoritative; logs, saved plans and program edit dates are not inferred.
+export function scheduledDayKind(state,date){
+ const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&iso(dateOf(value))===value,t=state?.training;
+ if(!t||!['original','automatic','custom'].includes(t.mode)||!validDate(date))return null;
+ const original=t.mode==='original',anchor=original?'2026-10-01':t.startDate;
+ if(!validDate(anchor)||date<anchor||!Array.isArray(state.gyms))return null;
+ try{
+  const gym=scheduledGym({...state,gymSchedules:state.gymSchedules||[]},date);
+  if(!gym||gym.deleted||typeof gym.id!=='string'||!gym.id)return null;
+  if(original&&date<'2026-10-29'){const p=LEGACY_PLAN[daysBetween(date,anchor)];return p[2]?'strength':/run|zone/i.test(p[0])?'run':'rest'}
+  const training=original?{...t,split:'legacy'}:t,l=programCadence(training,anchor).at(date);
+  return l.lift?'strength':runningSession(training,{date,dayIndex:l.offset,week:l.week})?'run':'rest';
+ }catch{return null}
+}
 export function generateProgram(state,{start=state.training.startDate||iso(),days=28}={}){
- const t=state.training,frequency=Math.max(1,Math.min(7,+t.frequency||4)),last=historyDates({...state,logs:Object.fromEntries(Object.entries(state.logs).filter(([,d])=>d.date<start)),plan:Object.fromEntries(Object.entries(state.plan).filter(([,d])=>d.date<start))}),generated=[],warnings=[],anchor=t.startDate||start;
- const weekSlots=[0,2,4,6,1,3,5].filter(day=>!(t.restWeekdays||[]).includes((dateOf(anchor).getDay()+day)%7)).slice(0,frequency).sort((a,b)=>a-b);
+ const t=state.training,last=historyDates({...state,logs:Object.fromEntries(Object.entries(state.logs).filter(([,d])=>d.date<start)),plan:Object.fromEntries(Object.entries(state.plan).filter(([,d])=>d.date<start))}),generated=[],warnings=[],anchor=t.startDate||start,cadence=programCadence(t,anchor),{frequency,weekSlots}=cadence;
  if(weekSlots.length<frequency)warnings.push(`Only ${weekSlots.length} eligible training days fit the selected weekly rest days.`);
  const protectedDay=d=>d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||d.exercises?.some(e=>e.sets?.some(s=>s.done||s.w!==''&&s.w!=null||s.r!==''&&s.r!=null||s.rir!==''&&s.rir!=null)));
- function layout(date){const offset=daysBetween(date,anchor),slot=((offset%7)+7)%7,week=Math.floor(offset/7),index=week*weekSlots.length+weekSlots.filter(x=>x<=slot).length-1;let lift=weekSlots.includes(slot),[title,groups]=splitSession(t.split,index);if(t.split==='legacy'){const p=LEGACY_PLAN[((offset%28)+28)%28];lift=!!p[2];title=p[0].replace(/ #\d+/g,'');groups=p[2]?p[2].split(';').map(x=>subgroup(exerciseFor(x.split('|')[0])||{group:'Core',name:x,primary:'',movement:''})):[]}return {offset,index,week,lift,title,groups:lift?groups:[],legs:lift&&groups.some(g=>['quads','hamstrings'].includes(g))}}
+ function layout(date){const {offset,index,week,lift,legacy:p}=cadence.at(date);let [title,groups]=splitSession(t.split,index);if(p){title=p[0].replace(/ #\d+/g,'');groups=p[2]?p[2].split(';').map(x=>subgroup(exerciseFor(x.split('|')[0])||{group:'Core',name:x,primary:'',movement:''})):[]}return {offset,index,week,lift,title,groups:lift?groups:[],legs:lift&&groups.some(g=>['quads','hamstrings'].includes(g))}}
  // Reserve whole training weeks up front, including protected runs after the
  // first replacement date or before a partial preview. Never rewrite those logs.
  const qualityWeeks=new Set(Object.values(state.logs).filter(d=>protectedDay(d)&&d.status!=='skipped'&&d.run?.blocks?.length).map(d=>Math.floor(daysBetween(d.date,anchor)/7)));

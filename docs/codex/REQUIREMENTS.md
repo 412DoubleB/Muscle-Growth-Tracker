@@ -66,6 +66,7 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - Ingredient reuse and prepared-leftover expiry/reservation; do not allocate stock twice or add groceries for reserved prepared meals. Already-deducted cooking ingredients stay off shopping lists. Marking leftovers eaten must validate available stock and other reservations, deduct once and preserve the consumption record when unmarked.
 
 ## History, sync and notifications
+- Rest days count automatically toward an existing training streak without being marked complete. Count each known scheduled recovery day once, including ongoing calendar recovery with no saved log. A genuine completed workout starts the streak; completed-training totals still count actual workouts only. Missed lifting/running days and unknown older schedule gaps do not become rest credits. Calculate read-only and keep entered history intact.
 - Launch uses one MENEI account for both app access and cloud sync. Do not require
   a separate cloud/Supabase, ChatGPT or OpenAI account, API key or additional AI
   download. Notification permission and optional Home-screen installation are

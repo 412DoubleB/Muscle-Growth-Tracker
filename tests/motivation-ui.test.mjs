@@ -2,12 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../core.mjs';
 const date='2027-01-04';
-function environment({reduced=false,loaded=true}={}){
+function environment({reduced=false,loaded=true,milestone=false,restToday=false}={}){
  const names=['document','localStorage','sessionStorage','window','navigator','location','history','confirm','setInterval','setTimeout','clearTimeout','fetch','FormData'];
  const previous=new Map(names.map(n=>[n,Object.getOwnPropertyDescriptor(globalThis,n)]));
  const state=C.defaultState();state.profile.safetyNoticeVersion=1;state.nutrition.setupPromptSeen=true;
  const day=(d,status='completed')=>({id:d,date:d,title:'Synthetic consistency session',kind:'strength',gymId:'crunch',status,exercises:[{...C.makeExercise(C.exerciseFor('Plank'),{count:1}),sets:[{id:'synthetic-set',role:'working',w:0,r:30.5,rir:2,rest:17,done:true,unknown:'retain'}]}]});
- state.logs={'2027-01-01':day('2027-01-01'),'2027-01-03':day('2027-01-03'),[date]:day(date,'in-progress'),'2027-01-03~copy':day('2027-01-03')};state.plan={'2027-01-02':{id:'2027-01-02',date:'2027-01-02',kind:'rest',exercises:[]}};const legacy=C.defaultState(),legacyRaw=JSON.stringify(legacy);state.legacySnapshots=[{id:String(C.hash(legacyRaw)),data:legacy},{id:'private-retained',data:{unchanged:0}}];
+ state.logs={'2027-01-01':day('2027-01-01'),'2027-01-03':day('2027-01-03'),[date]:day(date,'in-progress'),'2027-01-03~copy':day('2027-01-03')};state.plan={'2027-01-02':{id:'2027-01-02',date:'2027-01-02',kind:'rest',exercises:[]}};
+ if(milestone)for(const d of ['2026-12-29','2026-12-30','2026-12-31'])state.logs[d]=day(d);
+ if(restToday){delete state.logs[date];state.training={...state.training,mode:'automatic',frequency:1,restWeekdays:[],runEvery:0,startDate:'2027-01-01',updatedAt:'2027-01-01T12:00:00Z'}}
+ const legacy=C.defaultState(),legacyRaw=JSON.stringify(legacy);state.legacySnapshots=[{id:String(C.hash(legacyRaw)),data:legacy},{id:'private-retained',data:{unchanged:0}}];
  const rows=new Map([['MGT_BETA_V8:guest',JSON.stringify(state)],['MGT28v6',legacyRaw]]),elements=new Map(),listeners=new Map(),requests=[],timers=new Map(),frames=new Map();let timerId=0,frameId=0;
  class Element{constructor(id){Object.assign(this,{id,innerHTML:'',textContent:'',value:'',open:false,hidden:false,complete:loaded,naturalWidth:1024,dataset:{},classes:new Set(),events:new Map()});this.classList={add:c=>this.classes.add(c),remove:c=>this.classes.delete(c),toggle(){}}}addEventListener(n,fn){this.events.set(n,fn)}showModal(){this.open=true}close(){this.open=false}focus(){}setAttribute(k,v){this[k]=v}}
  const element=id=>{if(!elements.has(id))elements.set(id,new Element(id));return elements.get(id)};
@@ -21,14 +24,14 @@ function environment({reduced=false,loaded=true}={}){
 test('opening survives Home redraws, waits for art, runs 4.5 seconds, closes automatically and only replays on request',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({loaded:false});try{
   await import('../app.mjs?motivation-ui=home');const scene=env.element('openingScene'),before=[...env.rows];
-  assert.match(env.html,/Training day streak/);assert.match(env.html,/>2<span> training days in a row/);assert.ok(env.html.indexOf('Daily motivation')<env.html.indexOf('meneiHero'));assert.match(env.html,/<blockquote class="dailyQuote">[^<]+/);
+  assert.match(env.html,/Training streak/);assert.match(env.html,/>3<span> days in a row/);assert.match(env.html,/2 completed training days/);assert.ok(env.html.indexOf('Daily motivation')<env.html.indexOf('meneiHero'));assert.match(env.html,/<blockquote class="dailyQuote">[^<]+/);
   assert.equal(scene.open,true);assert.equal(scene.classes.has('playing'),false);assert.match(scene.innerHTML,/openingWord">MENEI/);assert.match(scene.innerHTML,/openingEmblem/);assert.match(scene.innerHTML,/openingUpper/);assert.match(scene.innerHTML,/Daily motivation/);
   const content=scene.innerHTML;assert.match(content,/openingWreathLeft/);assert.match(content,/openingWreathRight/);assert.match(content,/rigNearFore/);assert.match(content,/rigFarFore/);assert.match(content,/rigBall/);assert.match(content,/greek-wall-ball-reconstructed.png/);assert.match(content,/rigBodySkin/);assert.match(content,/rigSkin239/);assert.doesNotMatch(content,/greek-wall-ball-hands.png|rigNearJoint|rigFarJoint/);assert.doesNotMatch(content,/openingThrow|openingOriginal/);
   env.element('openingUpper').events.get('load')();assert.equal(scene.classes.has('playing'),false);env.element('openingAtlas').events.get('load')();assert.equal(scene.classes.has('playing'),true);const armBefore=env.element('rigNearFore').transform;t.mock.timers.tick(500);env.frame();assert.notEqual(env.element('rigNearFore').transform,armBefore);
   await env.click('view',{view:'nutrition'});await env.click('view',{view:'today'});assert.equal(scene.innerHTML,content);assert.equal(scene.open,true);assert.deepEqual([...env.rows],before);
   env.fireTimer(4500);assert.equal(scene.open,false);assert.equal(env.frameCount,0);await env.click('view',{view:'today'});assert.equal(scene.open,false);
   await env.click('replay-opening');assert.equal(scene.open,true);await env.click('skip-launch');assert.equal(scene.open,false);env.element('openingUpper').events.get('load')();assert.equal(scene.open,false);
-  await env.click('streak-details');assert.match(env.element('modalBody').innerHTML,/rest days preserve/);assert.deepEqual([...env.rows],before);assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);
+  await env.click('streak-details');assert.match(env.element('modalBody').innerHTML,/Scheduled rest days automatically add a day/);assert.match(env.element('modalBody').innerHTML,/do not need to mark them complete/);assert.deepEqual([...env.rows],before);assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);
  }finally{env.restore()}
 });
 test('late artwork from a skipped opening cannot start its replacement before all new images are ready',async t=>{
@@ -51,10 +54,16 @@ test('failed artwork and expired background launch dismiss without trapping the 
  }finally{env.restore()}
 });
 test('completing a genuine workout celebrates a new milestone once per date and preserves other history and checked values',async t=>{
- t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
-  await import('../app.mjs?motivation-ui=milestone');const before=env.state;await env.click('complete');assert.equal(env.state.logs[date].status,'completed');assert.match(env.element('modalBody').innerHTML,/3 training days in a row/);assert.equal(env.rows.get('MGT_BETA_STREAK_NOTICE:guest'),date);
-  for(const key of ['2027-01-01','2027-01-03','2027-01-03~copy'])assert.deepEqual(env.state.logs[key],before.logs[key]);assert.deepEqual(env.state.logs[date].exercises,before.logs[date].exercises);assert.deepEqual(env.state.legacySnapshots,before.legacySnapshots);
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({milestone:true});try{
+  await import('../app.mjs?motivation-ui=milestone');const before=env.state;assert.match(env.html,/>6<span> days in a row/);await env.click('complete');assert.equal(env.state.logs[date].status,'completed');assert.match(env.element('modalBody').innerHTML,/7 days in a row/);assert.match(env.html,/6 completed training days/);assert.equal(env.rows.get('MGT_BETA_STREAK_NOTICE:guest'),date);
+  for(const [key,value] of Object.entries(before.logs))if(key!==date)assert.deepEqual(env.state.logs[key],value);assert.deepEqual(env.state.logs[date].exercises,before.logs[date].exercises);assert.deepEqual(env.state.legacySnapshots,before.legacySnapshots);
   await env.click('close-modal');await env.click('unlock');await env.click('complete');assert.equal(env.element('modal').open,false);assert.equal(env.rows.get('MGT28v6'),env.legacyRaw);
+ }finally{env.restore()}
+});
+test('an unsaved scheduled rest day counts on Home without completion, new logs, milestone popups or view-time saved-data changes',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({reduced:true,restToday:true});try{
+  await import('../app.mjs?motivation-ui=rest-day');const before=[...env.rows];assert.match(env.html,/>4<span> days in a row/);assert.match(env.html,/2 completed training days · Recovery day/);assert.equal(env.element('modal').open,false);assert.equal(env.rows.has('MGT_BETA_STREAK_NOTICE:guest'),false);assert.equal(Object.hasOwn(env.state.logs,date),false);assert.equal(Object.hasOwn(env.state.plan,date),false);
+  await env.click('view',{view:'nutrition'});await env.click('view',{view:'today'});assert.match(env.html,/>4<span> days in a row/);await env.click('streak-details');assert.match(env.element('modalBody').innerHTML,/do not need to mark them complete/);assert.deepEqual([...env.rows],before);assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);
  }finally{env.restore()}
 });
 test('strength and hypertrophy program previews accept the fixed 60-second rest without bypassing set/rep constraints or writing plans',async t=>{
