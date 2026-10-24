@@ -136,3 +136,9 @@ test('Escape or a closed warm-up preview cannot later save its abandoned draft',
   await env.click('session-warmup');env.element('modal').open=false;await env.click('add-session-warmup');assert.deepEqual([...env.rows],before);
  }finally{env.restore()}
 });
+
+test('a skipped workout keeps its attached warm-up read-only',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
+  await start(env,'skipped-warmup');await env.click('session-warmup');await env.click('add-session-warmup');await env.click('skip');const before=[...env.rows];assert.equal(env.state.logs[date].status,'skipped');assert.doesNotMatch(env.html,/data-action="remove-session-warmup"/);await env.click('session-warmup');assert.doesNotMatch(env.modal,/data-action="add-session-warmup"/);await env.click('remove-session-warmup');assert.match(env.element('toast').textContent,/Unlock this workout/);assert.deepEqual([...env.rows],before);
+ }finally{env.restore()}
+});
