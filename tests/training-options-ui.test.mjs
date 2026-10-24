@@ -103,3 +103,29 @@ test('an in-flight cloud update invalidates an open smart-plan preview before an
   assert.deepEqual(env.requests,['./config.json','./media-manifest.json']);assert.equal(env.rows.get('MGT28v6'),env.legacyRaw);
  }finally{CloudSync.prototype.start=originalStart;env.restore()}
 });
+
+test('Add warm-up routine previews before saving and adds a removable muscle-matched guide above working exercises',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
+  await start(env,'optional-warmup');const before=env.state,beforeRows=[...env.rows],streak=trainingStreak(before,date);
+  assert.match(env.html,/>Add warm-up routine<\/button>/);assert.doesNotMatch(env.html,/aria-label="Added warm-up routine"/);
+  await env.click('session-warmup');assert.match(env.modal,/data-action="add-session-warmup"/);assert.deepEqual([...env.rows],beforeRows);
+  await env.bands('warmup',true);await env.click('add-session-warmup');const after=env.state;assert.equal(after.logs[date].warmupRoutine.enabled,true);assert.equal(after.logs[date].warmupRoutine.bands,true);assert.deepEqual(after.logs[date].exercises,before.logs[date].exercises);assert.deepEqual(after.training,before.training);assert.deepEqual(after.plan,before.plan);assert.deepEqual(trainingStreak(after,date),streak);assert.equal(env.element('restDialog').open,false);assert.equal(env.element('restTray').hidden,true);
+  assert.match(env.html,/aria-label="Added warm-up routine"/);assert.match(env.html,/Light band pull-apart/);assert.ok(env.html.indexOf('aria-label="Added warm-up routine"')<env.html.indexOf('<article class="card exercise">'));
+  await env.click('view',{view:'nutrition'});await env.click('view',{view:'today'});assert.match(env.html,/aria-label="Added warm-up routine"/);
+  await env.click('remove-session-warmup');assert.equal(env.state.logs[date].warmupRoutine.enabled,false);assert.doesNotMatch(env.html,/aria-label="Added warm-up routine"/);assert.deepEqual(env.state.logs[date].exercises,before.logs[date].exercises);assert.deepEqual(trainingStreak(env.state,date),streak);assert.equal(env.rows.get('MGT28v6'),env.legacyRaw);
+ }finally{env.restore()}
+});
+
+test('an optional warm-up survives an unstarted program replacement and follows its new muscles without blocking replacement',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment({custom:true});try{
+  await start(env,'warmup-program');await env.click('session-warmup');await env.click('add-session-warmup');const before=env.state,intent=before.logs[date].warmupRoutine;
+  await env.click('smart-plan');await env.submit(values());await env.click('apply-program');const after=env.state;assert.deepEqual(after.plan[date].warmupRoutine,intent);assert.equal(Object.hasOwn(after.logs,date),false);assert.match(env.html,/aria-label="Added warm-up routine"/);assert.notEqual(after.plan[date].title,before.logs[date].title);assert.deepEqual(after.logs['2027-01-01'],before.logs['2027-01-01']);assert.deepEqual(after.meals,before.meals);
+ }finally{env.restore()}
+});
+
+test('a warm-up preview cannot add to a different day or modify a completed workout',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
+  await start(env,'stale-warmup');const before=[...env.rows];await env.click('session-warmup');await env.click('open-date',{date:'2027-01-05'});await env.click('add-session-warmup');assert.match(env.element('toast').textContent,/workout or its equipment changed/);assert.deepEqual([...env.rows],before);
+  await env.click('close-modal');await env.click('open-date',{date:'2027-01-01'});await env.click('session-warmup');assert.doesNotMatch(env.modal,/data-action="add-session-warmup"/);await env.click('add-session-warmup');assert.deepEqual([...env.rows],before);
+ }finally{env.restore()}
+});
