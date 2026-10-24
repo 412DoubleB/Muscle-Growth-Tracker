@@ -8,9 +8,9 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "2a2294cc9ee284aae9196010446285c3947cbb25",
+  "source_commit": "d2b7c09e54aa100e118f4176fe11e925b3884c14",
   "deploymentReady": true,
-  "build": "20261023.4",
+  "build": "20261024.1",
   "ai_beta": {
     "accounts": 20,
     "attempts_per_account": 5,
@@ -24,6 +24,7 @@
     "iphone_push_device": "not physically tested",
     "one_hour_workout_delivery": "not physically tested",
     "opening_animation": "Owner approved reconstructed animation and corrected far-hand thumb in private preview",
-    "load_guidance": "Owner approved sample preview; plate-loaded lb changes restricted to 10/25/35/45 per side"
+    "load_guidance": "Owner approved sample preview; plate-loaded lb changes restricted to 10/25/35/45 per side",
+    "rest_day_streak": "Automatic scheduled recovery; all 81 regression test files and static checks passed; physical-device check pending"
   }
 }
