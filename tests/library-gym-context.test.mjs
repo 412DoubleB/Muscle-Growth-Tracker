@@ -49,7 +49,13 @@ test('Every gym shows requirements without inventing an inventory check and reta
  try{
   await import('../app.mjs?library-context=all');const before=[...env.rows],writes=env.writes.length;
   await env.click('view',{view:'library'});await env.filter('library');await env.click('guide',{exercise:exerciseId,guideGym:context(card(env.elements.get('app').innerHTML))});const selectedMedia=media(env.elements.get('modalBody').innerHTML);
-  await env.click('close-modal');await env.filter('All');await env.click('more-library');await env.click('more-library');const item=card(env.elements.get('app').innerHTML);
+  await env.click('close-modal');await env.filter('All');
+  // Follow the actual pagination control: new exercises can move this reference
+  // beyond the old fixed two-page assumption without changing its binding.
+  for(let page=0;page<Math.ceil(C.CATALOG.length/36)&&!env.elements.get('app').innerHTML.includes(`data-exercise="${exerciseId}"`);page++){
+   assert.match(env.elements.get('app').innerHTML,/data-action="more-library"/);await env.click('more-library');
+  }
+  const item=card(env.elements.get('app').innerHTML);
   assert.equal(context(item),'All');assert.doesNotMatch(item,/Matches your saved|Missing from/);
   await env.click('guide',{exercise:exerciseId,guideGym:context(item)});const guide=env.elements.get('modalBody').innerHTML;
   assert.match(guide,/Every gym · Equipment requirements shown without checking a saved gym inventory/);assert.match(guide,/Dumbbells \+ Adjustable Bench/);
