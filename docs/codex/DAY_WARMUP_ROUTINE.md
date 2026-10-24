@@ -7,3 +7,5 @@ The attached guide is derived from the current workout's muscles and confirmed e
 The day-level choice survives JSON/cloud storage, compact plans, date swaps and changes to unstarted workouts/programs. It does not block day-of program changes when no gym entries exist. Stale previews reject account, date, workout or equipment changes before saving. Failed saves restore the prior workspace.
 
 No new asset, runtime module, storage key, schema migration, external service or paid AI request is required. The current age-aware plans and iPhone opening correction remain intact.
+
+Validation: all 90 regression test files and static checks pass, plus 11 focused training UI cases and 6 warm-up preservation cases. Follow-up release build 20261024.4 is prepared in PR 9. Automatic approval review blocked the production merge pending explicit owner approval for this follow-up; the live app remains at build 20261024.3.
