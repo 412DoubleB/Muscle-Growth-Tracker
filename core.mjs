@@ -3,7 +3,7 @@ import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
 import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.2.0';
 export {readRecoverySnapshots} from './recovery.mjs?v=8.2.0';
 import {splitSession,trainingStyle,runningSession} from './training.mjs?v=8.2.0';
-import {autoSupersets,progressionContext} from './supersets.mjs?v=8.2.0';
+import {autoSupersets,progressionContext,entered as hasExerciseEntries} from './supersets.mjs?v=8.2.0';
 import { LEGACY_PLAN, LEGACY_MASTERS, LEGACY_EQUIPMENT, detailedGuide } from './legacy.mjs?v=8.2.0';
 import { buildCatalog } from './catalog.mjs?v=8.2.0';
 import {eligibleForProgramming,accessiblePriority} from './accessible-programming.mjs?v=8.2.0';
@@ -220,7 +220,7 @@ export function scheduledDayKind(state,date){
 export function generateProgram(state,{start=state.training.startDate||iso(),days=28}={}){
  const t=state.training,last=historyDates({...state,logs:Object.fromEntries(Object.entries(state.logs).filter(([,d])=>d.date<start)),plan:Object.fromEntries(Object.entries(state.plan).filter(([,d])=>d.date<start))}),generated=[],warnings=[],anchor=t.startDate||start,cadence=programCadence(t,anchor),{frequency,weekSlots}=cadence;
  if(weekSlots.length<frequency)warnings.push(`Only ${weekSlots.length} eligible training days fit the selected weekly rest days.`);
- const protectedDay=d=>d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||d.exercises?.some(e=>e.sets?.some(s=>s.done||s.w!==''&&s.w!=null||s.r!==''&&s.r!=null||s.rir!==''&&s.rir!=null)));
+ const protectedDay=d=>d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||d.exercises?.some(hasExerciseEntries));
  function layout(date){const {offset,index,week,lift,legacy:p}=cadence.at(date);let [title,groups]=splitSession(t.split,index);if(p){title=p[0].replace(/ #\d+/g,'');groups=p[2]?p[2].split(';').map(x=>subgroup(exerciseFor(x.split('|')[0])||{group:'Core',name:x,primary:'',movement:''})):[]}return {offset,index,week,lift,title,groups:lift?groups:[],legs:lift&&groups.some(g=>['quads','hamstrings'].includes(g))}}
  // Reserve whole training weeks up front, including protected runs after the
  // first replacement date or before a partial preview. Never rewrite those logs.
@@ -250,7 +250,7 @@ export function restoreGeneratedSessionSizes(state,{from=iso()}={}){
  for(const [date,packed] of Object.entries(state.plan||{}).sort(([a],[b])=>a.localeCompare(b))){
   if(date<from||state.logs[date]&&!state.logs[date].deleted||packed.deleted||!/^8\.0\.0-beta\.[1-6]$/.test(packed.generatorVersion||'')||packed.split!==state.training.split||packed.status||packed.customNote)continue;
   const old=expandPlanDay(packed);
-  if(old.exercises.some(e=>e.notes||e.sets.some(s=>s.done||['w','r','rir'].some(k=>s[k]!==''&&s[k]!=null))))continue;
+  if(old.exercises.some(e=>e.notes||hasExerciseEntries(e)))continue;
   const replacement=generateProgram(state,{start:date,days:1}).days[0];
   if(!replacement||replacement.title!==old.title||replacement.gymId!==old.gymId||replacement.exercises.length<=old.exercises.length)continue;
   state.plan[date]=packPlanDay({...replacement,run:old.run,sauna:old.sauna});count++;
@@ -283,7 +283,7 @@ export function restoreSessionExercises(state,date){
 export function hash(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
 export function originalDay(state,date){const index=((daysBetween(date,'2026-10-01')%28)+28)%28;const p=LEGACY_PLAN[index],gym=scheduledGym(state,date);return {id:date,date,title:p[0],gymId:gym?.id,kind:p[2]?'strength':/run|zone/i.test(p[0])?'run':'rest',exercises:p[2]?p[2].split(';').map(s=>{const [name,count,range]=s.split('|');const e=exerciseFor(name)||{id:'legacy-'+norm(name),name,sets:+count,range};return makeExercise(e,{count:+count,range})}):[],run:/run|zone/i.test(p[0])?{minutes:30,done:false}:null,sauna:p[2]?{minutes:20,done:false}:null,notes:[],updatedAt:now()}}
 const rollingCache=new WeakMap();
-export function packPlanDay(day){const d=clone(day);if((d.exercises||[]).some(e=>e.sets?.some(s=>s.done||s.w!==''&&s.w!=null||s.r!==''&&s.r!=null||s.rir!==''&&s.rir!=null)))return d;d.compactPlan=true;for(const e of d.exercises||[]){delete e.id;e.setTemplates=(e.sets||[]).map(({role,rest})=>({role,rest}));delete e.sets;}return d}
+export function packPlanDay(day){const d=clone(day);if((d.exercises||[]).some(hasExerciseEntries))return d;d.compactPlan=true;for(const e of d.exercises||[]){delete e.id;e.setTemplates=(e.sets||[]).map(({role,rest})=>({role,rest}));delete e.sets;}return d}
 export function expandPlanDay(day){if(!day?.compactPlan)return day;const d=clone(day);for(const e of d.exercises||[]){e.id=uid();e.sets=(e.setTemplates||[]).map(s=>({id:uid(),...s,w:'',r:'',rir:'',done:false}));delete e.setTemplates}delete d.compactPlan;return d}
 export function rollingDay(state,date){
  const original=state.training.mode==='original',anchor=original?'2026-10-01':state.training.startDate||iso();
