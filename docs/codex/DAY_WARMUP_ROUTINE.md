@@ -8,4 +8,4 @@ The day-level choice survives JSON/cloud storage, compact plans, date swaps and 
 
 No new asset, runtime module, storage key, schema migration, external service or paid AI request is required. The current age-aware plans and iPhone opening correction remain intact.
 
-Validation: all 90 regression test files and static checks pass, plus 11 focused training UI cases and 6 warm-up preservation cases. Follow-up release build 20261024.4 is prepared in PR 9. Automatic approval review blocked the production merge pending explicit owner approval for this follow-up; the live app remains at build 20261024.3.
+Validation: all 90 regression test files and static checks pass, plus 11 focused training UI cases and 6 warm-up preservation cases. The owner explicitly approved this follow-up after the initial approval-review rejection. Build 20261024.4 is published through PR 9 as merge 838ec26adb6b7f3b109302a2b5c7d9522f435f32. Pages deployment 40243479564 completed successfully, and the deployed main tree exactly matches the approved five-file release.
