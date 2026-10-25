@@ -4,6 +4,13 @@ import * as C from './core.mjs?v=8.2.0';
 import {LEGACY_PLAN} from './legacy.mjs?v=8.2.0';
 
 export const hasEntries=d=>!!d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||(d.exercises||[]).some(entered));
+// Preparation is a day-level display choice, not a working set. Carry only this
+// choice when replacing an unstarted workout; never copy its old exercise rows.
+export function carryWarmupRoutine(previous,next){
+  const result=C.clone(next),routine=previous&&!previous.deleted?previous.warmupRoutine:null;
+  if(routine&&typeof routine==='object'&&!Array.isArray(routine)&&typeof routine.enabled==='boolean')result.warmupRoutine=C.clone(routine);
+  return result;
+}
 export function programDayProtection(state,date){
   const records=[state.logs[date],C.expandPlanDay(state.plan[date])].filter(d=>d&&!d.deleted);
   if(records.some(d=>(d.exercises||[]).some(entered)))return 'Gym entries are already saved, including any load, band setting, reps, RIR or checked set.';
@@ -56,7 +63,7 @@ export function editSession(state,from,{choice='keep',date=from,gymId,adjust='ke
   const old=C.dayFor(state,from);if(old.status==='completed')throw Error('Unlock this completed day to edit it.');
   if(!state.gyms.some(g=>g.id===gymId&&!g.deleted))throw Error('Choose an active gym.');
   if(date!==from&&hasEntries(C.dayFor(state,date)))throw Error('The destination contains entered or completed work. Choose another date; no records were changed.');
-  const next=C.clone(state),notices=[];let chosen=choice==='keep'?C.clone(old):workoutFromChoice(state,choice,date,gymId);
+  const next=C.clone(state),notices=[];let chosen=choice==='keep'?C.clone(old):carryWarmupRoutine(old,workoutFromChoice(state,choice,date,gymId));
   if(choice==='auto')reviewAutomaticWorkouts([chosen]);
   if(choice!=='keep'&&hasEntries(old)){const key=from+'~edit-'+C.uid();next.logs[key]={...C.clone(old),id:key};notices.push('The previous entered workout is preserved in History.')}
   let swapDate=null;
@@ -77,7 +84,10 @@ export function editSession(state,from,{choice='keep',date=from,gymId,adjust='ke
   if(adjust==='regenerate'){
     const result=C.generateProgram(next,{start:C.addDays(date,1),days:28});
     reviewAutomaticWorkouts(result.days);
-    for(const d of result.days)if(!hasEntries(next.logs[d.date]))next.logs[d.date]=d;
+    for(const d of result.days)if(!hasEntries(next.logs[d.date])){
+      const previous=next.logs[d.date]&&!next.logs[d.date].deleted?next.logs[d.date]:C.expandPlanDay(next.plan[d.date]);
+      next.logs[d.date]=carryWarmupRoutine(previous,d);
+    }
     notices.push('Rebuilt '+result.days.length+' future days; entered sessions were protected.');
     notices.push(...result.warnings);
   }
