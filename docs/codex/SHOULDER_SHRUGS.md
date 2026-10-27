@@ -41,4 +41,8 @@ fallback, shoulder/core coverage, age/ability choices, continuation, recorded
 history, dumbbell per-hand limits and paired barbell plate increments. Full
 regression/static checks and the final candidate receipt are retained outside
 the public source tree. A private sample preview is separate from the live app.
-This change is prepared for review; live publication needs explicit owner approval.
+The owner explicitly approved publication. Build 20261027.1 is live through PR 10,
+merge 79dd661f3e6ba405cecf2789b7d406093d9d5a85. Pages run 40581156800
+completed successfully for that exact merge. All 91 regression test files,
+9 focused shrug cases, 11 training UI cases and static checks passed; the
+published tree matches the approved five-file release exactly.
