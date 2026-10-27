@@ -30,6 +30,6 @@
     "accessible_exercises": "43 additive options; original 197 preserved; band-only entries protected; numeric band loads never inferred; all 89 test files passed",
     "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending",
     "optional_day_warmup": "Optional Add warm-up routine on the daily workout screen; reviewed guidance saves with the day and follows current muscles. All 90 test files, 11 training UI cases, 6 routine-preservation cases and static checks passed.",
-    "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, preserved entered records. All91 regression test files,9 focused shrug cases,11 training UI cases and static checks passed. Existing240 exercise records and125 artwork/font assets preserved."
+    "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, and preserved entered records. All 91 regression test files, 9 focused shrug cases, 11 training UI cases and static checks passed. All 240 prior exercise records and 125 artwork/font assets are preserved."
   }
 }
