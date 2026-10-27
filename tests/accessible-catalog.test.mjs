@@ -13,7 +13,7 @@ const at=(name,inventory)=>supports(find(name),{inventory});
 test('the complete original 197 exercise records remain byte-equivalent, including aliases and guide/media flags',()=>{
  // Generated from buildCatalog in source 8a6d0b7 before this additive extension.
  // This covers every serialized field, rather than checking only familiar IDs.
- const original=catalog.filter(exercise=>exercise.newFamily!=='accessible');
+ const original=catalog.filter(exercise=>!['accessible','shrugs'].includes(exercise.newFamily));
  assert.equal(original.length,197);
  assert.equal(createHash('sha256').update(JSON.stringify(original)).digest('hex'),'c6e32f982dfda496ee5a8587b57bb8125b96542fb48d7cc3f703964f158ea1ed');
  const input=JSON.stringify([LEGACY_MASTERS,LEGACY_PLAN]);buildCatalog(LEGACY_MASTERS,LEGACY_PLAN);assert.equal(JSON.stringify([LEGACY_MASTERS,LEGACY_PLAN]),input);

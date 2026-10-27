@@ -15,6 +15,11 @@ Evidence anchors: README.md; docs/REQUIREMENTS.md (historical beta trace); docs/
 - The preservation-only handoff boundary was superseded by explicit isolated-development and private Sites preview approval. Live GitHub publication, main merges and live backend changes still require separate owner approval.
 
 ## Exercise catalog, equipment and media
+- Add dumbbell and barbell shoulder shrugs as distinct upper-trapezius exercises.
+  Newly generated dedicated shoulder days use one compatible shrug accessory
+  while retaining deltoid/core coverage and session size; use a shoulder fallback
+  when equipment or exclusions prevent it. Preserve entered sessions and all
+  existing media. See SHOULDER_SHRUGS.md.
 - Audit every original exercise/alias, anatomical group and concrete equipment requirement. Preserve distinct machine, cable, barbell, dumbbell, seated/lying and slash-label variants.
 - Require all necessary equipment and attachments; a barbell does not imply plates and a cable column does not imply two pulleys. Use only compatible exercises in a gym.
 - Show recommended equipment in the Exercise tab and guides.
