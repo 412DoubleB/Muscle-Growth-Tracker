@@ -74,14 +74,14 @@ test('invalid or underage inputs cannot replace saved history or reuse a previou
  }finally{env.restore()}
 });
 
-test('the MENEI split changes its display name while retaining all four original muscle pairings',async t=>{
+test('the MENEI split retains its display name and four pairings with the requested shrug accessory slot',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(date+'T12:00:00Z').getTime()});const env=environment();try{
   await start(env,'split-label');const before=[...env.rows];await env.click('generator');assert.match(env.modal,/The MENEI Split/);assert.doesNotMatch(env.modal,/Original paired muscle rotation/);
   assert.deepEqual([0,1,2,3].map(index=>splitSession('split',index)),[
    ['Chest + Biceps',['Chest','Chest','Chest','Chest','Chest','Biceps','Biceps','Biceps','Biceps']],
    ['Back + Triceps',['Back','Back','Back','Back','Back','Triceps','Triceps','Triceps']],
    ['Legs',['quads','quads','quads','quads','hamstrings','hamstrings','calves','calves']],
-   ['Shoulders + Abs',['anterior-delt','lateral-delt','lateral-delt','rear-delt','rear-delt','Shoulders','Core','Core']]
+   ['Shoulders + Abs',['anterior-delt','lateral-delt','lateral-delt','rear-delt','rear-delt','upper-traps','Core','Core']]
   ]);assert.deepEqual([...env.rows],before);
  }finally{env.restore()}
 });
