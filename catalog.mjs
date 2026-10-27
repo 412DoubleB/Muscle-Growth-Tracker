@@ -318,6 +318,21 @@ const ASSET_VARIANT_REVIEW = {
   }
 };
 
+// Additive shoulder accessories: existing catalog identities and image bindings
+// stay intact. Each variation has its own history and concrete loading basis.
+const SHRUGS = [
+  {id:'dumbbell-shrug',name:'Dumbbell Shrug',aliases:['Dumbbell Shrug','Dumbbell Shrugs','Dumbbell Shoulder Shrug','DB Shrug','DB Shrugs'],
+    equipmentRequirements:[['Dumbbells']],loadMode:'perHand',loadNote:'Log the weight of one dumbbell; do not add the two hands together.',
+    setup:['Stand with feet about hip-width apart, knees soft and a dumbbell in each hand at your sides.','Let the palms face the thighs, keep the arms long and choose a load you can hold without leaning.']},
+  {id:'barbell-shrug',name:'Barbell Shrug',aliases:['Barbell Shrug','Barbell Shrugs','Barbell Shoulder Shrug','BB Shrug'],
+    equipmentRequirements:[['Barbell'],['Olympic Plates']],loadMode:'total',loadNote:'Log the total barbell load once, including both sides and the bar if it is part of your usual logged total.',
+    setup:['With a controlled pickup, hold the barbell in front of the thighs using an overhand grip just outside the legs.','Stand with feet about hip-width apart, knees soft, arms long and the bar close to the body. Use matching plates on both sides.']}
+].map(exercise=>({...exercise,newFamily:'shrugs',group:'Shoulders',subgroup:'upper-traps',primary:'Upper trapezius',secondary:'Levator scapulae; forearm and grip stabilizers',movement:'scapular_elevation',compound:false,muscleTags:['shoulders','upper_traps','upper_back'],
+  equipment:exercise.equipmentRequirements,equipmentLabel:exercise.equipmentRequirements.map(clause=>clause.join(' or ')).join(' + '),
+  sets:3,range:'10-15',repUnit:'reps',purpose:'strength',programmingTier:'standard',floorRequired:false,trainingGroups:['shoulders'],defaultExcluded:false,independentGuide:true,mediaNeedsVariantReview:true,
+  cues:['Raise the shoulders straight up through a comfortable range while keeping the head and neck neutral.','Pause briefly at the top, then lower slowly. Keep the elbows long and the trunk still.'],
+  mistakes:['Rolling the shoulders or jutting the head forward.','Bending the elbows, bouncing with the knees or using a load that shortens the controlled range.']}));
+
 function anatomy(name, fallbackGroup) {
   const n = normalizeExerciseName(name);
   const m = (group, subgroup, primary, secondary, movement, compound, muscleTags) =>
@@ -523,5 +538,5 @@ export function buildCatalog(legacyMasters = [], legacyPlan = []) {
         : [info.group.toLowerCase().replace(/ /g,'_')]
     };
   });
-  return appendAccessibleExercises(original).sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  return [...appendAccessibleExercises(original),...structuredClone(SHRUGS)].sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 }

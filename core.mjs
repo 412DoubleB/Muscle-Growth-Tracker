@@ -188,7 +188,7 @@ export function nextSetRecommendation(state,exercise,gym){
 
 function historyDates(state){const last=new Map();for(const l of Object.values(state.logs)){if(l.deleted)continue;for(const e of l.exercises||[]){const id=e.exerciseId||exerciseFor(e.name)?.id;if(id&&completedSets(e).length&&(!last.has(id)||last.get(id)<l.date))last.set(id,l.date)}}for(const p of Object.values(state.plan)){if(p.deleted)continue;for(const e of p.exercises||[]){const id=e.exerciseId;if(id&&(!last.has(id)||last.get(id)<p.date))last.set(id,p.date)}}return last}
 function subgroup(e){if(e.group==='Legs'&&['quads','hamstrings','calves'].includes(e.subgroup))return e.subgroup;const n=(e.name+' '+e.primary+' '+e.movement).toLowerCase();if(e.group!=='Legs')return e.group;if(/calf|tibialis/.test(n))return 'calves';if(/romanian|deadlift|leg curl|hamstring|hip thrust|glute drive|hinge|nordic|glute-ham/.test(n))return 'hamstrings';return 'quads'}
-function matchesGroup(e,group){if(['anterior-delt','lateral-delt','rear-delt'].includes(group))return e.group==='Shoulders'&&e.subgroup===group.split('-')[0];return subgroup(e)===group}
+function matchesGroup(e,group){if(group==='upper-traps')return e.group==='Shoulders'&&e.subgroup==='upper-traps';if(['anterior-delt','lateral-delt','rear-delt'].includes(group))return e.group==='Shoulders'&&e.subgroup===group.split('-')[0];if(group==='Shoulders'&&e.subgroup==='upper-traps')return false;return subgroup(e)===group}
 function matchesEquipmentPreference(exercise,preference){
  if(!['machines','free','bodyweight','bands','calisthenics'].includes(preference))return true;
  const raw=exercise.equipmentRequirements||exercise.equipment||[],equipment=(Array.isArray(raw)?raw:[raw]).flatMap(clause=>Array.isArray(clause)?clause:[clause]).filter(item=>typeof item==='string'&&item.trim());
@@ -221,7 +221,11 @@ export function generateProgram(state,{start=state.training.startDate||iso(),day
  const t=state.training,last=historyDates({...state,logs:Object.fromEntries(Object.entries(state.logs).filter(([,d])=>d.date<start)),plan:Object.fromEntries(Object.entries(state.plan).filter(([,d])=>d.date<start))}),generated=[],warnings=[],anchor=t.startDate||start,cadence=programCadence(t,anchor),{frequency,weekSlots}=cadence;
  if(weekSlots.length<frequency)warnings.push(`Only ${weekSlots.length} eligible training days fit the selected weekly rest days.`);
  const protectedDay=d=>d&&!d.deleted&&(d.status==='completed'||d.status==='skipped'||d.run?.done||d.sauna?.done||d.exercises?.some(hasExerciseEntries));
- function layout(date){const {offset,index,week,lift,legacy:p}=cadence.at(date);let [title,groups]=splitSession(t.split,index);if(p){title=p[0].replace(/ #\d+/g,'');groups=p[2]?p[2].split(';').map(x=>subgroup(exerciseFor(x.split('|')[0])||{group:'Core',name:x,primary:'',movement:''})):[]}return {offset,index,week,lift,title,groups:lift?groups:[],legs:lift&&groups.some(g=>['quads','hamstrings'].includes(g))}}
+ function layout(date){const {offset,index,week,lift,legacy:p}=cadence.at(date);let [title,groups]=splitSession(t.split,index);if(p){title=p[0].replace(/ #\d+/g,'');groups=p[2]?p[2].split(';').map(x=>subgroup(exerciseFor(x.split('|')[0])||{group:'Core',name:x,primary:'',movement:''})):[];
+  // Only newly generated continuation days change. The original 28-day source,
+  // saved plans, custom routines and entered workouts are never rewritten.
+  const lastShoulder=groups.lastIndexOf('Shoulders');if(/^Shoulders(?:\b|\s*\+)/i.test(title)&&lastShoulder>=0)groups[lastShoulder]='upper-traps';
+ }return {offset,index,week,lift,title,groups:lift?groups:[],legs:lift&&groups.some(g=>['quads','hamstrings'].includes(g))}}
  // Reserve whole training weeks up front, including protected runs after the
  // first replacement date or before a partial preview. Never rewrite those logs.
  const qualityWeeks=new Set(Object.values(state.logs).filter(d=>protectedDay(d)&&d.status!=='skipped'&&d.run?.blocks?.length).map(d=>Math.floor(daysBetween(d.date,anchor)/7)));
@@ -229,7 +233,8 @@ export function generateProgram(state,{start=state.training.startDate||iso(),day
  for(let i=0;i<Math.max(1,Math.min(366,+days||28));i++){
   const date=addDays(start,i),gym=scheduledGym(state,date),l=layout(date),notes=[],selected=[],used=new Set();if(!gym)throw Error('Create at least one gym before generating a plan.');
   if(protectedDay(state.logs[date])){warnings.push(date+': existing workout preserved.');for(const e of state.logs[date].exercises||[])if(e.exerciseId)last.set(e.exerciseId,date);continue}
-  for(const group of l.groups){const candidates=[...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&eligibleForProgramming(e,t)&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!state.avoided.includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&matchesGroup(e,group)&&supports(e,gym)&&!used.has(e.id));
+  for(const group of l.groups){const candidatesFor=slot=>[...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&eligibleForProgramming(e,t)&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!state.avoided.includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&matchesGroup(e,slot)&&supports(e,gym)&&!used.has(e.id));let candidates=candidatesFor(group);
+   if(group==='upper-traps'&&!candidates.length){candidates=candidatesFor('Shoulders');if(candidates.length)notes.push('No shoulder shrug matches this gym or your exercise choices; another shoulder exercise fills the accessory slot.');}
    candidates.sort((a,b)=>{const score=e=>{const recent=last.get(e.id),gap=recent?daysBetween(date,recent):9999;return (gap<(+t.minRepeatDays||0)?100000:0)+(recent?1000-Math.max(-1000,gap):0)+(matchesEquipmentPreference(e,t.equipmentPreference)?0:50000)+accessiblePriority(e,t)+(e.compound?-50:0)+(t.experience==='Beginner'&&/pendlay|meadows|nordic|safety bar|kettlebell swing/i.test(e.name)?100:0)+(hash(e.id+date)%97)};return score(a)-score(b)});
    const e=candidates[0];if(!e){notes.push('No '+group+' exercise matches the gym inventory.');continue}
    if(last.has(e.id)&&daysBetween(date,last.get(e.id))<(+t.minRepeatDays||0))notes.push(e.name+': repeated because this gym has limited alternatives.');
