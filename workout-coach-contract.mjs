@@ -16,15 +16,17 @@ const ROLES=new Set(['working','top','warmup','ramp','backoff','drop']);
 const MODES=new Set(['total','perHand','assistance','bodyweight','band','unknown']);
 const encoder=new TextEncoder();
 const record=value=>!!value&&typeof value==='object'&&!Array.isArray(value)&&(Object.getPrototypeOf(value)===Object.prototype||Object.getPrototypeOf(value)===null);
+const REPORT_RULES=new Set(['shape','prose_number','prose_markup','prose_private','prose_medical','fatigue_uncertainty','finding_coverage','source_ids','size']);
 
 export class CoachContractError extends Error{
- constructor(code='invalid_coach_facts'){
+ constructor(code='invalid_coach_facts',_status,validationRule='shape'){
   const safe=['invalid_coach_facts','invalid_coach_report','coach_fingerprint_unavailable'].includes(code)?code:'invalid_coach_facts';
   super(safe==='invalid_coach_report'?'The coach report could not be verified.':'The workout review data could not be verified.');this.name='CoachContractError';this.code=safe;this.status=safe==='invalid_coach_report'?502:safe==='coach_fingerprint_unavailable'?503:400;
+  if(safe==='invalid_coach_report')this.validationRule=REPORT_RULES.has(validationRule)?validationRule:'shape';
  }
 }
 const badFacts=()=>{throw new CoachContractError()};
-const badReport=()=>{throw new CoachContractError('invalid_coach_report',502)};
+const badReport=(rule='shape')=>{throw new CoachContractError('invalid_coach_report',502,rule)};
 function exact(value,keys,fail){if(!record(value)||Object.keys(value).length!==keys.length||keys.some(key=>!Object.hasOwn(value,key)))fail();}
 function cleanText(value,max,{empty=false,fail=badFacts}={}){
  if(typeof value!=='string'||value.length>max||CONTROL.test(value)||SECRET.test(value)||EMAIL.test(value)||!empty&&!value.trim())fail();return value.trim();
@@ -143,9 +145,25 @@ export async function coachFactsFingerprint(value){
  const digest=await globalThis.crypto.subtle.digest('SHA-256',encoder.encode(canonical(facts)));return Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
 }
 function coachProse(value,max){
+ if(typeof value!=='string')badReport('shape');
+ if(value.length>max)badReport('size');
+ if(CONTROL.test(value)||SECRET.test(value)||EMAIL.test(value))badReport('prose_private');
  const text=cleanText(value,max,{fail:badReport});
  // Numerical prescriptions come only from MENEI's deterministic facts table.
- if(/\p{N}/u.test(text)||/https?:\/\/|www\.|[<>`\[\]]|\*\*|__|(?:^|\n)\s*#/i.test(text)||/\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|dozen|half|quarter)\b/i.test(text)||/\b(?:overtraining syndrome|central nervous system fatigue|CNS fatigue|tendinitis|tendonitis|diagnos\w*|injur\w*)\b/i.test(text))badReport();
+ const words='(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|dozen|half|quarter)';
+ const units='(?:pounds?|kilograms?|lbs?|kg|reps?|repetitions?|sets?|rounds?|minutes?|seconds?|hours?|rir|percent|percentage|plates?|increments?)';
+ // Ordinary wording such as "one useful baseline" is not a load prescription.
+ const numberedUnit=new RegExp('\\b'+words+'(?:[-\\s]+[a-z]+){0,2}[-\\s]+'+units+'\\b','i');
+ const changeBy=new RegExp('\\bby\\s+(?:a\\s+)?'+words+'\\b','i');
+ const barePrescription=new RegExp('\\b(?:increase|decrease|add|subtract|reduce|raise|lower|use|perform|do|complete|aim|target|rest|wait|go up|go down)\\b[^.!?]{0,50}\\b'+words+'\\s*[.!?]?(?:$|\\n)','i');
+ const fractionalLoad=/\b(?:half|quarter)\b[^.!?]{0,24}\b(?:load|weight|resistance|volume)\b/i;
+ if(/\p{N}/u.test(text)||numberedUnit.test(text)||changeBy.test(text)||barePrescription.test(text)||fractionalLoad.test(text))badReport('prose_number');
+ if(/https?:\/\/|www\.|[<>`\[\]]|\*\*|__|(?:^|\n)\s*#/i.test(text))badReport('prose_markup');
+ // A statement about the limits of a review is not a diagnosis. Assertions
+ // about an injury or condition still fail, including unsupported exclusions.
+ const claims=text.replace(/\bnot\s+(?:a|an)\s+(?:(?:medical|injury)\s+)?diagnosis\b/gi,'')
+  .replace(/\b(?:cannot|can['’]t|does not|do not)\s+diagnose(?:\s+(?:an?|any))?(?:\s+(?:injury|injuries|medical condition))?\b/gi,'');
+ if(/\b(?:overtraining syndrome|central nervous system fatigue|CNS fatigue|tendinitis|tendonitis|diagnos\w*|injur\w*)\b/i.test(claims))badReport('prose_medical');
  return text;
 }
 export function validateCoachReport(value,input){
@@ -158,18 +176,19 @@ export function validateCoachReport(value,input){
  const report={version:1,headline:coachProse(value.headline,120),overview:coachProse(value.overview,700)},sources=new Set(COACH_SOURCES.map(source=>source.id));
  for(const section of COACH_SECTIONS){
   const expected=findings[section],allowed=new Set(expected.map(finding=>finding.id)),seen=new Set(),list=value[section];
-  if(!Array.isArray(list)||list.length!==expected.length||list.length>4)badReport();
+  if(!Array.isArray(list)||list.length!==expected.length||list.length>4)badReport('finding_coverage');
   const items=new Map();
   for(const item of list){
    exact(item,['findingId','comment','sourceIds'],badReport);
-   if(!allowed.has(item.findingId)||seen.has(item.findingId)||!Array.isArray(item.sourceIds)||item.sourceIds.length>3||new Set(item.sourceIds).size!==item.sourceIds.length||item.sourceIds.some(id=>!sources.has(id)))badReport();
+   if(!allowed.has(item.findingId)||seen.has(item.findingId))badReport('finding_coverage');
+   if(!Array.isArray(item.sourceIds)||item.sourceIds.length>3||new Set(item.sourceIds).size!==item.sourceIds.length||item.sourceIds.some(id=>!sources.has(id)))badReport('source_ids');
    seen.add(item.findingId);const comment=coachProse(item.comment,450);
-   if(section==='fatigue'&&!/\b(?:possible|may|might|could)\b/i.test(comment))badReport();
+   if(section==='fatigue'&&!/\b(?:possible|may|might|could|uncertain|unknown|insufficient)\b|\b(?:cannot|can['’]t)\s+(?:be\s+)?(?:measure|locate|determine|establish|identify)|\b(?:does|do|did)\s+not\s+(?:measure|locate|determine|establish|identify)|\bnot\s+(?:measured|established|known|enough|certain)\b/i.test(comment))badReport('fatigue_uncertainty');
    items.set(item.findingId,{findingId:item.findingId,comment,sourceIds:item.sourceIds.slice()});
   }
   report[section]=expected.map(finding=>items.get(finding.id));
  }
- if(encoder.encode(JSON.stringify(report)).length>COACH_REPORT_MAX_BYTES)badReport();return report;
+ if(encoder.encode(JSON.stringify(report)).length>COACH_REPORT_MAX_BYTES)badReport('size');return report;
 }
 export function coachReportSchema(value){
  const facts=normalizeCoachFacts(value),sourceIds=COACH_SOURCES.map(source=>source.id),prose=max=>({type:'string',minLength:1,maxLength:max});
