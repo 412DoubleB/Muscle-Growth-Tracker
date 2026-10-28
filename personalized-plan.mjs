@@ -1,5 +1,5 @@
 import * as C from './core.mjs?v=8.2.0';
-import {SPLITS} from './training.mjs?v=8.2.0';
+import {SPLITS,WORKOUT_FORMATS} from './training.mjs?v=8.2.0';
 import {resolveMovementOptions} from './accessible-programming.mjs?v=8.2.0';
 import {ACCESSIBLE_SOURCES} from './accessible-exercises.mjs?v=8.2.0';
 
@@ -63,7 +63,7 @@ export function buildPersonalizedProgram(state,options={}){
  const equipmentPreference=oneOf(options.equipmentPreference??'any',PREFERENCES,'equipment preference');
  const movement=resolveMovementOptions({movementLevel:options.movementLevel??'auto',floorWork:options.floorWork??'auto',experience});
  const runEvery=integer(options.runEvery??0,0,4,'Running frequency');if(![0,2,3,4].includes(runEvery))throw Error('Choose no runs, or runs about every 2, 3 or 4 days.');
- const supersetMode=oneOf(options.supersetMode??state.training.supersetMode??'off',['off','supersets'],'workout format');
+ const supersetMode=oneOf(options.supersetMode??state.training.supersetMode??'off',WORKOUT_FORMATS.map(([id])=>id),'workout format');
  const defaultGym=options.defaultGym??state.training.defaultGym??state.gyms.find(g=>!g.deleted)?.id;
  if(typeof defaultGym!=='string'||!state.gyms.some(g=>!g.deleted&&g.id===defaultGym))throw Error('Choose an available default gym before building the smart plan.');
  const minRepeatDays=integer(options.minRepeatDays??state.training.minRepeatDays??14,0,42,'Minimum days before repeating');
@@ -83,11 +83,12 @@ export function buildPersonalizedProgram(state,options={}){
  if(automatic(options.frequency)&&frequency<suggestedFrequency)reasons.push('The suggested frequency was fitted to the weekdays you left available.');
  if(equipmentPreference!=='any')reasons.push('Equipment is a preference within the saved gym inventory. Other compatible equipment may fill gaps or provide rotation alternatives.');
  if(runEvery)reasons.push('Runs use easy conversational effort, the selected cadence and the program’s existing lower-body recovery rules. Intervals are not enabled by this plan.');
+ if(supersetMode==='alternating')reasons.push(`MENEI Overload starts on ${start}: a superset week followed by a straight-set week, then repeats. Each week lasts seven calendar days; missed or rest days do not restart it. Each format keeps its own progression history.`);
  const copy=C.clone({...state,training}),generated=C.generateProgram(copy,{start,days});
  for(const day of generated.days)Object.assign(day,{planApproach:approachId,planAge:age,planGoal:goal,planExperience:experience});
  const sourceIds=new Set([...approach.sourceIds,...(['bodyweight','calisthenics'].includes(equipmentPreference)?['ace-bodyweight']:[])]);
  const additionalSources=ACCESSIBLE_SOURCES.filter(source=>equipmentPreference==='bands'?['ace-bands','nhs-strength'].includes(source.id):movement.movementLevel==='supported'?['nhs-strength','nhs-sitting'].includes(source.id):source.id==='nhs-strength');
- const summary={approachId,age,ageBand:age>=65?'65+':age>=50?'50-64':'18-49',label:approach.label,experience,goal,frequency,split,sets,range,equipmentPreference,...movement,restSeconds:60,reasons,sources:[...PLAN_SOURCES.filter(source=>sourceIds.has(source.id)),...additionalSources]};
+ const summary={approachId,supersetMode,age,ageBand:age>=65?'65+':age>=50?'50-64':'18-49',label:approach.label,experience,goal,frequency,split,sets,range,equipmentPreference,...movement,restSeconds:60,reasons,sources:[...PLAN_SOURCES.filter(source=>sourceIds.has(source.id)),...additionalSources]};
  const incomplete=generated.days.filter(day=>day.kind==='strength'&&(day.exercises.length<6||day.exercises.length>9));
  return {...generated,training,start,summary,invalid:incomplete.length>0};
 }

@@ -2,7 +2,7 @@ import {resolveLoadSetup,loadChangeOptions,reachableLoadOptions,recommendedLoadO
 import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
 import {encodeRecoverySnapshots,readRecoverySnapshots,isStorageQuotaError} from './recovery.mjs?v=8.2.0';
 export {readRecoverySnapshots} from './recovery.mjs?v=8.2.0';
-import {splitSession,trainingStyle,runningSession} from './training.mjs?v=8.2.0';
+import {splitSession,trainingStyle,runningSession,workoutFormat,workoutFormatWeek} from './training.mjs?v=8.2.0';
 import {autoSupersets,progressionContext,entered as hasExerciseEntries} from './supersets.mjs?v=8.2.0';
 import { LEGACY_PLAN, LEGACY_MASTERS, LEGACY_EQUIPMENT, detailedGuide } from './legacy.mjs?v=8.2.0';
 import { buildCatalog } from './catalog.mjs?v=8.2.0';
@@ -217,6 +217,21 @@ export function scheduledDayKind(state,date){
   return l.lift?'strength':runningSession(training,{date,dayIndex:l.offset,week:l.week})?'run':'rest';
  }catch{return null}
 }
+// Apply a program format only to fresh/unstarted work. Existing routine
+// records and entered sessions are never mutated by a format preference.
+export function applyWorkoutFormat(day,training,metaFor=e=>exerciseFor(e.exerciseId)||e,restSeconds=+training?.restSeconds||120){
+ const out=clone(day);
+ if(out.kind!=='strength'||out.status==='completed'||out.status==='skipped'||out.run?.done||out.sauna?.done||(out.exercises||[]).some(hasExerciseEntries))return out;
+ const format=workoutFormat(training,out.date),week=workoutFormatWeek(training,out.date);
+ if(training?.supersetMode==='alternating'){
+  // Fresh routine copies can carry the source routine's pair IDs. A straight
+  // week explicitly overrides that structure while retaining every set.
+  if(format==='off')for(const exercise of out.exercises||[]){delete exercise.supersetId;delete exercise.supersetOrder;delete exercise.supersetRestSeconds;delete exercise.supersetSource;delete exercise.progressionContext;}
+  if(week!==null)out.formatWeek=week;else delete out.formatWeek;
+ }else delete out.formatWeek;
+ out.workoutFormat=format;
+ return format==='supersets'?autoSupersets(out,metaFor,restSeconds,{trainingStyle:training?.trainingStyle||'hypertrophy',goal:training?.planGoal}):out;
+}
 export function generateProgram(state,{start=state.training.startDate||iso(),days=28}={}){
  const t=state.training,last=historyDates({...state,logs:Object.fromEntries(Object.entries(state.logs).filter(([,d])=>d.date<start)),plan:Object.fromEntries(Object.entries(state.plan).filter(([,d])=>d.date<start))}),generated=[],warnings=[],anchor=t.startDate||start,cadence=programCadence(t,anchor),{frequency,weekSlots}=cadence;
  if(weekSlots.length<frequency)warnings.push(`Only ${weekSlots.length} eligible training days fit the selected weekly rest days.`);
@@ -243,7 +258,7 @@ export function generateProgram(state,{start=state.training.startDate||iso(),day
   if(selected.some(e=>!matchesEquipmentPreference(exerciseFor(e.exerciseId)||state.customExercises?.find(x=>x.id===e.exerciseId)||e,t.equipmentPreference)))notes.push('The equipment preference uses a mix of compatible saved equipment where preferred options or rotation alternatives are limited.');
   const run=runningSession({...t,runningQuality:t.runningQuality&&!qualityWeeks.has(l.week)},{date,dayIndex:l.offset,legDay:l.legs,legsTomorrow:legsAt(addDays(date,1)),recentLegs:legsAt(addDays(date,-1)),week:l.week});if(run?.blocks?.length)qualityWeeks.add(l.week);
   if(run&&l.lift)notes.push(run.guidance);if(t.experience==='Beginner'&&+t.sets>3)notes.push('Beginner volume capped at 3 working sets; adjust after reviewing recovery.');
-  let day={id:date,date,title:l.lift?l.title:run?run.type:'Recovery',gymId:gym.id,kind:l.lift?'strength':run?'run':'rest',run,sauna:l.lift&&+t.saunaMinutes>0?{minutes:+t.saunaMinutes,done:false}:null,exercises:selected,plannedExerciseCount:l.groups.length,notes,split:t.split,trainingStyle:t.trainingStyle||'hypertrophy',sessionNumber:l.index+1,updatedAt:now(),generatorVersion:VERSION};if(t.accessibleProgramming===true)Object.assign(day,{accessibleProgramming:true,movementLevel:t.movementLevel,allowFloorWork:t.allowFloorWork});if(selected.length<l.groups.length)notes.push('Session has '+selected.length+' of '+l.groups.length+' planned exercises because the confirmed equipment or exclusions do not support every slot.');if(t.supersetMode==='supersets'&&l.lift)day=autoSupersets(day,e=>exerciseFor(e.exerciseId)||state.customExercises?.find(x=>x.id===e.exerciseId),+t.restSeconds||120);if(l.lift&&selected.length<6){day.needsEquipmentReview=true;day.notes.push('At least 6 exercises are required for a generated lifting session. Review the gym inventory or exclusions before using this incomplete workout.')}generated.push(day);warnings.push(...day.notes.map(n=>date+': '+n));
+  let day={id:date,date,title:l.lift?l.title:run?run.type:'Recovery',gymId:gym.id,kind:l.lift?'strength':run?'run':'rest',run,sauna:l.lift&&+t.saunaMinutes>0?{minutes:+t.saunaMinutes,done:false}:null,exercises:selected,plannedExerciseCount:l.groups.length,notes,split:t.split,trainingStyle:t.trainingStyle||'hypertrophy',sessionNumber:l.index+1,updatedAt:now(),generatorVersion:VERSION};if(t.accessibleProgramming===true)Object.assign(day,{accessibleProgramming:true,movementLevel:t.movementLevel,allowFloorWork:t.allowFloorWork});if(selected.length<l.groups.length)notes.push('Session has '+selected.length+' of '+l.groups.length+' planned exercises because the confirmed equipment or exclusions do not support every slot.');if(l.lift)day=applyWorkoutFormat(day,t,e=>exerciseFor(e.exerciseId)||state.customExercises?.find(x=>x.id===e.exerciseId),+t.restSeconds||120);if(l.lift&&selected.length<6){day.needsEquipmentReview=true;day.notes.push('At least 6 exercises are required for a generated lifting session. Review the gym inventory or exclusions before using this incomplete workout.')}generated.push(day);warnings.push(...day.notes.map(n=>date+': '+n));
  }
  if(t.runningQuality&&t.trainingStyle==='endurance'&&days>=14&&!generated.some(d=>d.run?.blocks?.length))warnings.push('No interval session fit the lower-body recovery windows in this preview; runs remain easy.');
  return {days:generated,warnings};
@@ -306,9 +321,9 @@ export function rollingDay(state,date){
    const order=state.training.routineOrder||state.routines.filter(r=>!r.deleted).map(r=>r.id),routines=order.map(id=>state.routines.find(r=>r.id===id&&!r.deleted)).filter(Boolean);
    if(routines.length)for(const d of result.days)if(d.kind==='strength'){
     const r=routines[((d.sessionNumber-1)%routines.length+routines.length)%routines.length];d.title=r.name;
-    d.exercises=clone(r.exercises).map(e=>({...e,id:uid(),sets:e.sets.map(s=>({...withoutCompletionTiming(s),id:uid(),w:'',r:'',rir:'',done:false}))}));d.notes=[];
+    d.exercises=clone(r.exercises).map(e=>({...e,id:uid(),sets:e.sets.map(s=>({...withoutCompletionTiming(s),id:uid(),w:'',r:'',rir:'',...(Object.hasOwn(s,'band')?{band:''}:{}),done:false}))}));d.notes=[];
     for(const e of d.exercises){const missing=missingEquipment(exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),state.gyms.find(g=>g.id===d.gymId));if(missing.length)d.notes.push('Equipment to check: '+e.name+' — '+missing.join(', '))}
-    if(training.supersetMode==='supersets')Object.assign(d,autoSupersets(d,e=>exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),+training.restSeconds||60));
+    Object.assign(d,applyWorkoutFormat(d,training,e=>exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),+training.restSeconds||60));
    }
   }
   cached={key,days:new Map(result.days.map(d=>[d.date,d]))};rollingCache.set(state,cached);

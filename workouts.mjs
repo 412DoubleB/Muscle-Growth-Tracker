@@ -1,5 +1,5 @@
 import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
-import {supersetGroups,autoSupersets,entered} from './supersets.mjs?v=8.2.0';
+import {supersetGroups,entered} from './supersets.mjs?v=8.2.0';
 import * as C from './core.mjs?v=8.2.0';
 import {LEGACY_PLAN} from './legacy.mjs?v=8.2.0';
 
@@ -32,7 +32,7 @@ export function workoutChoices(state){
   for(const [date,d] of Object.entries(state.plan||{}))if(!d.deleted&&!seen.has(d.title)){seen.add(d.title);out.push({id:'plan:'+date,title:d.title,group:'Generated workouts'})}
   return out;
 }
-function fresh(day,date,gymId){const d=C.clone(day);delete d.deleted;delete d.status;delete d.completedAt;return C.touch({...d,id:date,date,gymId,exercises:(d.exercises||[]).map(e=>({...e,id:C.uid(),sets:e.sets.map(s=>({...withoutCompletionTiming(s),id:C.uid(),w:'',r:'',rir:'',done:false}))})),run:d.run?{...d.run,done:false}:null,sauna:d.sauna?{...d.sauna,done:false}:null})}
+function fresh(day,date,gymId){const d=C.clone(day);delete d.deleted;delete d.status;delete d.completedAt;return C.touch({...d,id:date,date,gymId,exercises:(d.exercises||[]).map(e=>({...e,id:C.uid(),sets:e.sets.map(s=>({...withoutCompletionTiming(s),id:C.uid(),w:'',r:'',rir:'',...(Object.hasOwn(s,'band')?{band:''}:{}),done:false}))})),run:d.run?{...d.run,done:false}:null,sauna:d.sauna?{...d.sauna,done:false}:null})}
 export function workoutFromChoice(state,choice,date,gymId){
   if(choice==='keep')return C.clone(C.dayFor(state,date));
   if(choice==='auto'){
@@ -46,7 +46,7 @@ export function workoutFromChoice(state,choice,date,gymId){
   if(type==='legacy')day=C.originalDay(state,C.addDays('2026-10-01',+key));
   if(type==='routine'){const r=state.routines.find(r=>r.id===key&&!r.deleted);day={title:r.name,kind:'strength',exercises:r.exercises,notes:[],sauna:{minutes:+state.training.saunaMinutes||20,done:false}}}
   if(type==='plan')day=C.expandPlanDay(state.plan[key]);
-  const chosen=fresh(day,date,gymId);return state.training.supersetMode==='supersets'?autoSupersets(chosen,e=>C.exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),+state.training.restSeconds||60):chosen;
+  const chosen=fresh(day,date,gymId);return C.applyWorkoutFormat(chosen,state.training,e=>C.exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId),+state.training.restSeconds||60);
 }
 function equipmentNotes(state,day){const gym=state.gyms.find(g=>g.id===day.gymId);day.notes=(day.notes||[]).filter(n=>!n.startsWith('Equipment to check:'));for(const e of day.exercises){const cat=C.exerciseFor(e.exerciseId)||state.customExercises.find(x=>x.id===e.exerciseId);const missing=C.missingEquipment(cat,gym);if(missing.length)day.notes.push('Equipment to check: '+e.name+' — '+missing.join(', '))}}
 // Validate only fresh automatic output. Existing short workouts, routines and

@@ -8,9 +8,9 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "a19dccd652a92f0303c35494d0046f971ced37bb",
+  "source_commit": "262ad934a63a3aca317f573cc2fafc200d248b60",
   "deploymentReady": true,
-  "build": "20261028.1",
+  "build": "20261028.2",
   "ai_beta": {
     "accounts": 20,
     "attempts_per_account": 5,
@@ -31,7 +31,8 @@
     "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending",
     "optional_day_warmup": "Optional Add warm-up routine on the daily workout screen; reviewed guidance saves with the day and follows current muscles. All 90 test files, 11 training UI cases, 6 routine-preservation cases and static checks passed.",
     "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, and preserved entered records. All 91 regression test files, 9 focused shrug cases, 11 training UI cases and static checks passed. All 240 prior exercise records and 125 artwork/font assets are preserved.",
-    "workout_coach": "Owner approved saved post-workout coach and separate $10 beta allowance. Paid synthetic provider verification and saved-result check passed. Actual logged load, reps, RIR and Done timestamps drive findings and equipment-aware targets. Rejected numeric model wording uses validated standard coaching notes without another API request. Physical Android/iPhone workout completion and reopening acceptance remain pending."
+    "workout_coach": "Owner approved saved post-workout coach and separate $10 beta allowance. Paid synthetic provider verification and saved-result check passed. Actual logged load, reps, RIR and Done timestamps drive findings and equipment-aware targets. Rejected numeric model wording uses validated standard coaching notes without another API request. Physical Android/iPhone workout completion and reopening acceptance remain pending.",
+    "superset_combo": "MENEI Overload repeats seven calendar days of compatible supersets and seven of straight sets from the program start date. Settings focus, noncompeting muscles, entered pairs, source routines and separate progression histories are preserved. All 105 test files verified (103 in the full run, two focused reruns after stale expectations were corrected); static checks and independent pairing/phase review passed. Physical Android/iPhone acceptance pending."
   },
   "coach_beta": {
     "accounts": 20,

@@ -5,6 +5,22 @@ export const TRAINING_STYLES={
  endurance:{label:'Muscular Endurance',sets:2,setMin:2,setMax:3,range:'15-20',repMin:15,repMax:50,rest:60,restMin:45,restMax:60,rir:2,summary:'2–3 sets · 15–20+ reps · 45–60 sec rest',cue:'Use a load you can control for the full range. Keep technique consistent as fatigue builds.'}
 };
 export const trainingStyle=key=>TRAINING_STYLES[key]||TRAINING_STYLES.hypertrophy;
+export const WORKOUT_FORMATS=[['off','Straight sets'],['supersets','Supersets · separate progression'],['alternating','MENEI Overload']];
+function formatDay(value){
+ if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
+ const stamp=Date.parse(value+'T00:00:00Z');return Number.isFinite(stamp)&&new Date(stamp).toISOString().slice(0,10)===value?stamp/86400000:null;
+}
+// Calendar days, rather than workouts completed or Monday boundaries, keep the
+// cycle stable when previewing, skipping/resting or continuing a saved plan.
+export function workoutFormatWeek(training,date){
+ if(training?.supersetMode!=='alternating')return null;
+ const day=formatDay(date),anchor=formatDay(training.startDate);if(day===null||anchor===null)return null;
+ return ((Math.floor((day-anchor)/7)%2)+2)%2+1;
+}
+export function workoutFormat(training,date){
+ if(training?.supersetMode==='alternating')return workoutFormatWeek(training,date)===1?'supersets':'off';
+ return training?.supersetMode==='supersets'?'supersets':'off';
+}
 export function splitSession(split,index){const choices={
  full:[['Full body',['quads','Chest','hamstrings','Back','Shoulders','Core']]],
  'upper-lower':[['Upper body',['Chest','Chest','Back','Back','Shoulders','Biceps','Triceps']],['Lower body',['quads','quads','hamstrings','hamstrings','calves','Core']]],
