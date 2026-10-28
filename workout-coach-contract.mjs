@@ -160,23 +160,31 @@ function coachProse(value,max){
  // Keep spelled-out quantities blocked even when a prescription omits its
  // unit. Only a narrow reference to a data artifact can use the article one.
  const quantities=text.replace(/\bone(?:\s+(?:useful|helpful|recorded|initial|current|logged)){0,2}\s+(?:baseline|snapshot|observation|comparison|example|reference|record)\b/gi,'a recorded comparison');
- if(/\p{N}/u.test(text)||new RegExp('\\b'+words+'\\b','i').test(quantities)||numberedUnit.test(text)||changeBy.test(text)||barePrescription.test(text)||fractionalLoad.test(text))badReport('prose_number');
  if(/https?:\/\/|www\.|[<>`\[\]]|\*\*|__|(?:^|\n)\s*#/i.test(text))badReport('prose_markup');
  // A statement about the limits of a review is not a diagnosis. Assertions
  // about an injury or condition still fail, including unsupported exclusions.
  const claims=text.replace(/\bnot\s+(?:a|an)\s+(?:(?:medical|injury)\s+)?diagnosis\b/gi,'')
   .replace(/\b(?:cannot|can['’]t|does not|do not)\s+diagnose(?:\s+(?:an?|any))?(?:\s+(?:injury|injuries|medical condition))?\b/gi,'');
  if(/\b(?:overtraining syndrome|central nervous system fatigue|CNS fatigue|tendinitis|tendonitis|diagnos\w*|injur\w*)\b/i.test(claims))badReport('prose_medical');
+ if(/\p{N}/u.test(text)||new RegExp('\\b'+words+'\\b','i').test(quantities)||numberedUnit.test(text)||changeBy.test(text)||barePrescription.test(text)||fractionalLoad.test(text))badReport('prose_number');
  return text;
 }
-export function validateCoachReport(value,input){
+export function validateCoachReport(value,input,{numberFallback}={}){
  // A saved report may carry a compact immutable findings snapshot, rather than
  // duplicate all raw workout sets. Validate against that original map directly.
  if(!record(input))badReport();const findings=findingMap(input.findings,badReport);
  try{value=cloneJson(value)}catch{badReport()}
  exact(value,['version','headline','overview',...COACH_SECTIONS],badReport);
  if(value.version!==1)badReport();
- const report={version:1,headline:coachProse(value.headline,120),overview:coachProse(value.overview,700)},sources=new Set(COACH_SOURCES.map(source=>source.id));
+ // Only a server-owned function can supply a replacement. No input JSON can
+ // enable this path; browser/cache validation stays strict by default.
+ const prose=(value,max,context)=>{
+  try{return coachProse(value,max)}catch(error){
+   if(!(error instanceof CoachContractError)||error.validationRule!=='prose_number'||typeof numberFallback!=='function')throw error;
+   return coachProse(numberFallback(context),max);
+  }
+ };
+ const report={version:1,headline:prose(value.headline,120,{field:'headline'}),overview:prose(value.overview,700,{field:'overview'})},sources=new Set(COACH_SOURCES.map(source=>source.id));
  for(const section of COACH_SECTIONS){
   const expected=findings[section],allowed=new Set(expected.map(finding=>finding.id)),seen=new Set(),list=value[section];
   if(!Array.isArray(list)||list.length!==expected.length||list.length>4)badReport('finding_coverage');
@@ -185,7 +193,7 @@ export function validateCoachReport(value,input){
    exact(item,['findingId','comment','sourceIds'],badReport);
    if(!allowed.has(item.findingId)||seen.has(item.findingId))badReport('finding_coverage');
    if(!Array.isArray(item.sourceIds)||item.sourceIds.length>3||new Set(item.sourceIds).size!==item.sourceIds.length||item.sourceIds.some(id=>!sources.has(id)))badReport('source_ids');
-   seen.add(item.findingId);const comment=coachProse(item.comment,450);
+   seen.add(item.findingId);const comment=prose(item.comment,450,{field:'comment',section,findingId:item.findingId});
    if(section==='fatigue'&&!/\b(?:possible|may|might|could|uncertain|unknown|insufficient)\b|\b(?:cannot|can['’]t)\s+(?:be\s+)?(?:measure|locate|determine|establish|identify)|\b(?:does|do|did)\s+not\s+(?:measure|locate|determine|establish|identify)|\bnot\s+(?:measured|established|known|enough|certain)\b/i.test(comment))badReport('fatigue_uncertainty');
    items.set(item.findingId,{findingId:item.findingId,comment,sourceIds:item.sourceIds.slice()});
   }

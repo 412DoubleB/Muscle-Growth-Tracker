@@ -8,7 +8,7 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "466c56f530220d0049ac19335932edda3e57706a",
+  "source_commit": "a19dccd652a92f0303c35494d0046f971ced37bb",
   "deploymentReady": true,
   "build": "20261028.1",
   "ai_beta": {
@@ -31,7 +31,7 @@
     "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending",
     "optional_day_warmup": "Optional Add warm-up routine on the daily workout screen; reviewed guidance saves with the day and follows current muscles. All 90 test files, 11 training UI cases, 6 routine-preservation cases and static checks passed.",
     "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, and preserved entered records. All 91 regression test files, 9 focused shrug cases, 11 training UI cases and static checks passed. All 240 prior exercise records and 125 artwork/font assets are preserved.",
-    "workout_coach": "Owner approved the saved post-workout coach and separate $10 beta allowance. Reports use actual logged load, reps, RIR and Done timestamps; equipment-aware next-session guidance and saved snapshots remain available to reopen. Physical Android/iPhone acceptance of this new feature is pending."
+    "workout_coach": "Owner approved saved post-workout coach and separate $10 beta allowance. Actual logged load, reps, RIR and Done timestamps drive findings and equipment-aware targets. Rejected numeric model wording uses validated standard coaching notes without another API request. Live verification of this repair and physical Android/iPhone acceptance remain pending."
   },
   "coach_beta": {
     "accounts": 20,
