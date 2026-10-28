@@ -31,7 +31,7 @@
     "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending",
     "optional_day_warmup": "Optional Add warm-up routine on the daily workout screen; reviewed guidance saves with the day and follows current muscles. All 90 test files, 11 training UI cases, 6 routine-preservation cases and static checks passed.",
     "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, and preserved entered records. All 91 regression test files, 9 focused shrug cases, 11 training UI cases and static checks passed. All 240 prior exercise records and 125 artwork/font assets are preserved.",
-    "workout_coach": "Owner approved saved post-workout coach and separate $10 beta allowance. Actual logged load, reps, RIR and Done timestamps drive findings and equipment-aware targets. Rejected numeric model wording uses validated standard coaching notes without another API request. Live verification of this repair and physical Android/iPhone acceptance remain pending."
+    "workout_coach": "Owner approved saved post-workout coach and separate $10 beta allowance. Paid synthetic provider verification and saved-result check passed. Actual logged load, reps, RIR and Done timestamps drive findings and equipment-aware targets. Rejected numeric model wording uses validated standard coaching notes without another API request. Physical Android/iPhone workout completion and reopening acceptance remain pending."
   },
   "coach_beta": {
     "accounts": 20,
