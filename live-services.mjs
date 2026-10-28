@@ -16,13 +16,17 @@ export class LiveServices{
  }
  async request(route,{method='GET',body,signal}={}){
   if(!this.enabled)throw Error('AI gym search is not connected yet. Manual gym setup remains available.');
-  if(!['join','status','research','research-status'].includes(route))throw Error('Invalid MENEI service route.');
+  if(!['join','status','research','research-status','coach-status','coach-report'].includes(route))throw Error('Invalid MENEI service route.');
   const cloud=this.cloud,context=cloud.accountContext();
   if(cloud.config?.url!==LIVE_AUTH_URL||!context.userId)throw Error('Sign in to your MENEI account in Settings first.');
   await cloud.refresh();cloud.requireCurrentAccount(context);
   const response=await this.fetcher(LIVE_SERVICE_BASE+route,{method,headers:{Authorization:'Bearer '+cloud.session.access_token,...(body===undefined?{}:{'Content-Type':'application/json'})},credentials:'omit',redirect:'error',cache:'no-store',signal,...(body===undefined?{}:{body:JSON.stringify(body)})});
   cloud.requireCurrentAccount(context);return response;
  }
+ // Coach access reads existing membership on the server; it never enrolls a
+ // tester or spends a gym-search attempt. The same account guards apply.
+ async coachStatus({signal}={}){return this.request('coach-status',{signal})}
+ async coachReport(body,{signal}={}){return this.request('coach-report',{method:'POST',body,signal})}
  async research(query,{signal}={}){
   // Admission and research must remain in the very same account context.
   const context=this.cloud.accountContext(),join=await this.request('join',{method:'POST',body:{},signal});

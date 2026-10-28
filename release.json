@@ -8,9 +8,9 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "2afc5a2a962bf4d119582197c6cf06758a25aff7",
+  "source_commit": "f48a8366af51a7da7ffbeead80df45bc46c37d4a",
   "deploymentReady": true,
-  "build": "20261027.1",
+  "build": "20261028.1",
   "ai_beta": {
     "accounts": 20,
     "attempts_per_account": 5,
@@ -30,6 +30,16 @@
     "accessible_exercises": "43 additive options; original 197 preserved; band-only entries protected; numeric band loads never inferred; all 89 test files passed",
     "iphone_opening": "HTML canvas/SVG layers and atlas-only loading corrected; approved artwork and logo transition unchanged; physical iPhone acceptance pending",
     "optional_day_warmup": "Optional Add warm-up routine on the daily workout screen; reviewed guidance saves with the day and follows current muscles. All 90 test files, 11 training UI cases, 6 routine-preservation cases and static checks passed.",
-    "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, and preserved entered records. All 91 regression test files, 9 focused shrug cases, 11 training UI cases and static checks passed. All 240 prior exercise records and 125 artwork/font assets are preserved."
+    "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, and preserved entered records. All 91 regression test files, 9 focused shrug cases, 11 training UI cases and static checks passed. All 240 prior exercise records and 125 artwork/font assets are preserved.",
+    "workout_coach": "Owner approved the saved post-workout coach and separate $10 beta allowance. Reports use actual logged load, reps, RIR and Done timestamps; equipment-aware next-session guidance and saved snapshots remain available to reopen. Physical Android/iPhone acceptance of this new feature is pending."
+  },
+  "coach_beta": {
+    "accounts": 20,
+    "attempts_per_account": 50,
+    "attempts_total": 1000,
+    "approved_allowance_usd": 10,
+    "reserved_cents_per_attempt": 1,
+    "saved_reports_free_to_reopen": true,
+    "separate_from_gym_search_allowance": true
   }
 }
