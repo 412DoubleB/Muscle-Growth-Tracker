@@ -157,7 +157,10 @@ function coachProse(value,max){
  const changeBy=new RegExp('\\bby\\s+(?:a\\s+)?'+words+'\\b','i');
  const barePrescription=new RegExp('\\b(?:increase|decrease|add|subtract|reduce|raise|lower|use|perform|do|complete|aim|target|rest|wait|go up|go down)\\b[^.!?]{0,50}\\b'+words+'\\s*[.!?]?(?:$|\\n)','i');
  const fractionalLoad=/\b(?:half|quarter)\b[^.!?]{0,24}\b(?:load|weight|resistance|volume)\b/i;
- if(/\p{N}/u.test(text)||numberedUnit.test(text)||changeBy.test(text)||barePrescription.test(text)||fractionalLoad.test(text))badReport('prose_number');
+ // Keep spelled-out quantities blocked even when a prescription omits its
+ // unit. Only a narrow reference to a data artifact can use the article one.
+ const quantities=text.replace(/\bone(?:\s+(?:useful|helpful|recorded|initial|current|logged)){0,2}\s+(?:baseline|snapshot|observation|comparison|example|reference|record)\b/gi,'a recorded comparison');
+ if(/\p{N}/u.test(text)||new RegExp('\\b'+words+'\\b','i').test(quantities)||numberedUnit.test(text)||changeBy.test(text)||barePrescription.test(text)||fractionalLoad.test(text))badReport('prose_number');
  if(/https?:\/\/|www\.|[<>`\[\]]|\*\*|__|(?:^|\n)\s*#/i.test(text))badReport('prose_markup');
  // A statement about the limits of a review is not a diagnosis. Assertions
  // about an injury or condition still fail, including unsupported exclusions.

@@ -8,7 +8,7 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "9808eaf78f15738d2df8206f738f216f35aaf35d",
+  "source_commit": "466c56f530220d0049ac19335932edda3e57706a",
   "deploymentReady": true,
   "build": "20261028.1",
   "ai_beta": {
