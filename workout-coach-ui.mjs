@@ -100,7 +100,7 @@ export class WorkoutCoachReview{
    const saved=makeSavedCoachReview(view.facts,envelope),current=this.buildFacts(this.getState(),view.date);
    if(await this.fingerprint(current)!==view.fingerprint||JSON.stringify(this.buildFacts(this.getState(),view.date))!==JSON.stringify(current))throw Error('Your workout or progression context changed while the review was prepared. Your newer entries are preserved.');
    this.requireContext(view.context);if(generation!==this.generation||controller.signal.aborted)return;
-   await this.persist(view.date,saved,view.context);view.saved=saved;view.stale=false;view.message='Saved with this workout. Reopen it from Workout review at any time.'+(Number.isSafeInteger(data.quota?.remaining)&&Number.isSafeInteger(data.quota?.limit)?` ${data.quota.remaining} of ${data.quota.limit} coach attempts remaining.`:'');this.onSaved();
+   await this.persist(view.date,saved,view.context);view.saved=saved;view.stale=false;view.message='Saved with this workout. Reopen it from Workout summary at any time.'+(Number.isSafeInteger(data.quota?.remaining)&&Number.isSafeInteger(data.quota?.limit)?` ${data.quota.remaining} of ${data.quota.limit} coach attempts remaining.`:'');this.onSaved();
   }catch(error){if(generation===this.generation&&!controller.signal.aborted)view.message=error.message||'The AI review could not be saved. Your workout is preserved.'}
   finally{if(this.pending===pending)this.pending=null;view.busy=false;if(generation===this.generation)this.paint(view)}
  }
