@@ -1,4 +1,4 @@
-export const SPLITS=[['full','Full Body Split'],['upper-lower','Upper / Lower Split'],['ppl','Push / Pull / Legs (PPL) Split'],['bro','Bro Split (Body Part Split)'],['seven','Seven muscle groups'],['split','The MENEI Split']];
+export const SPLITS=[['full','Full Body Split'],['upper-lower','Upper / Lower Split'],['ppl','Push / Pull / Legs (PPL) Split'],['push-pull','Push / Pull Split'],['bro','Bro Split (Body Part Split)'],['seven','Seven muscle groups'],['split','The MENEI Split']];
 export const TRAINING_STYLES={
  strength:{label:'Strength / Power',sets:4,setMin:3,setMax:6,range:'1-5',repMin:1,repMax:5,rest:240,restMin:180,restMax:300,rir:2,summary:'3–6 sets · 1–5 reps · 3–5 min rest',cue:'Use controlled heavy strength work and stop with clean reps available. Dedicated explosive power work uses lighter loads and fast intent; it is not automatically treated as a maximal lift.'},
  hypertrophy:{label:'Hypertrophy (Muscle Growth)',sets:3,setMin:3,setMax:4,range:'6-15',repMin:6,repMax:15,rest:120,restMin:90,restMax:180,rir:1,summary:'3–4 sets · 6–15 reps · 1.5–3 min rest',cue:'Finish close to failure, usually with 1–2 clean reps in reserve. Failure is optional; it is not required on every set.'},
@@ -24,6 +24,7 @@ export function workoutFormat(training,date){
 export function splitSession(split,index){const choices={
  full:[['Full body',['quads','Chest','hamstrings','Back','Shoulders','Core']]],
  'upper-lower':[['Upper body',['Chest','Chest','Back','Back','Shoulders','Biceps','Triceps']],['Lower body',['quads','quads','hamstrings','hamstrings','calves','Core']]],
+ 'push-pull':[['Push',['quads','quads','Chest','Chest','anterior-delt','lateral-delt','Triceps','calves']],['Pull',['hamstrings','hamstrings','Back','Back','rear-delt','Biceps','Biceps','Core']]],
  ppl:[['Push',['Chest','Chest','anterior-delt','lateral-delt','Triceps','Triceps']],['Pull',['Back','Back','Back','rear-delt','Biceps','Biceps']],['Legs',['quads','quads','hamstrings','hamstrings','calves','Core']]],
  bro:[['Chest',['Chest','Chest','Chest','Chest','Chest','Chest']],['Back',['Back','Back','Back','Back','Back','Back']],['Legs',['quads','quads','quads','hamstrings','hamstrings','calves','calves']],['Shoulders',['anterior-delt','lateral-delt','lateral-delt','rear-delt','rear-delt','upper-traps']],['Arms',['Biceps','Biceps','Biceps','Triceps','Triceps','Core']]],
  split:[['Chest + Biceps',['Chest','Chest','Chest','Chest','Chest','Biceps','Biceps','Biceps','Biceps']],['Back + Triceps',['Back','Back','Back','Back','Back','Triceps','Triceps','Triceps']],['Legs',['quads','quads','quads','quads','hamstrings','hamstrings','calves','calves']],['Shoulders + Abs',['anterior-delt','lateral-delt','lateral-delt','rear-delt','rear-delt','upper-traps','Core','Core']]],
