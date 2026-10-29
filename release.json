@@ -8,9 +8,9 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "6e48c4a023bb88cfdbececd3c8e856fa12db63a9",
+  "source_commit": "5a311f10582e1c14d7a850aa0f16cf52cd35a03a",
   "deploymentReady": true,
-  "build": "20261028.3",
+  "build": "20261029.1",
   "ai_beta": {
     "accounts": 20,
     "attempts_per_account": 5,
@@ -33,7 +33,8 @@
     "shoulder_shrugs": "Two additive dumbbell/barbell shrug variations on new dedicated shoulder days; equipment/exclusion fallbacks, deltoid/core coverage, per-hand and paired-plate progression, and preserved entered records. All 91 regression test files, 9 focused shrug cases, 11 training UI cases and static checks passed. All 240 prior exercise records and 125 artwork/font assets are preserved.",
     "workout_coach": "Owner approved saved post-workout coach and separate $10 beta allowance. Paid synthetic provider verification and saved-result check passed. Actual logged load, reps, RIR and Done timestamps drive findings and equipment-aware targets. Rejected numeric model wording uses validated standard coaching notes without another API request. Physical Android/iPhone workout completion and reopening acceptance remain pending.",
     "superset_combo": "MENEI Overload repeats seven calendar days of compatible supersets and seven of straight sets from the program start date. Settings focus, noncompeting muscles, entered pairs, source routines and separate progression histories are preserved. All 105 test files verified (103 in the full run, two focused reruns after stale expectations were corrected); static checks and independent pairing/phase review passed. Physical Android/iPhone acceptance pending.",
-    "workout_summary_entry": "A dedicated gold Workout summary footer appears on the completed daily card and remains for saved reports after unlocking. Reopening the selected past day uses the existing saved record/report without generation or another attempt. All 105 regression test files, focused controller/integration checks and static checks passed, including dated navigation, offline saved reopening and unchanged raw storage. Private synthetic preview accepted by automated checks; physical Android/iPhone acceptance pending."
+    "workout_summary_entry": "A dedicated gold Workout summary footer appears on the completed daily card and remains for saved reports after unlocking. Reopening the selected past day uses the existing saved record/report without generation or another attempt. All 105 regression test files, focused controller/integration checks and static checks passed, including dated navigation, offline saved reopening and unchanged raw storage. Private synthetic preview accepted by automated checks; physical Android/iPhone acceptance pending.",
+    "push_pull_day_navigation": "Additive two-day Push/Pull split includes lower-body coverage, shared selectors and existing prescriptions/equipment protections. Daily cards have bottom-left Previous day and bottom-right Next day buttons using the dated Open action. Exercise rotation remains unchanged; expert variation research is documented separately. All 105 regression test files, focused training/smart-plan/day-navigation checks and source/static checks passed; physical Android/iPhone acceptance pending."
   },
   "coach_beta": {
     "accounts": 20,
