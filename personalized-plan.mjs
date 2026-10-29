@@ -1,3 +1,4 @@
+import {variationSettings} from './exercise-rotation.mjs?v=8.2.0';
 import * as C from './core.mjs?v=8.2.0';
 import {SPLITS,WORKOUT_FORMATS} from './training.mjs?v=8.2.0';
 import {resolveMovementOptions} from './accessible-programming.mjs?v=8.2.0';
@@ -66,10 +67,11 @@ export function buildPersonalizedProgram(state,options={}){
  const supersetMode=oneOf(options.supersetMode??state.training.supersetMode??'off',WORKOUT_FORMATS.map(([id])=>id),'workout format');
  const defaultGym=options.defaultGym??state.training.defaultGym??state.gyms.find(g=>!g.deleted)?.id;
  if(typeof defaultGym!=='string'||!state.gyms.some(g=>!g.deleted&&g.id===defaultGym))throw Error('Choose an available default gym before building the smart plan.');
- const minRepeatDays=integer(options.minRepeatDays??state.training.minRepeatDays??14,0,42,'Minimum days before repeating');
+ const variation=variationSettings(options,state.training);
  const excludePullups=options.excludePullups??state.training.excludePullups??true;if(typeof excludePullups!=='boolean')throw Error('Choose whether to exclude pull-ups and chin-ups.');
- const training=C.touch({...state.training,mode:'automatic',startDate:start,frequency,split,sets,range,experience:experience==='Returning'?'Beginner':experience,trainingStyle:goal==='endurance'?'endurance':experiencedStrength?'strength':'hypertrophy',restSeconds:60,runEvery,runningQuality:false,restWeekdays,supersetMode,defaultGym,minRepeatDays,excludePullups,equipmentPreference,accessibleProgramming:true,...movement,planApproach:approachId,planAge:age,planGoal:goal,planExperience:experience});
+ const training=C.touch({...state.training,mode:'automatic',startDate:start,frequency,split,sets,range,experience:experience==='Returning'?'Beginner':experience,trainingStyle:goal==='endurance'?'endurance':experiencedStrength?'strength':'hypertrophy',restSeconds:60,runEvery,runningQuality:false,restWeekdays,supersetMode,defaultGym,...variation,excludePullups,equipmentPreference,accessibleProgramming:true,...movement,planApproach:approachId,planAge:age,planGoal:goal,planExperience:experience});
  const reasons=[
+  variation.variationMode==='progression'?`Repeat benchmark lifts to track progress. Review every ${variation.variationReviewWeeks} weeks; keep productive exercises and change at most one accessory per session template when comparable logs show sustained unchanged load, reps and RIR.`:'Variety mode avoids recent repeats according to your chosen number of days.',
   requestedApproach==='auto'?`The suggested approach uses age ${age} and your ${experience.toLowerCase()} experience; you can choose a different approach.`:`You chose ${approach.label}; age does not restrict that choice.`,
   'Your goal, experience and selected schedule set the starting workload. Age alone never determines a lifting weight.',
   'Use completed sets and your reps in reserve to guide progression. The plan leaves loads blank for you to choose and record. Bands and bodyweight variations use recorded setup, repetitions and control rather than guessed weight increases.',
