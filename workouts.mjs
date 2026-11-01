@@ -1,5 +1,5 @@
 import {withoutCompletionTiming} from './session-order.mjs?v=8.2.0';
-import {supersetGroups,entered} from './supersets.mjs?v=8.2.0';
+import {supersetGroups,entered,autoSupersets,muscleFamilies} from './supersets.mjs?v=8.2.0';
 import * as C from './core.mjs?v=8.2.0';
 import {LEGACY_PLAN} from './legacy.mjs?v=8.2.0';
 
@@ -33,8 +33,44 @@ export function workoutChoices(state){
   return out;
 }
 function fresh(day,date,gymId){const d=C.clone(day);delete d.deleted;delete d.status;delete d.completedAt;return C.touch({...d,id:date,date,gymId,exercises:(d.exercises||[]).map(e=>({...e,id:C.uid(),sets:e.sets.map(s=>({...withoutCompletionTiming(s),id:C.uid(),w:'',r:'',rir:'',...(Object.hasOwn(s,'band')?{band:''}:{}),done:false}))})),run:d.run?{...d.run,done:false}:null,sauna:d.sauna?{...d.sauna,done:false}:null})}
+// Explicit preview/save only: retain supported rows, replace unavailable rows,
+// and rebuild pairs. Never reinterpret entered weights as a different apparatus.
+export function matchWorkoutToGym(state,day,gymId){
+ const gym=state.gyms.find(g=>g.id===gymId&&!g.deleted);
+ if(!gym)throw Error('Choose an active gym.');
+ if(hasEntries(day))throw Error('Match equipment before entering any sets. Your recorded workout stays unchanged.');
+ const out=C.clone(day),metaFor=e=>C.exerciseFor(e.exerciseId)||state.customExercises?.find(x=>x.id===e.exerciseId),pool=C.eligibleExercisesForGym(state,gym);
+ const known=out.exercises.map(metaFor),used=new Set(out.exercises.filter((e,i)=>known[i]&&C.supports(known[i],gym)).map(e=>e.exerciseId));
+ const changes=[];
+ out.exercises=out.exercises.map((row,index)=>{
+  const meta=known[index];
+  if(!meta)throw Error('Review the equipment requirements for '+row.name+' before matching this workout.');
+  if(C.supports(meta,gym))return row;
+  const muscles=muscleFamilies(meta.primary),candidates=pool.filter(e=>(!muscles.size||[...muscleFamilies(e.primary)].some(m=>muscles.has(m)))&&!used.has(e.id)&&C.replacementGroup(e)===C.replacementGroup(meta)&&(e.repUnit||'reps')===(meta.repUnit||'reps'));
+  const score=e=>(C.matchesEquipmentPreference(e,state.training.equipmentPreference)?0:1000)+(e.subgroup===meta.subgroup?0:100)+(e.movement===meta.movement?0:20)+(!!e.compound===!!meta.compound?0:10);
+  candidates.sort((a,b)=>score(a)-score(b)||a.id.localeCompare(b.id));
+  const chosen=candidates[0];
+  if(!chosen)throw Error('No suitable '+C.replacementGroup(meta)+' replacement for '+row.name+' matches '+gym.name+'. Review the saved inventory or choose a replacement manually. Nothing has been saved.');
+  used.add(chosen.id);
+  const replacement=C.makeExercise(chosen,{type:row.setType||'straight',count:row.sets.length,range:row.range});
+  replacement.targetRir=row.targetRir;replacement.trainingStyle=row.trainingStyle;
+  replacement.sets.forEach((set,i)=>{set.rest=row.sets[i]?.rest??60});
+  changes.push(row.name+' → '+chosen.name);
+  return replacement;
+ });
+ const wasPaired=out.workoutFormat==='supersets'||out.exercises.some(e=>e.supersetId)||day.exercises.some(e=>e.supersetId);
+ for(const e of out.exercises){for(const key of ['supersetId','supersetOrder','supersetRestSeconds','supersetSource','progressionContext'])delete e[key]}
+ out.gymId=gymId;delete out.exerciseVariation;delete out.compactPlan;
+ out.notes=(out.notes||[]).filter(n=>!n.startsWith('Equipment to check:')&&!n.startsWith('Gym equipment match:')&&!n.startsWith('Accessory review:'));
+ out.notes.push('Gym equipment match: '+(changes.length?changes.join('; '):'all exercises match the saved inventory.')+' Superset partners reviewed using the available exercises.');
+ const formatted=C.applyWorkoutFormat(out,state.training,metaFor,+state.training.restSeconds||120);
+ // Preserve an explicitly paired session when the global format is plain sets;
+ // alternating weeks always follow their selected calendar format instead.
+ return wasPaired&&state.training.supersetMode!=='alternating'&&formatted.workoutFormat!=='supersets'?{...autoSupersets(formatted,metaFor,+state.training.restSeconds||120,{trainingStyle:state.training.trainingStyle,goal:state.training.planGoal}),workoutFormat:'supersets'}:formatted;
+}
 export function workoutFromChoice(state,choice,date,gymId){
   if(choice==='keep')return C.clone(C.dayFor(state,date));
+  if(choice==='match-gym')return matchWorkoutToGym(state,C.dayFor(state,date),gymId);
   if(choice==='auto'){
     const scratch=C.clone(state);delete scratch.logs[date];scratch.training={...scratch.training,frequency:7,restWeekdays:[]};
     const gym=scratch.gyms.find(g=>g.id===gymId&&!g.deleted);if(!gym)throw Error('Choose an active gym.');
@@ -63,7 +99,7 @@ export function editSession(state,from,{choice='keep',date=from,gymId,adjust='ke
   const old=C.dayFor(state,from);if(old.status==='completed')throw Error('Unlock this completed day to edit it.');
   if(!state.gyms.some(g=>g.id===gymId&&!g.deleted))throw Error('Choose an active gym.');
   if(date!==from&&hasEntries(C.dayFor(state,date)))throw Error('The destination contains entered or completed work. Choose another date; no records were changed.');
-  const next=C.clone(state),notices=[];let chosen=choice==='keep'?C.clone(old):carryWarmupRoutine(old,workoutFromChoice(state,choice,date,gymId));
+  const next=C.clone(state),notices=[];let chosen=choice==='keep'?C.clone(old):carryWarmupRoutine(old,choice==='match-gym'?matchWorkoutToGym(state,old,gymId):workoutFromChoice(state,choice,date,gymId));
   if(choice==='auto')reviewAutomaticWorkouts([chosen]);
   if(choice!=='keep'&&hasEntries(old)){const key=from+'~edit-'+C.uid();next.logs[key]={...C.clone(old),id:key};notices.push('The previous entered workout is preserved in History.')}
   let swapDate=null;

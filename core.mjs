@@ -44,8 +44,8 @@ export function convertLoadUnits(current,units){
  state.profile.units=units;return state;
 }
 
-const inventoryAliases={'Squat Rack':['Squat Rack / Power Rack'],'Bench':['Flat Bench'],'Cable Station':['Single Cable Column'],'Seated Row':['Seated Cable Row'],'Leg Press':['Leg Press 45°'],'Pec Deck / Reverse Pec Deck':['Pec Deck / Chest Fly','Reverse Pec Deck'],'Calf Machine':['Standing Calf Raise','Seated Calf Raise'],'Dip / Pull-up Station':['Dip Station','Pull-up Bar'],'Chest Press Machine':['Selectorized Chest Press'],'Shoulder Press Machine':['Selectorized Shoulder Press'],'Hammer Strength / Plate Loaded':['Hammer Strength Incline Press','Hammer Strength Flat / Horizontal Press','Hammer Strength Decline Press','Hammer Strength Shoulder Press','Hammer Strength High Row','Hammer Strength Low Row','Hammer Strength Iso-Lateral Row','Plate-Loaded Row']};
-export function normalizedInventory(g){const s=new Set(g.inventory||[]);for(const x of [...s])for(const a of inventoryAliases[x]||[])s.add(a);if(s.has('Dual Cable / Functional Trainer')||s.has('Cable Crossover'))s.add('Single Cable Column');if(s.has('Adjustable Bench')){s.add('Bench');s.add('Flat Bench')}return s}
+const inventoryAliases={'Squat Rack':['Squat Rack / Power Rack'],'Bench':['Flat Bench'],'Cable Station':['Single Cable Column'],'Seated Row':['Seated Cable Row'],'Leg Press':['Leg Press 45°'],'Pec Deck / Reverse Pec Deck':['Pec Deck / Chest Fly','Reverse Pec Deck'],'Calf Machine':['Standing Calf Raise','Seated Calf Raise'],'Dip / Pull-up Station':['Dip Station','Pull-up Bar'],'Chest Press Machine':['Selectorized Chest Press'],'Shoulder Press Machine':['Selectorized Shoulder Press']};
+export function normalizedInventory(g){const s=new Set(g.inventory||[]);for(const x of [...s])for(const a of inventoryAliases[x]||[])s.add(a);if(s.has('Flat Bench'))s.add('Bench');if(s.has('Dual Cable / Functional Trainer')||s.has('Cable Crossover'))s.add('Single Cable Column');if(s.has('Adjustable Bench')){s.add('Bench');s.add('Flat Bench')}return s}
 export function missingEquipment(e,g){const inv=normalizedInventory(g||{inventory:[]});return (e?.equipmentRequirements||e?.equipment||[]).filter(options=>!(Array.isArray(options)?options:[options]).some(x=>x==='Bodyweight'||inv.has(x))).map(x=>Array.isArray(x)?x.join(' or '):x)}
 export const supports=(e,g)=>!!e&&missingEquipment(e,g).length===0;
 export function scheduledGym(state,date){let rules=state.gymSchedules.filter(r=>!r.deleted&&(!r.start||date>=r.start)&&(!r.end||date<=r.end)).sort((a,b)=>(b.priority||0)-(a.priority||0));for(const r of rules){const delta=daysBetween(date,r.start||date);const every=Math.max(1,+r.every||1)*(r.type==='weeks'?7:1);const matches=['interval','weeks'].includes(r.type)?delta>=0&&delta%every<(+r.durationDays||1):r.type==='weekly'&&(r.weekdays||[]).map(Number).includes(dateOf(date).getDay());if(matches){const gym=state.gyms.find(g=>g.id===r.gymId&&!g.deleted);if(gym)return gym}}return state.gyms.find(g=>g.id===state.training.defaultGym&&!g.deleted)||state.gyms.find(g=>!g.deleted)}
@@ -190,7 +190,7 @@ export function nextSetRecommendation(state,exercise,gym){
 function historyDates(state){const last=new Map();for(const l of Object.values(state.logs)){if(l.deleted)continue;for(const e of l.exercises||[]){const id=e.exerciseId||exerciseFor(e.name)?.id;if(id&&completedSets(e).length&&(!last.has(id)||last.get(id)<l.date))last.set(id,l.date)}}for(const p of Object.values(state.plan)){if(p.deleted)continue;for(const e of p.exercises||[]){const id=e.exerciseId;if(id&&(!last.has(id)||last.get(id)<p.date))last.set(id,p.date)}}return last}
 function subgroup(e){if(e.group==='Legs'&&['quads','hamstrings','calves'].includes(e.subgroup))return e.subgroup;const n=(e.name+' '+e.primary+' '+e.movement).toLowerCase();if(e.group!=='Legs')return e.group;if(/calf|tibialis/.test(n))return 'calves';if(/romanian|deadlift|leg curl|hamstring|hip thrust|glute drive|hinge|nordic|glute-ham/.test(n))return 'hamstrings';return 'quads'}
 function matchesGroup(e,group){if(group==='upper-traps')return e.group==='Shoulders'&&e.subgroup==='upper-traps';if(['anterior-delt','lateral-delt','rear-delt'].includes(group))return e.group==='Shoulders'&&e.subgroup===group.split('-')[0];if(group==='Shoulders'&&e.subgroup==='upper-traps')return false;return subgroup(e)===group}
-function matchesEquipmentPreference(exercise,preference){
+export function matchesEquipmentPreference(exercise,preference){
  if(!['machines','free','bodyweight','bands','calisthenics'].includes(preference))return true;
  const raw=exercise.equipmentRequirements||exercise.equipment||[],equipment=(Array.isArray(raw)?raw:[raw]).flatMap(clause=>Array.isArray(clause)?clause:[clause]).filter(item=>typeof item==='string'&&item.trim());
  const bodyweight=exercise.loadMode==='bodyweight',free=exercise.loadMode==='perHand'||equipment.some(item=>/^(?:Dumbbells|Kettlebells|Barbell|EZ Bar|Safety Squat Bar|Trap Bar \/ Hex Bar|Landmine|Battle Ropes|Sled \/ Prowler)$/.test(item));
@@ -199,6 +199,12 @@ function matchesEquipmentPreference(exercise,preference){
  if(preference==='calisthenics')return bodyweight||exercise.modalities?.includes('calisthenics');
  return preference==='bodyweight'?bodyweight:preference==='free'?!bodyweight&&!band&&free:!bodyweight&&!band&&!free&&equipment.length>0;
 }
+// Use the same inventory and safety filters for new plans and explicit day repairs.
+export function eligibleExercisesForGym(state,gym){
+ const t=state.training;
+ return [...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&eligibleForProgramming(e,t)&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!(state.avoided||[]).includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&supports(e,gym));
+}
+export function replacementGroup(exercise){return exercise.group==='Shoulders'&&exercise.subgroup?'Shoulders · '+exercise.subgroup:subgroup(exercise)}
 function programCadence(training,anchor){
  const frequency=Math.max(1,Math.min(7,+training.frequency||4)),weekSlots=[0,2,4,6,1,3,5].filter(day=>!(training.restWeekdays||[]).includes((dateOf(anchor).getDay()+day)%7)).slice(0,frequency).sort((a,b)=>a-b);
  return {frequency,weekSlots,at(date){const offset=daysBetween(date,anchor),slot=((offset%7)+7)%7,week=Math.floor(offset/7),index=week*weekSlots.length+weekSlots.filter(x=>x<=slot).length-1,legacy=training.split==='legacy'?LEGACY_PLAN[((offset%28)+28)%28]:null;return {offset,index,week,lift:legacy?!!legacy[2]:weekSlots.includes(slot),legacy}}};
@@ -249,7 +255,7 @@ export function generateProgram(state,{start=state.training.startDate||iso(),day
  for(let i=0;i<Math.max(1,Math.min(366,+days||28));i++){
   const date=addDays(start,i),gym=scheduledGym(state,date),l=layout(date),notes=[],selected=[],used=new Set();if(!gym)throw Error('Create at least one gym before generating a plan.');
   if(protectedDay(state.logs[date])){warnings.push(date+': existing workout preserved.');for(const e of state.logs[date].exercises||[])if(e.exerciseId)last.set(e.exerciseId,date);continue}
-  const eligibleFor=slot=>[...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&eligibleForProgramming(e,t)&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!state.avoided.includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&matchesGroup(e,slot)&&supports(e,gym));
+  const gymPool=eligibleExercisesForGym(state,gym),eligibleFor=slot=>gymPool.filter(e=>matchesGroup(e,slot));
   const poolFor=slot=>{const pool=eligibleFor(slot);return slot==='upper-traps'&&!pool.length?eligibleFor('Shoulders'):pool};
   let rotation=null;
   if(t.variationMode==='progression'&&l.lift&&t.mode!=='custom'){
