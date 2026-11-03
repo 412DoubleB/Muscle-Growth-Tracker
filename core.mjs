@@ -70,12 +70,25 @@ function portableHistory(state,exercise){
  return !/machine|cable|pressdown|pulldown|leg press|hack squat/i.test(exercise.name);
 }
 export function completedSets(e){return (e.sets||[]).filter(s=>s.done&&usableNumber(s.r)&&+s.r>0&&usableNumber(s.w)&&+s.w>=0&&!['warmup','drop','backoff','ramp'].includes(s.role))}
+function priorExerciseRecords(state,exercise,date){
+ const identity=e=>e.exerciseId?(exerciseFor(e.exerciseId)?.id||e.exerciseId):exerciseFor(e.name)?.id;
+ const id=identity(exercise);
+ return Object.entries(state.logs).filter(([key,l])=>l&&key===l.date&&/^\d{4}-\d{2}-\d{2}$/.test(l.date)&&Number.isFinite(Date.parse(l.date+'T12:00:00Z'))&&!l.deleted&&l.date<date&&l.status!=='skipped').map(([,l])=>l)
+  .sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt).localeCompare(String(a.updatedAt)))
+  .flatMap(log=>(log.exercises||[]).filter(e=>id?identity(e)===id:!identity(e)&&norm(e.name)===norm(exercise.name)).map(e=>({log,exercise:e,sets:completedSets(e)})));
+}
 export function lastHistory(state,exercise,date,gymId){
- const id=exercise.exerciseId||exerciseFor(exercise.name)?.id;
- // As in Progress, preserved edit/import/conflict copies stay recoverable but
- // only the active date-keyed workout can inform a recommendation.
- const active=Object.entries(state.logs).filter(([key,l])=>l&&key===l.date&&/^\d{4}-\d{2}-\d{2}$/.test(l.date)&&Number.isFinite(Date.parse(l.date+'T12:00:00Z'))&&!l.deleted&&l.date<date&&l.status!=='skipped').map(([,l])=>l);
- return active.sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt).localeCompare(String(a.updatedAt))).flatMap(l=>(l.exercises||[]).filter(e=>(e.exerciseId===id||(!id&&norm(e.name)===norm(exercise.name)))&&progressionContext(e)===progressionContext(exercise)&&(l.gymId===gymId||portableHistory(state,exercise)&&portableHistory(state,e))).map(e=>({log:l,exercise:e,sets:completedSets(e)}))).find(x=>x.sets.length)
+ // Canonical dated work informs progression; preserved copies remain in History.
+ return priorExerciseRecords(state,exercise,date).find(({log,exercise:e,sets})=>sets.length&&progressionContext(e)===progressionContext(exercise)&&(log.gymId===gymId||portableHistory(state,exercise)&&portableHistory(state,e)));
+}
+function recordedHistoryReference(state,exercise,date,gymId){
+ const record=priorExerciseRecords(state,exercise,date).find(({exercise:e})=>(e.sets||[]).some(s=>usableNumber(s.w)&&+s.w>=0||usableNumber(s.r)&&+s.r>0));
+ if(!record)return;
+ const {log,exercise:e,sets}=record,reasons=[];
+ if(progressionContext(e)!==progressionContext(exercise))reasons.push('Recorded in a different workout format.');
+ if(log.gymId!==gymId&&!(portableHistory(state,exercise)&&portableHistory(state,e)))reasons.push('Recorded on equipment at a different gym; machine loads are not transferred.');
+ if(!sets.length)reasons.push('No checked working/top sets with valid load and reps in this record.');
+ return {date:log.date,gymId:log.gymId,context:progressionContext(e),reason:reasons.join(' '),sets:(e.sets||[]).flatMap((s,index)=>usableNumber(s.w)&&+s.w>=0||usableNumber(s.r)&&+s.r>0?[{index:index+1,w:usableNumber(s.w)?+s.w:null,r:usableNumber(s.r)?+s.r:null,rir:s.rir,done:s.done===true,role:s.role||'working'}]:[])};
 }
 export function progression(state,exercise,date,gym){
  const [lo,hi]=rangeOf(exercise.range),meta=recommendationMeta(state,exercise);
@@ -84,10 +97,11 @@ export function progression(state,exercise,date,gym){
   const reason=band?'Keep the band brand, level and setup consistent. Build controlled repetitions within the range first; when all working sets are comfortable at the top, choose a suitable firmer band and record the new setting. Band tension is not converted to pounds or kilograms.':repUnit==='seconds'?'Build a comfortable hold within the seconds range before trying a harder variation. Keep the position controlled; no added weight is suggested.':repUnit==='metres'?'Build a comfortable distance within the metres range while keeping the movement controlled; no added weight is suggested.':'Build controlled repetitions within the range before trying a harder variation. Use support as needed; no added weight is suggested.';
   return {manual:true,loadMode:band?'band':meta.loadMode||exercise.loadMode,weight:null,reps:lo,range:[lo,hi],reason,rows:(exercise.sets||[]).map(set=>({w:null,r:lo,role:set.role})),previous:null};
  }
- const h=lastHistory(state,exercise,date,gym?.id),assistance=meta.loadMode==='assistance';
+ const h=lastHistory(state,exercise,date,gym?.id),reference=h?undefined:recordedHistoryReference(state,exercise,date,gym?.id),assistance=meta.loadMode==='assistance';
  const setup=resolveLoadSetup(state,exercise,gym,meta),step=loadIncrement(state,exercise,gym);
  const snap=w=>{const options=reachableLoadOptions(setup,setup.minimum,Math.max(setup.minimum,w+step));return options.reduce((best,value)=>best===null||Math.abs(value-w)<Math.abs(best-w)-1e-8?value:best,null)};
- let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
+ let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'No matching checked superset history yet. Choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
+ if(reference)reason='No matching checked '+(progressionContext(exercise)==='superset'?'superset':'straight-set')+' history for this exercise and gym. '+reference.reason+' Choose a comfortable working load; earlier entries are shown for reference.';
  if(h){
   const s=h.sets,weights=s.map(x=>+x.w);weight=assistance?Math.min(...weights):Math.max(...weights);
   const historyLoad=weight,atSame=s.filter(x=>+x.w===weight),top=exercise.setType==='top'||exercise.setType==='ramp';
@@ -108,7 +122,7 @@ export function progression(state,exercise,date,gym){
   if(w!==null){if(s.role==='warmup')w=snap(w*.5);else if(s.role==='ramp')w=snap(w*(.6+.4*i/Math.max(1,exercise.sets.length-1)));else if(s.role==='backoff')w=snap(w*(1-(exercise.backoffPercent||10)/100));else if(s.role==='drop')w=snap(w*Math.pow(1-(exercise.dropPercent||20)/100,i))}
   return {w,r:s.role==='drop'?Math.max(lo,target):target,role:s.role};
  });
- return {weight,reps:target,range:[lo,hi],reason,rows,previous:h?{date:h.log.date,sets:h.sets.map(s=>({w:+s.w,r:+s.r,rir:s.rir}))}:null};
+ return {weight,reps:target,range:[lo,hi],reason,rows,...(reference?{reference}:{}),previous:h?{date:h.log.date,sets:h.sets.map(s=>({w:+s.w,r:+s.r,rir:s.rir}))}:null};
 }
 
 // Current-workout guidance is separate from next-workout progression. It reads

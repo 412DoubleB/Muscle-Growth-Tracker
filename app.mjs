@@ -489,10 +489,15 @@ function loggedSetText(e,set){const cat=exerciseDefinition(e),measure=cat.repUni
 function exerciseLoadGuidance(e,log){return {rec:C.progression(state,e,selectedDate,gymFor(log)),next:['completed','skipped'].includes(log.status)?null:C.nextSetRecommendation(state,e,gymFor(log)),order:T.orderContext(log,log.exercises.indexOf(e),C.lastHistory(state,e,selectedDate,gymFor(log)?.id),supersetMeta)}}
 function nextSetHasLoad(e,next){return !!next&&e.sets[next.targetIndex].w!==''&&e.sets[next.targetIndex].w!=null}
 function loadActionLabel(e,next){return next?nextSetHasLoad(e,next)?`Set ${next.targetIndex+1} load entered`:`Use suggestion for set ${next.targetIndex+1}`:'Apply suggested loads'}
+function recordedHistoryReferenceHtml(reference){
+ if(!reference)return '';
+ const gym=state.gyms.find(g=>g.id===reference.gymId),format=reference.context==='superset'?'supersets':reference.context==='straight'?'straight sets':'recorded format';
+ return `<div class="previous"><b>Previous recorded sets · ${h(reference.date)}</b><div>${h(gym?.name||'Saved gym')} · ${h(format)} · reference only</div><div>${reference.sets.map(s=>`Set ${s.index}: ${h(s.w??'—')} ${h(state.profile.units)} × ${h(s.r??'—')}${s.rir!==''&&s.rir!=null?' @'+h(s.rir)+' RIR':''} · ${h(s.role)}${s.done?' · checked':' · not checked'}`).join('<br>')}</div><div>${h(reference.reason)}</div></div>`;
+}
 function loadGuidanceHtml(e,rec,next,order=[]){
  const title=next?`Next set ${next.targetIndex+1}: ${next.weight} ${h(state.profile.units)}${next.assistance?' assistance':''} × ${next.reps}${next.targetRir==null?'':` · ${next.targetRir} RIR`}`:rec.weight===null?`Target ${h(e.range)} ${h(exerciseDefinition(e).repUnit||e.repUnit||'reps')}`:`Next: ${rec.weight} ${h(state.profile.units)} × ${rec.reps}`;
  const detail=next?`<div class="previous">Based on checked set ${next.sourceIndex+1}: ${next.sourceReps} reps · ${next.sourceRir} RIR</div>`:rec.previous?`<div class="previous">Last ${h(rec.previous.date)}: ${rec.previous.sets.map(s=>`${s.w}×${s.r}${s.rir!==''?' @'+s.rir+' RIR':''}`).join(' · ')}</div>`:'';
- return `<b>${title}</b> · ${h(next?.reason||rec.reason)}${next?.loadDetail?`<div class="previous">${h(next.loadDetail)}</div>`:''}${detail}${order.map(note=>`<div class="previous">${h(note)}</div>`).join('')}${nextSetHasLoad(e,next)?`<div class="sub">Set ${next.targetIndex+1} has an entered load. Adjust it manually if you want to use this suggestion.</div>`:''}`;
+ return `<b>${title}</b> · ${h(next?.reason||rec.reason)}${next?.loadDetail?`<div class="previous">${h(next.loadDetail)}</div>`:''}${detail}${recordedHistoryReferenceHtml(rec.reference)}${order.map(note=>`<div class="previous">${h(note)}</div>`).join('')}${nextSetHasLoad(e,next)?`<div class="sub">Set ${next.targetIndex+1} has an entered load. Adjust it manually if you want to use this suggestion.</div>`:''}`;
 }
 function refreshLoadGuidance(index){
  const log=current(),e=log.exercises[index];if(!e)return;

@@ -8,9 +8,9 @@
   "target": "github-pages",
   "app_url": "https://412doubleb.github.io/Muscle-Growth-Tracker/",
   "source_release": "8.2.0",
-  "source_commit": "3daa1bb300df132f200f9edfee58524b6c2ebfc8",
+  "source_commit": "a55e472e76a88c21bdd38b0d714c01f8bb550646",
   "deploymentReady": true,
-  "build": "20261101.1",
+  "build": "20261103.1",
   "ai_beta": {
     "accounts": 20,
     "attempts_per_account": 5,
@@ -36,7 +36,8 @@
     "workout_summary_entry": "A dedicated gold Workout summary footer appears on the completed daily card and remains for saved reports after unlocking. Reopening the selected past day uses the existing saved record/report without generation or another attempt. All 105 regression test files, focused controller/integration checks and static checks passed, including dated navigation, offline saved reopening and unchanged raw storage. Private synthetic preview accepted by automated checks; physical Android/iPhone acceptance pending.",
     "push_pull_day_navigation": "Additive two-day Push/Pull split includes lower-body coverage, shared selectors and existing prescriptions/equipment protections. Daily cards have bottom-left Previous day and bottom-right Next day buttons using the dated Open action. Exercise rotation remains unchanged; expert variation research is documented separately. All 105 regression test files, focused training/smart-plan/day-navigation checks and source/static checks passed; physical Android/iPhone acceptance pending.",
     "progression_planner": "New automatic-plan defaults: Progression first, 0 avoid-repeat days and six-week reviews (4/6/8 selectable). Retain gym/session templates and benchmark lifts; consider at most one accessory alternative only with sustained unchanged comparable completed records. Progress, missing/incomplete/stale data and mixed-context uncertainty block swaps; no guessed band/bodyweight/assistance plateaus. Explicit Variety and legacy missing-policy records preserve old behavior; entered work, saved plans and custom routines stay protected until explicit preview/save. All 106 test files, focused UI/planner guards and source/packaged static checks passed. Physical-device acceptance pending.",
-    "gym_equipment_matching": "Explicit unstarted-day equipment matching retains supported exercises, replaces unavailable ones by muscle and shoulder region, respects gym inventory and training preferences, and rebuilds compatible pairs. Generic plate-loaded labels no longer imply specific machines. Entered work and source routines stay protected. All 107 regression test files, focused engine/UI and source/packaged static checks passed. Physical-device acceptance pending."
+    "gym_equipment_matching": "Explicit unstarted-day equipment matching retains supported exercises, replaces unavailable ones by muscle and shoulder region, respects gym inventory and training preferences, and rebuilds compatible pairs. Generic plate-loaded labels no longer imply specific machines. Entered work and source routines stay protected. All 108 combined regression test files, focused engine/UI and source/packaged static checks passed. Physical-device acceptance pending.",
+    "recorded_set_history": "Recognized older name-only records can supply matching progression history without rewriting logs. Different-format, other-gym machine, unchecked and accessory-only entries remain visible as clearly labeled prior references when no comparable checked working/top record exists. References never become completed work or earn progression. All 108 regression test files, focused engine/UI, sample-preview and source/packaged static checks passed. Physical-device and actual owner example acceptance pending."
   },
   "coach_beta": {
     "accounts": 20,
