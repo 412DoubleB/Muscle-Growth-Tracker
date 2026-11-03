@@ -44,8 +44,8 @@ export function convertLoadUnits(current,units){
  state.profile.units=units;return state;
 }
 
-const inventoryAliases={'Squat Rack':['Squat Rack / Power Rack'],'Bench':['Flat Bench'],'Cable Station':['Single Cable Column'],'Seated Row':['Seated Cable Row'],'Leg Press':['Leg Press 45°'],'Pec Deck / Reverse Pec Deck':['Pec Deck / Chest Fly','Reverse Pec Deck'],'Calf Machine':['Standing Calf Raise','Seated Calf Raise'],'Dip / Pull-up Station':['Dip Station','Pull-up Bar'],'Chest Press Machine':['Selectorized Chest Press'],'Shoulder Press Machine':['Selectorized Shoulder Press'],'Hammer Strength / Plate Loaded':['Hammer Strength Incline Press','Hammer Strength Flat / Horizontal Press','Hammer Strength Decline Press','Hammer Strength Shoulder Press','Hammer Strength High Row','Hammer Strength Low Row','Hammer Strength Iso-Lateral Row','Plate-Loaded Row']};
-export function normalizedInventory(g){const s=new Set(g.inventory||[]);for(const x of [...s])for(const a of inventoryAliases[x]||[])s.add(a);if(s.has('Dual Cable / Functional Trainer')||s.has('Cable Crossover'))s.add('Single Cable Column');if(s.has('Adjustable Bench')){s.add('Bench');s.add('Flat Bench')}return s}
+const inventoryAliases={'Squat Rack':['Squat Rack / Power Rack'],'Bench':['Flat Bench'],'Cable Station':['Single Cable Column'],'Seated Row':['Seated Cable Row'],'Leg Press':['Leg Press 45°'],'Pec Deck / Reverse Pec Deck':['Pec Deck / Chest Fly','Reverse Pec Deck'],'Calf Machine':['Standing Calf Raise','Seated Calf Raise'],'Dip / Pull-up Station':['Dip Station','Pull-up Bar'],'Chest Press Machine':['Selectorized Chest Press'],'Shoulder Press Machine':['Selectorized Shoulder Press']};
+export function normalizedInventory(g){const s=new Set(g.inventory||[]);for(const x of [...s])for(const a of inventoryAliases[x]||[])s.add(a);if(s.has('Flat Bench'))s.add('Bench');if(s.has('Dual Cable / Functional Trainer')||s.has('Cable Crossover'))s.add('Single Cable Column');if(s.has('Adjustable Bench')){s.add('Bench');s.add('Flat Bench')}return s}
 export function missingEquipment(e,g){const inv=normalizedInventory(g||{inventory:[]});return (e?.equipmentRequirements||e?.equipment||[]).filter(options=>!(Array.isArray(options)?options:[options]).some(x=>x==='Bodyweight'||inv.has(x))).map(x=>Array.isArray(x)?x.join(' or '):x)}
 export const supports=(e,g)=>!!e&&missingEquipment(e,g).length===0;
 export function scheduledGym(state,date){let rules=state.gymSchedules.filter(r=>!r.deleted&&(!r.start||date>=r.start)&&(!r.end||date<=r.end)).sort((a,b)=>(b.priority||0)-(a.priority||0));for(const r of rules){const delta=daysBetween(date,r.start||date);const every=Math.max(1,+r.every||1)*(r.type==='weeks'?7:1);const matches=['interval','weeks'].includes(r.type)?delta>=0&&delta%every<(+r.durationDays||1):r.type==='weekly'&&(r.weekdays||[]).map(Number).includes(dateOf(date).getDay());if(matches){const gym=state.gyms.find(g=>g.id===r.gymId&&!g.deleted);if(gym)return gym}}return state.gyms.find(g=>g.id===state.training.defaultGym&&!g.deleted)||state.gyms.find(g=>!g.deleted)}
@@ -70,12 +70,25 @@ function portableHistory(state,exercise){
  return !/machine|cable|pressdown|pulldown|leg press|hack squat/i.test(exercise.name);
 }
 export function completedSets(e){return (e.sets||[]).filter(s=>s.done&&usableNumber(s.r)&&+s.r>0&&usableNumber(s.w)&&+s.w>=0&&!['warmup','drop','backoff','ramp'].includes(s.role))}
+function priorExerciseRecords(state,exercise,date){
+ const identity=e=>e.exerciseId?(exerciseFor(e.exerciseId)?.id||e.exerciseId):exerciseFor(e.name)?.id;
+ const id=identity(exercise);
+ return Object.entries(state.logs).filter(([key,l])=>l&&key===l.date&&/^\d{4}-\d{2}-\d{2}$/.test(l.date)&&Number.isFinite(Date.parse(l.date+'T12:00:00Z'))&&!l.deleted&&l.date<date&&l.status!=='skipped').map(([,l])=>l)
+  .sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt).localeCompare(String(a.updatedAt)))
+  .flatMap(log=>(log.exercises||[]).filter(e=>id?identity(e)===id:!identity(e)&&norm(e.name)===norm(exercise.name)).map(e=>({log,exercise:e,sets:completedSets(e)})));
+}
 export function lastHistory(state,exercise,date,gymId){
- const id=exercise.exerciseId||exerciseFor(exercise.name)?.id;
- // As in Progress, preserved edit/import/conflict copies stay recoverable but
- // only the active date-keyed workout can inform a recommendation.
- const active=Object.entries(state.logs).filter(([key,l])=>l&&key===l.date&&/^\d{4}-\d{2}-\d{2}$/.test(l.date)&&Number.isFinite(Date.parse(l.date+'T12:00:00Z'))&&!l.deleted&&l.date<date&&l.status!=='skipped').map(([,l])=>l);
- return active.sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt).localeCompare(String(a.updatedAt))).flatMap(l=>(l.exercises||[]).filter(e=>(e.exerciseId===id||(!id&&norm(e.name)===norm(exercise.name)))&&progressionContext(e)===progressionContext(exercise)&&(l.gymId===gymId||portableHistory(state,exercise)&&portableHistory(state,e))).map(e=>({log:l,exercise:e,sets:completedSets(e)}))).find(x=>x.sets.length)
+ // Canonical dated work informs progression; preserved copies remain in History.
+ return priorExerciseRecords(state,exercise,date).find(({log,exercise:e,sets})=>sets.length&&progressionContext(e)===progressionContext(exercise)&&(log.gymId===gymId||portableHistory(state,exercise)&&portableHistory(state,e)));
+}
+function recordedHistoryReference(state,exercise,date,gymId){
+ const record=priorExerciseRecords(state,exercise,date).find(({exercise:e})=>(e.sets||[]).some(s=>usableNumber(s.w)&&+s.w>=0||usableNumber(s.r)&&+s.r>0));
+ if(!record)return;
+ const {log,exercise:e,sets}=record,reasons=[];
+ if(progressionContext(e)!==progressionContext(exercise))reasons.push('Recorded in a different workout format.');
+ if(log.gymId!==gymId&&!(portableHistory(state,exercise)&&portableHistory(state,e)))reasons.push('Recorded on equipment at a different gym; machine loads are not transferred.');
+ if(!sets.length)reasons.push('No checked working/top sets with valid load and reps in this record.');
+ return {date:log.date,gymId:log.gymId,context:progressionContext(e),reason:reasons.join(' '),sets:(e.sets||[]).flatMap((s,index)=>usableNumber(s.w)&&+s.w>=0||usableNumber(s.r)&&+s.r>0?[{index:index+1,w:usableNumber(s.w)?+s.w:null,r:usableNumber(s.r)?+s.r:null,rir:s.rir,done:s.done===true,role:s.role||'working'}]:[])};
 }
 export function progression(state,exercise,date,gym){
  const [lo,hi]=rangeOf(exercise.range),meta=recommendationMeta(state,exercise);
@@ -84,10 +97,11 @@ export function progression(state,exercise,date,gym){
   const reason=band?'Keep the band brand, level and setup consistent. Build controlled repetitions within the range first; when all working sets are comfortable at the top, choose a suitable firmer band and record the new setting. Band tension is not converted to pounds or kilograms.':repUnit==='seconds'?'Build a comfortable hold within the seconds range before trying a harder variation. Keep the position controlled; no added weight is suggested.':repUnit==='metres'?'Build a comfortable distance within the metres range while keeping the movement controlled; no added weight is suggested.':'Build controlled repetitions within the range before trying a harder variation. Use support as needed; no added weight is suggested.';
   return {manual:true,loadMode:band?'band':meta.loadMode||exercise.loadMode,weight:null,reps:lo,range:[lo,hi],reason,rows:(exercise.sets||[]).map(set=>({w:null,r:lo,role:set.role})),previous:null};
  }
- const h=lastHistory(state,exercise,date,gym?.id),assistance=meta.loadMode==='assistance';
+ const h=lastHistory(state,exercise,date,gym?.id),reference=h?undefined:recordedHistoryReference(state,exercise,date,gym?.id),assistance=meta.loadMode==='assistance';
  const setup=resolveLoadSetup(state,exercise,gym,meta),step=loadIncrement(state,exercise,gym);
  const snap=w=>{const options=reachableLoadOptions(setup,setup.minimum,Math.max(setup.minimum,w+step));return options.reduce((best,value)=>best===null||Math.abs(value-w)<Math.abs(best-w)-1e-8?value:best,null)};
- let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'First superset exposure: choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
+ let weight=null,target=lo,reason=progressionContext(exercise)==='superset'?'No matching checked superset history yet. Choose a comfortable working load for this format; track each exercise separately.':'Choose a comfortable first working load; keep about 2 reps in reserve.';
+ if(reference)reason='No matching checked '+(progressionContext(exercise)==='superset'?'superset':'straight-set')+' history for this exercise and gym. '+reference.reason+' Choose a comfortable working load; earlier entries are shown for reference.';
  if(h){
   const s=h.sets,weights=s.map(x=>+x.w);weight=assistance?Math.min(...weights):Math.max(...weights);
   const historyLoad=weight,atSame=s.filter(x=>+x.w===weight),top=exercise.setType==='top'||exercise.setType==='ramp';
@@ -108,7 +122,7 @@ export function progression(state,exercise,date,gym){
   if(w!==null){if(s.role==='warmup')w=snap(w*.5);else if(s.role==='ramp')w=snap(w*(.6+.4*i/Math.max(1,exercise.sets.length-1)));else if(s.role==='backoff')w=snap(w*(1-(exercise.backoffPercent||10)/100));else if(s.role==='drop')w=snap(w*Math.pow(1-(exercise.dropPercent||20)/100,i))}
   return {w,r:s.role==='drop'?Math.max(lo,target):target,role:s.role};
  });
- return {weight,reps:target,range:[lo,hi],reason,rows,previous:h?{date:h.log.date,sets:h.sets.map(s=>({w:+s.w,r:+s.r,rir:s.rir}))}:null};
+ return {weight,reps:target,range:[lo,hi],reason,rows,...(reference?{reference}:{}),previous:h?{date:h.log.date,sets:h.sets.map(s=>({w:+s.w,r:+s.r,rir:s.rir}))}:null};
 }
 
 // Current-workout guidance is separate from next-workout progression. It reads
@@ -190,7 +204,7 @@ export function nextSetRecommendation(state,exercise,gym){
 function historyDates(state){const last=new Map();for(const l of Object.values(state.logs)){if(l.deleted)continue;for(const e of l.exercises||[]){const id=e.exerciseId||exerciseFor(e.name)?.id;if(id&&completedSets(e).length&&(!last.has(id)||last.get(id)<l.date))last.set(id,l.date)}}for(const p of Object.values(state.plan)){if(p.deleted)continue;for(const e of p.exercises||[]){const id=e.exerciseId;if(id&&(!last.has(id)||last.get(id)<p.date))last.set(id,p.date)}}return last}
 function subgroup(e){if(e.group==='Legs'&&['quads','hamstrings','calves'].includes(e.subgroup))return e.subgroup;const n=(e.name+' '+e.primary+' '+e.movement).toLowerCase();if(e.group!=='Legs')return e.group;if(/calf|tibialis/.test(n))return 'calves';if(/romanian|deadlift|leg curl|hamstring|hip thrust|glute drive|hinge|nordic|glute-ham/.test(n))return 'hamstrings';return 'quads'}
 function matchesGroup(e,group){if(group==='upper-traps')return e.group==='Shoulders'&&e.subgroup==='upper-traps';if(['anterior-delt','lateral-delt','rear-delt'].includes(group))return e.group==='Shoulders'&&e.subgroup===group.split('-')[0];if(group==='Shoulders'&&e.subgroup==='upper-traps')return false;return subgroup(e)===group}
-function matchesEquipmentPreference(exercise,preference){
+export function matchesEquipmentPreference(exercise,preference){
  if(!['machines','free','bodyweight','bands','calisthenics'].includes(preference))return true;
  const raw=exercise.equipmentRequirements||exercise.equipment||[],equipment=(Array.isArray(raw)?raw:[raw]).flatMap(clause=>Array.isArray(clause)?clause:[clause]).filter(item=>typeof item==='string'&&item.trim());
  const bodyweight=exercise.loadMode==='bodyweight',free=exercise.loadMode==='perHand'||equipment.some(item=>/^(?:Dumbbells|Kettlebells|Barbell|EZ Bar|Safety Squat Bar|Trap Bar \/ Hex Bar|Landmine|Battle Ropes|Sled \/ Prowler)$/.test(item));
@@ -199,6 +213,12 @@ function matchesEquipmentPreference(exercise,preference){
  if(preference==='calisthenics')return bodyweight||exercise.modalities?.includes('calisthenics');
  return preference==='bodyweight'?bodyweight:preference==='free'?!bodyweight&&!band&&free:!bodyweight&&!band&&!free&&equipment.length>0;
 }
+// Use the same inventory and safety filters for new plans and explicit day repairs.
+export function eligibleExercisesForGym(state,gym){
+ const t=state.training;
+ return [...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&eligibleForProgramming(e,t)&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!(state.avoided||[]).includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&supports(e,gym));
+}
+export function replacementGroup(exercise){return exercise.group==='Shoulders'&&exercise.subgroup?'Shoulders · '+exercise.subgroup:subgroup(exercise)}
 function programCadence(training,anchor){
  const frequency=Math.max(1,Math.min(7,+training.frequency||4)),weekSlots=[0,2,4,6,1,3,5].filter(day=>!(training.restWeekdays||[]).includes((dateOf(anchor).getDay()+day)%7)).slice(0,frequency).sort((a,b)=>a-b);
  return {frequency,weekSlots,at(date){const offset=daysBetween(date,anchor),slot=((offset%7)+7)%7,week=Math.floor(offset/7),index=week*weekSlots.length+weekSlots.filter(x=>x<=slot).length-1,legacy=training.split==='legacy'?LEGACY_PLAN[((offset%28)+28)%28]:null;return {offset,index,week,lift:legacy?!!legacy[2]:weekSlots.includes(slot),legacy}}};
@@ -249,7 +269,7 @@ export function generateProgram(state,{start=state.training.startDate||iso(),day
  for(let i=0;i<Math.max(1,Math.min(366,+days||28));i++){
   const date=addDays(start,i),gym=scheduledGym(state,date),l=layout(date),notes=[],selected=[],used=new Set();if(!gym)throw Error('Create at least one gym before generating a plan.');
   if(protectedDay(state.logs[date])){warnings.push(date+': existing workout preserved.');for(const e of state.logs[date].exercises||[])if(e.exerciseId)last.set(e.exerciseId,date);continue}
-  const eligibleFor=slot=>[...CATALOG,...(state.customExercises||[])].filter(e=>!e.deleted&&eligibleForProgramming(e,t)&&(!e.defaultExcluded||!t.excludePullups&&/pull.up|chin.up/i.test(e.name))&&!e.needsVariantSelection&&!state.avoided.includes(e.id)&&(!t.excludePullups||!/pull.up|chin.up/i.test(e.name))&&matchesGroup(e,slot)&&supports(e,gym));
+  const gymPool=eligibleExercisesForGym(state,gym),eligibleFor=slot=>gymPool.filter(e=>matchesGroup(e,slot));
   const poolFor=slot=>{const pool=eligibleFor(slot);return slot==='upper-traps'&&!pool.length?eligibleFor('Shoulders'):pool};
   let rotation=null;
   if(t.variationMode==='progression'&&l.lift&&t.mode!=='custom'){
